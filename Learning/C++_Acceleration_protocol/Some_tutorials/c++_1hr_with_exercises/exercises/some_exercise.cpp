@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <cmath>
 
 using namespace std;
 
@@ -39,7 +40,7 @@ void celsius_farenheit_converter()
     cout << celsius << "°C is equal to " << fahrenheit << "°F " << endl;
 
     // Flush newline left in the buffer
-    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    // cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 void farenheit_celsius_converter()
@@ -47,8 +48,18 @@ void farenheit_celsius_converter()
     cout << "Enter a temperature in Farenheit: ";
     double farenheit;
     cin >> farenheit;
-    double celsius = (farenheit - 32) * (5 / 9);
-    cout << farenheit << "°F is equal to " << celsius << "°C " << endl;
+    double celsius = (farenheit - 32) / (1.8); // Cannot use 5/9 because it's integer division. Giving 0
+    // cout << farenheit << "°F is equal to " << celsius << "°C " << endl;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+void calc_sircle_area()
+{
+    cout << "Give me the radius of the circle: ";
+    double radius;
+    cin >> radius;
+    double area = 3.14 * (pow(radius, radius));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <cmath>
 
 int main()
 {
@@ -43,9 +44,19 @@ int main()
 
     //=======================================================================
     //==================== Order of operations  =============================
-    double x = 1 + 2 * 3;             // 1 + 6 = 7
+    double tot = 1 + 2 * 3;           // 1 + 6 = 7
     double parantheses = (1 + 2) * 3; // 3 * 3 = 9
 
-    //==================== Precedence of operators ==========================
+    //=======================================================================
+    //===================== Using other part of standard library () =========
+    using namespace std;
+
+    double flor_usage = floor(3.982);
+    cout << "floor_usage: " << flor_usage << endl;
+    // floor is a function from standard library, that returns the largest integer less than or equal to a giv
+
+    double power_function = pow(2, 3);
+    cout << "power_function: " << power_function << endl;
+
     return 0;
 }

@@ -1,6 +1,7 @@
 #include <iostream> // for input/output, we can print and get input from the user
 // iostream is one of the files from the standard library
 // main is the entrypoint of our program.
+#include <cmath>
 
 int main() // Int is the type of value returned by main.
 {
@@ -42,7 +43,7 @@ int main() // Int is the type of value returned by main.
     cout << "You entered: " << value << endl;
     // prints the value, if not integer , it will round to integer or print 0
 
-    return 0;
+        return 0;
 }
 // std is short for standard,
 // it's a namespace that contains many useful functions and classes.
