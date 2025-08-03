@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
@@ -36,14 +37,35 @@ void celsius_farenheit_converter()
     cin >> celsius;
     double fahrenheit = (celsius * 9 / 5) + 32;
     cout << celsius << "°C is equal to " << fahrenheit << "°F " << endl;
+
+    // Flush newline left in the buffer
+    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+void farenheit_celsius_converter()
+{
+    cout << "Enter a temperature in Farenheit: ";
+    double farenheit;
+    cin >> farenheit;
+    double celsius = (farenheit - 32) * (5 / 9);
+    cout << farenheit << "°F is equal to " << celsius << "°C " << endl;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 
 int main()
 {
+    cout << "--- Swapping variables ---" << endl;
     swap_variables();
+
+    cout << "--- Math expression ---" << endl;
     math_expression();
+
+    cout << "--- Celsius to Fahrenheit ---" << endl;
     celsius_farenheit_converter();
+
+    cout << "--- Fahrenheit to Celsius ---" << endl;
+    farenheit_celsius_converter();
+
     return 0;
 }
