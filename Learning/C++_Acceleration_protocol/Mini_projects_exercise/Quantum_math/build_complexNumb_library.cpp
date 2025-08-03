@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <corecrt_math_defines.h>
 
 class Complex
 {
@@ -30,4 +31,7 @@ int main()
 {
     Complex i_pi = Complex::polar(1.0, M_PI);
     std::cout << "e^{iπ} = " << i_pi.real << " + " << i_pi.imag << "i\n";
+
+    const char *hbar = "\u210F"; // ℏ , defined for the purpose of this example
+    const char *psi = "\u03C8";  // ψ
 }
