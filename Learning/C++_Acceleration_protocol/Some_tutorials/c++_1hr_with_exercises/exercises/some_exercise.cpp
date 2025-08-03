@@ -40,7 +40,7 @@ void celsius_farenheit_converter()
     cout << celsius << "°C is equal to " << fahrenheit << "°F " << endl;
 
     // Flush newline left in the buffer
-    // cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 void farenheit_celsius_converter()
@@ -49,7 +49,7 @@ void farenheit_celsius_converter()
     double farenheit;
     cin >> farenheit;
     double celsius = (farenheit - 32) / (1.8); // Cannot use 5/9 because it's integer division. Giving 0
-    // cout << farenheit << "°F is equal to " << celsius << "°C " << endl;
+    cout << farenheit << "°F is equal to " << celsius << "°C " << endl;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -60,9 +60,36 @@ void calc_sircle_area()
     double radius;
     cin >> radius;
     double area = 3.14 * (pow(radius, radius));
+    cout << "The area of the circle is: " << area << endl;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+
+void square_function()
+{
+    cout << "Enter something you wanna square: ";
+    double something_to_square;
+    cin >> something_to_square;
+    double square_function = pow(something_to_square, 2);
+    cout << "The square of " << something_to_square << " is : " << square_function << endl;
+}
+
+//=======================================================================
+
+void raiser_function()
+{
+
+    cout << "Enter something you wanna raise to some power: ";
+    double something_power;
+    cin >> something_power;
+    cout << "Enter the power: ";
+    double power;
+    cin >> power;
+
+    double power_function = pow(something_power, power);
+    cout << something_power << " raised to the " << power << " is: " << power_function << endl;
+}
+/////////////////////////////////////////////////////////////////////////////
 
 int main()
 {
@@ -72,11 +99,20 @@ int main()
     cout << "--- Math expression ---" << endl;
     math_expression();
 
-    cout << "--- Celsius to Fahrenheit ---" << endl;
-    celsius_farenheit_converter();
+    // cout << "--- Celsius to Fahrenheit ---" << endl;
+    // celsius_farenheit_converter();
 
-    cout << "--- Fahrenheit to Celsius ---" << endl;
-    farenheit_celsius_converter();
+    // cout << "--- Fahrenheit to Celsius ---" << endl;
+    // farenheit_celsius_converter();
+
+    cout << "---- Circle area ---" << endl;
+    calc_sircle_area();
+
+    cout << "--- Square function ---" << endl;
+    square_function();
+
+    cout << "--- Raiser function ---" << endl;
+    raiser_function();
 
     return 0;
 }

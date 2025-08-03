@@ -55,8 +55,7 @@ int main()
     cout << "floor_usage: " << flor_usage << endl;
     // floor is a function from standard library, that returns the largest integer less than or equal to a giv
 
-    double power_function = pow(2, 3);
-    cout << "power_function: " << power_function << endl;
+    //=======================================================================
 
     return 0;
 }
