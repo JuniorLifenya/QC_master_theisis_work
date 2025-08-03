@@ -4,31 +4,6 @@
 
 using namespace std;
 
-struct Person
-{ // This is a struct, it's like a class but with default public access
-    std::string name;
-    int age;
-};
-
-//////////////////////////////////////////////////////////////////////////////////////
-
-void swap_variables() // This is a function that swaps two variables
-{
-    int a = 1, b = 2;
-    int temp = a;      // Saves a value into temp
-    a = b;             // Now a COPIES the value of b now both a and b are 2, temp is 1
-    b = temp;          // Now b takes temp's value which is a's previous value
-    cout << a << endl; // prints 2
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-void math_expression() // Calculate a simple expression
-{
-    double x = 10, y = 5;
-    double z = (x + 10) / (3 * y);
-    cout << z << endl;
-}
-
 //////////////////////////////////////////////////////////////////////////////////////
 
 void celsius_farenheit_converter()
@@ -56,11 +31,11 @@ void farenheit_celsius_converter()
 
 void calc_sircle_area()
 {
-    cout << "Give me the radius of the circle: ";
+    cout << "Give me the radius of the circle in meters r = ";
     double radius;
     cin >> radius;
     double area = 3.14 * (pow(radius, radius));
-    cout << "The area of the circle is: " << area << endl;
+    cout << "The area of the circle (\u03C0r\u00B2 ) is: " << area << " m\u00B2 " << endl;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -93,26 +68,31 @@ void raiser_function()
 
 int main()
 {
-    cout << "--- Swapping variables ---" << endl;
-    swap_variables();
-
-    cout << "--- Math expression ---" << endl;
-    math_expression();
 
     // cout << "--- Celsius to Fahrenheit ---" << endl;
     // celsius_farenheit_converter();
 
+    cout << " " << endl;
+
     // cout << "--- Fahrenheit to Celsius ---" << endl;
     // farenheit_celsius_converter();
+
+    cout << " " << endl;
 
     cout << "---- Circle area ---" << endl;
     calc_sircle_area();
 
+    cout << " " << endl;
+
     cout << "--- Square function ---" << endl;
     square_function();
 
+    cout << " " << endl;
+
     cout << "--- Raiser function ---" << endl;
     raiser_function();
+
+    cout << " " << endl;
 
     return 0;
 }
