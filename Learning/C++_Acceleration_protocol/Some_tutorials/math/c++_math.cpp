@@ -27,7 +27,7 @@ int main()
     std ::cout << modulus << std ::endl;
 
     //=======================================================================
-    //==================== Only Increment and decrement =====================
+    //=========Only Increment and decrement( arithmetic operators ) =========
 
     int a = 10;
     a = a + 1; // a = 11, but we can also write it like
@@ -56,6 +56,7 @@ int main()
     // floor is a function from standard library, that returns the largest integer less than or equal to a giv
 
     //=======================================================================
+    //====================== Arithmetic operators ===========================
 
     return 0;
 }

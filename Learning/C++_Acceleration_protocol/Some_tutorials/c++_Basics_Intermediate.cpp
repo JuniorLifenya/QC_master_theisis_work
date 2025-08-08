@@ -2,6 +2,7 @@
 // iostream is one of the files from the standard library
 // main is the entrypoint of our program.
 #include <cmath>
+#include <vector>
 
 namespace first
 {
@@ -64,26 +65,41 @@ int main() // Int is the type of value returned by main.
     // std is the standard namespace, it contains all the standard library functions and classes.
     // To avoid having to redfine new variables like this
 
-    int x = 0;
-    int x = 1; // This will not compile, because x is already defined in the same scope
-    // To avoid this, we can use different namespaces or use the std namespace.
+    // int x = 0; then right after we do
+    // int x = 1; // This will not compile, because x is already defined in the same scope
+    //  To avoid this, we can use different namespaces or use the std namespace.
 
-    cout << first ::x << std ::endl;  // Accessing variable from first namespace
-    cout << second ::x << std ::endl; // Accessing variable from second namespace
+    // cout << first ::x << std ::endl;  // Accessing variable from first namespace
+    // cout << second ::x << std ::endl; // Accessing variable from second namespace
 
     //===================== Different namespace =============================
 
-    using first::x;      // Can also declare namespace usage inside main
-    using second::x;     // Can also declare namespace usage inside main
+    // using first::x;      // Can also declare namespace usage inside main
+    // using second::x;     // Can also declare namespace usage inside main
     using std::cin;      // Using cin from the std namespace
     using std::cout;     // Using cout from the std namespace
     using namespace std; // Using the entire std namespace ( all of the above )
 
     //=======================================================================
-    //===================== Different namespace =============================
+    //====================== Datatype =======================================
 
-    return 0;
+    // typedef std::vector<std::pair<std::string, int>> pairlist_t; // This could be a datatype for a pair-list
+    //  But we can make it shorter and end it with identifier t
+    // outsdide main we can declare typedef std::string text_t;
+    // Then inside the main function we can use it like text_t firstName; instead of std::string firstName;
+    // Other usage can be for defining stuff like integer or something more spefically like integer:
+    // typedef int number_t;
+    // Then we can use it like
+    // Instead of using typedef , one should do use the (using keyboard instead)
+    // using number_t = int; or something like
+    // using text_t = std::string; this is more popular
+
+    // So the typedef = reserved keyboard used to creat an additional name ( alias ) for another datatype
+    // It's a new identifier for an existing type, helps readability and reduces typos
+
+        return 0;
 }
+
 // std is short for standard,
 // it's a namespace that contains many useful functions and classes.
 
