@@ -3,7 +3,10 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include <random>
+#include <ctime> // for time()
 
+using namespace std;
 int main()
 {
     //=================== Now we do math ====================================
@@ -49,7 +52,6 @@ int main()
 
     //=======================================================================
     //===================== Using other part of standard library () =========
-    using namespace std;
 
     double flor_usage = floor(3.982);
     cout << "floor_usage: " << flor_usage << endl;
@@ -57,6 +59,38 @@ int main()
 
     //=======================================================================
     //====================== Arithmetic operators ===========================
+    int a1 = 5;
+    int b1 = 10;
+    int sum = a1 + b1;
+    cout << "Sum: " << sum << endl;
+
+    //=======================================================================
+    //===================== Generating random numbers  =======================
+
+    std::random_device rd;                       // Obtain a random number from hardware
+    std::mt19937 eng(rd());                      // Seed the generator
+    std::uniform_int_distribution<> distr(1, 6); // Define the range
+
+    // Generate and print random numbers
+    for (int n = 0; n < 10; ++n)
+    {
+        // std::cout << distr(eng) << ' '; // Generate numbers
+    }
+    // std::cout << '\n';
+
+    //========================================================================
+    int random_number = rand();
+    cout << random_number << '\n'; // Not really random because it is printed every time
+    // rand() generates a pseudo-random number, but it is not truly random.
+
+    // To get a different random number each time, we can do the following:
+
+    // long elapsed_seconds = time(0); // Get the current time in seconds
+    srand(time(0));                                                       // Seed the random number generator with the current time
+    random_number = rand() % 10;                                          // Generate a random number between 0 and 9
+    cout << " The random number generated is: " << random_number << '\n'; // Now this will print a different random number each time
+
+    //========================================================================
 
     return 0;
 }

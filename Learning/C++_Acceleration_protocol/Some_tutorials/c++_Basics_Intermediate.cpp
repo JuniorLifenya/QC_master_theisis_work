@@ -3,6 +3,10 @@
 // main is the entrypoint of our program.
 #include <cmath>
 #include <vector>
+#include <cstdlib>
+#include <random>
+#include <ctime>
+#include <string> // for string manipulation
 
 namespace first
 {
@@ -48,8 +52,8 @@ int main() // Int is the type of value returned by main.
     //=======================================================================
     //===================== Writing / Reading with console ==================
 
-    int x = 10;
-    std ::cout << "x = " << x << std ::endl; // Chaining output statements
+    int x1 = 10;
+    std ::cout << "x1 = " << x1 << std ::endl; // Chaining output statements
 
     // Read input from user and store it in a specified/declared variable
     using namespace std;
@@ -104,15 +108,47 @@ int main() // Int is the type of value returned by main.
     double b = 3.14;                 // Floating-point initialization
     char c = 'A';                    // Character initialization
     string d = "Hello";              // String initialization
-    bool e = true;                   // Boolean initialization
+    bool e = true;                   // Boolean initialization (true or false)
     float f = 2.71f;                 // Float initialization
-    long g = 1234567890L;            // Long initialization
+    long g = 1234567890L;            // Long initialization (so compiler dont treat it as a integer)
     short h = 12345;                 // Short initialization
     unsigned int i = 42;             // Unsigned integer initialization
     long long j = 123456789012345LL; // Long long initialization
     unsigned long k = 1234567890UL;  // Unsigned long initialization
+    auto l = 1234567890;             // Auto initialization (deduces to int)
+    decltype(l) m = 1234567890;      // Decltype initialization (same type as l)
+
+    // SUPER USEFUL INITIALIZATION
+    int number{4};              // Uniform initialization (C++11 and later)
+    int zero_number{};          // Gives us out 0, and can be used to initialize other variables
+    cout << number << "\n";     // Output: 4
+    int binary_number = 0b1010; // Binary initialization (C++14 and later)
+    int hex_number = 0xA;       // Hexadecimal initialization
+    // cout << binary_number << "\n"; // Output: 10
+    // cout << hex_number << "\n";    // Output: 10
+    int octal_number = 012;       // Octal initialization (C++14 and later)
+    cout << octal_number << "\n"; // Output: 10
+
+    int large_number = 1'000'000; // Digit separators (C++14 and later)
+    short another = large_number; // Implicit conversion to short
+    cout << large_number << "\n"; // Output: 1000000
+    cout << another << "\n";      // Output: 1000
+
+    short num = 100;    // This one takes 2 bytes
+    int _another = num; // This one takes 4 bytes
 
     //========================================================================
+    //===================== Type Casting ====================================
+
+    double x2 = 5.567;
+    int y = static_cast<int>(x2);    // Explicit conversion from double to int
+    cout << y << "\n";               // Output: 5
+    float z = static_cast<float>(y); // Explicit conversion from int to float
+    cout << z << "\n";               // Output: 5.0
+
+    //========================================================================
+
+    //=========================================================================
 
     return 0;
 }
