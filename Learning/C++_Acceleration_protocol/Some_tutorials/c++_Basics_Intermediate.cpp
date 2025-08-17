@@ -97,7 +97,7 @@ int main() // Int is the type of value returned by main.
     // So the typedef = reserved keyboard used to creat an additional name ( alias ) for another datatype
     // It's a new identifier for an existing type, helps readability and reduces typos
 
-        return 0;
+    return 0;
 }
 
 // std is short for standard,
