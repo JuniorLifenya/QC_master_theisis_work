@@ -61,6 +61,7 @@ int main() // Int is the type of value returned by main.
 
     //=======================================================================
     //===================== Namespace =======================================
+
     // Namespace first appeared in C++ to avoid name conflicts.
     // std is the standard namespace, it contains all the standard library functions and classes.
     // To avoid having to redfine new variables like this
@@ -96,6 +97,22 @@ int main() // Int is the type of value returned by main.
 
     // So the typedef = reserved keyboard used to creat an additional name ( alias ) for another datatype
     // It's a new identifier for an existing type, helps readability and reduces typos
+
+    //====================== Initializing variables =========================
+
+    int a = 5;                       // Regular initialization
+    double b = 3.14;                 // Floating-point initialization
+    char c = 'A';                    // Character initialization
+    string d = "Hello";              // String initialization
+    bool e = true;                   // Boolean initialization
+    float f = 2.71f;                 // Float initialization
+    long g = 1234567890L;            // Long initialization
+    short h = 12345;                 // Short initialization
+    unsigned int i = 42;             // Unsigned integer initialization
+    long long j = 123456789012345LL; // Long long initialization
+    unsigned long k = 1234567890UL;  // Unsigned long initialization
+
+    //========================================================================
 
     return 0;
 }
