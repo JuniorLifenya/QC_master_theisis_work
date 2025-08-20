@@ -12,3 +12,5 @@ int main()
     int dice_roll = rand() % (maxval - minval + 1) + minval;
     std::cout << "You rolled a " << dice_roll << std::endl;
 }
+
+// Finished
