@@ -19,11 +19,13 @@ inline Matrix4cd gamma0()
 
 inline Matrix4cd gammai(int i)
 {
+    // First define the gamma matrices
     Matrix2cd sigmaX, sigmaY, sigmaZ;
     sigmaX << 0, 1, 1, 0;
     sigmaY << 0, -complex<double>(0, 1), complex<double>(0, 1), 0;
     sigmaZ << 1, 0, 0, -1;
 
+    // Store the sigma matrices in an array
     Matrix2cd sigma[3] = {sigmaX, sigmaY, sigmaZ};
     Matrix4cd g = Matrix4cd::Zero();
     g.block<2, 2>(0, 2) = sigma[i];
