@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <complex>
 #include "eigen-3.4.0/Eigen/Dense" // Updated include path
@@ -10,10 +9,12 @@
 #include <iterator>
 #include <Eigen/Dense> //Used for heacy matrix operations
 #include "gw_strain.hpp"
+
 namespace fs = std::filesystem;
 using namespace std;
 using namespace Eigen;
 using real = double;
+
 VectorXd calculate_decoherence(
     const Eigen::MatrixXcd &hamiltonian,
     double gw_amplitude,
