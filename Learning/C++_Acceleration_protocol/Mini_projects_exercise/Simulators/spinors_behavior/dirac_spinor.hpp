@@ -33,3 +33,10 @@ inline Matrix4cd gammai(int i)
 
     return g;
 }
+
+// The inline function provides a way to optimize the performance of the program by reducing
+// the overhead related to a function call.When a function is specified like this the whole code
+// of the inline function is inserted at each point the function is called,
+// instead of performing a regular function call.
+// So the inline keyword suggests the compiler that it should replace the functions call with the actual
+// code of the function to avoid the overheads of the function call. its only a request to the compiler
