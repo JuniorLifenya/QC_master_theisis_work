@@ -18,36 +18,29 @@ using namespace Eigen;
 using real = double;
 
 //==================================================================================================
-//======================================Decoherence Model===========================================
-class DecoherenceModel
+//======================================Connect everything =========================================
+
+int main()
 {
-    Eigen::Matrix2cd rho; // density matrix
-    double t1, t2;        // relaxation and dephasing times
+    double dt = 1e-6;
+    int steps = 1000;
+    auto h = generateToyGW(1e-22, 1e3, dt, steps);
 
-public:
-    DecoherenceModel()
+    DecoherenceModel model;
+
+    for (int i = 0; i < steps; i++)
     {
-        rho = Eigen::Matrix2cd::Zero();
-        rho(0, 0) = 1.0; // Start in ground state
-        t1 = 1e-3;       // arbitrary defaults
-        t2 = 1e-4;
+        // Simplified Hamiltonian (Pauli Z coupling to GW strain)
+        Matrix2cd H;
+        H << h[i], 0,
+            0, -h[i];
+
+        model.evolve(H, dt);
     }
 
-    void evolve(const Eigen::Matrix2cd &H, double dt)
-    {
-        // Unitary part
-        Eigen::Matrix2cd U = (-std::complex<double>(0, 1) / dt * H).exp();
-        rho = U * rho * U.adjoint();
-
-        // Decoherence channels (very simplified)
-        rho(0, 0) += -(rho(0, 0) - 1.0) * dt / t1; // relaxation to ground
-        rho(1, 1) += -(rho(1, 1)) * dt / t1;
-        rho(0, 1) *= std::exp(-dt / t2);
-        rho(1, 0) *= std::exp(-dt / t2);
-    }
-
-    Eigen::Matrix2cd getDensityMatrix() const { return rho; }
-};
+    std::cout << "Final density matrix:\n"
+              << model.getDensityMatrix() << std::endl;
+}
 
 //====================================================================================================
 //================================= Calculations =====================================================
