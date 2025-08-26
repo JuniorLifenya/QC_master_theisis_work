@@ -41,23 +41,3 @@ int main()
     std::cout << "Final density matrix:\n"
               << model.getDensityMatrix() << std::endl;
 }
-
-//====================================================================================================
-//================================= Calculations =====================================================
-VectorXd calculate_decoherence(
-    const Eigen::MatrixXcd &hamiltonian,
-    double gw_amplitude,
-    double frequency)
-{
-    // High-performance decoherence calculation
-    Eigen::SelfAdjointEigenSolver solver(hamiltonian);
-    // ... GW strain integration ...
-    return decoherence_rates;
-}
-
-VectorXd S(const Mat)
-
-    MatrixXd FULL_NV_center_Hamiltonian // The full Hamiltonian is H_NV = DS^2_z + gamma\vector{S} + H_strain + H_GW
-{
-    const(D) * real(S) * real(S) + const(gamma) * S
-}
