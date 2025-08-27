@@ -1,5 +1,5 @@
 // nv_decoherence.cpp
-#include <Eigen/Dense>
+#include <eigen-3.4.0/Eigen/Dense>
 #include <complex>
 #include <iostream>
 #include <vector>
