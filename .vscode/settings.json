@@ -1,6 +1,13 @@
 {
     "cSpell.words": [
+        "cplx",
+        "Diracspinor",
+        "Eigen",
+        "evol",
+        "Initializaed",
         "qiskit",
-        "qodo"
-    ]
+        "qodo",
+        "Spinor"
+    ],
+    "C_Cpp.errorSquiggles": "disabled"
 }
