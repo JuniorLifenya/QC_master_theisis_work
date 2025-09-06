@@ -1,0 +1,7 @@
+numpy
+scipy
+matplotlib
+qutip
+h5py                # For reading LIGO data
+sympy               # For symbolic derivations (in notebooks)
+jupyter
