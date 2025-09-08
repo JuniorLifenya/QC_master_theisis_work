@@ -5,8 +5,10 @@
         "Eigen",
         "evol",
         "Initializaed",
+        "jmat",
         "qiskit",
         "qodo",
+        "qutip",
         "Spinor"
     ],
     "C_Cpp.errorSquiggles": "disabled",
