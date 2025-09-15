@@ -1,0 +1,31 @@
+cmake_minimum_required(VERSION 3.12)
+project(QuantumGravitySim)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Find Eigen
+find_package(Eigen3 REQUIRED)
+
+# Add executable
+add_executable(qg_sim
+    src/main.cpp
+    src/DiracSpinor.cpp
+    src/Tetrad.cpp
+    src/NVHamiltonian.cpp
+    src/GWData.cpp
+)
+
+# Include directories
+target_include_directories(qg_sim PRIVATE include)
+target_include_directories(qg_sim SYSTEM PRIVATE ${EIGEN3_INCLUDE_DIRS})
+
+# Enable OpenMP for potential parallelization
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(qg_sim PUBLIC OpenMP::OpenMP_CXX)
+endif()
+
+# Installation directives
+install(TARGETS qg_sim DESTINATION bin)
+install(DIRECTORY include/ DESTINATION include)
