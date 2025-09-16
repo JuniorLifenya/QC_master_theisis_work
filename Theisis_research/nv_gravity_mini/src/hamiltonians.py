@@ -12,17 +12,29 @@ Sz2 = Sz * Sz
 # Zero-field splitting constant (in Hz)
 D = 2.87e9
 
+import qutip as qt
+
 def get_base_hamiltonian(Bz=0.0):
     """
     Returns the static NV Hamiltonian H_0.
     Args:
         Bz (float): Magnetic field in Tesla (for Zeeman splitting)
     """
-    H_0 = D * Sz2  # Zero-field term
+    # Spin-1 operators (3x3 matrices as Qobj)
+    Sz = qt.jmat(1, 'z')
+    Sz2 = Sz ** 2
+
+    # NV center constants
+    D = 2.87e9  # Hz (zero-field splitting ~ 2.87 GHz)
+    gamma_e = 28e9  # Hz/T (electron gyromagnetic ratio)
+
+    # Build Hamiltonian
+    H_0 = D * Sz2
     if Bz != 0.0:
-        gamma_e = 28e9  # Electron gyromagnetic ratio (Hz/T)
-        H_0 += gamma_e * Bz * Sz  # Zeeman term
+        H_0 += gamma_e * Bz * Sz
+
     return H_0
+
 
 def get_interaction_hamiltonian(strain_plus, strain_cross):
     """

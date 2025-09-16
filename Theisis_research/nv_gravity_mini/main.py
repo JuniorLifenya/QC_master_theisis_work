@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from src.hamiltonians import get_base_hamiltonian
-from src.gravitational_waves import simple_gw_waveform # type: ignore
+from src.gravitational_waves import simple_gw_waveform
 from src.evolution import simulate_nv_evolution
 import qutip as qt
 
@@ -32,9 +32,10 @@ result = simulate_nv_evolution(psi0, times, args)
 
 # 5. Calculate and plot the population in the |0> state
 p0 = np.zeros(len(times))
+proj0 = qt.basis(3, 1)  # |0>
 for i, state in enumerate(result.states):
-    # The population is the absolute square of the projection
-    p0[i] = np.abs(state[1][0][0])**2  # Gets the amplitude of the m_s=0 component
+    p0[i] = np.abs(proj0.overlap(state))**2
+# Plotting
 
 plt.figure(figsize=(10, 5))
 plt.plot(times * 1e9, p0) # Plot time in ns
@@ -42,5 +43,9 @@ plt.xlabel('Time (ns)')
 plt.ylabel('Population in |0> state')
 plt.title('Effect of a Monochromatic Gravitational Wave on an NV-center')
 plt.grid(True)
+
+# Save figure to outputs/figures directory
+import os
+os.makedirs("outputs/figures", exist_ok=True)
 plt.savefig('outputs/figures/simple_simulation.png')
 plt.show()
