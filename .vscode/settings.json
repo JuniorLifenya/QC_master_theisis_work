@@ -4,6 +4,7 @@
         "Diracspinor",
         "Eigen",
         "evol",
+        "hamiltonians",
         "Initializaed",
         "jmat",
         "qiskit",
