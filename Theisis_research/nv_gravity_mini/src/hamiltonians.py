@@ -5,14 +5,14 @@ import qutip as qt
 Sx = qt.jmat(1, 'x')
 Sy = qt.jmat(1, 'y')
 Sz = qt.jmat(1, 'z')
+
 Sx2 = Sx * Sx
 Sy2 = Sy * Sy
 Sz2 = Sz * Sz
 
 # Zero-field splitting constant (in Hz)
 D = 2.87e9
-
-import qutip as qt
+gamma_e = 28e9  # Hz/T (electron gyromagnetic ratio)
 
 def get_base_hamiltonian(Bz=0.0):
     """
