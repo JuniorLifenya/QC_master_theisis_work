@@ -1,4 +1,0 @@
-# Install these TODAY  
-- Intel Math Kernel Library (MKL) # Accelerated linear algebra  
-- Qiskit++ (Quantum simulation) # GitHub: qiskit/qiskit-cpp  
-- Boost.Math # Special functions for QM  
