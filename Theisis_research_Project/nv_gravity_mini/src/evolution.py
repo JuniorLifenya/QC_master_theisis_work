@@ -20,4 +20,6 @@ def simulate_nv_evolution(initial_state, times, args):
     # Solve Schrödinger equation
     result = qt.sesolve(H_td, initial_state, times, args=args)
 
+    print(Sx)
     return result
+ 
