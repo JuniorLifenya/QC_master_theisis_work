@@ -1,6 +1,8 @@
 import numpy as np
 import qutip as qt
 
+
+#----------Define stuff----------------------------------------------------#
 # Define NV-center spin-1 operators
 Sx = qt.jmat(1, 'x')
 Sy = qt.jmat(1, 'y')
@@ -10,6 +12,7 @@ Sx2 = Sx * Sx
 Sy2 = Sy * Sy
 Sz2 = Sz * Sz
 
+#---------Base Hamiltonian ------------------------------------------------#
 # Zero-field splitting constant (in Hz)
 D = 2.87e9
 gamma_e = 28e9  # Hz/T (electron gyromagnetic ratio)
@@ -35,6 +38,7 @@ def get_base_hamiltonian(Bz=0.0):
 
     return H_0
 
+#----------Define stuff----------------------------------------------------#
 
 def get_interaction_hamiltonian(strain_plus, strain_cross):
     """
