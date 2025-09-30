@@ -52,7 +52,7 @@ plt.plot(tlist,sz_analytical, label = "Analytical", c = "k")
 plt.xlabel('Time'), plt.ylabel('<sigmaz>')
 plt.legend()
 plt.grid()
-
+plt.show()
 
 #----------- Plotting values -----------------------------------------------#
 
@@ -94,8 +94,51 @@ plt.show()
 
 #----------- Changing phase -------------------------------------------------#
 
+#To change the phase we introduce the following collapse operator:
+# C = [sqrt(g) * sigmay] 
+g_phase = 0.5 # Change and observe later what happens
+c_ops2 = [np.sqrt(g_phase) * sigmaz()]
 
+# Solve the dynamics
+result_phase = mesolve(H,psi0,tlist,c_ops2, [sigmax(), sigmay(), sigmaz()])
+exp_sx_dephase , exp_sy_dephase, exp_sz_dephase = result.expect# type: ignore
+exp_sx_dephase , exp_sy_dephase, exp_sz_dephase= (
+    np.array(exp_sx_dephase),
+    np.array(exp_sy_dephase),
+    np.array(exp_sz_dephase),
+)
 
-
+b_phase = Bloch()
+b_phase.add_points([exp_sx_dephase , exp_sy_dephase, exp_sz_dephase], meth='l')
+b_phase.add_states(psi0)
+b_phase.show()
+plt.show()
 
 #----------- Changing phase -------------------------------------------------#
+
+#----------- Qubit relaxation -------------------------------------------------#
+
+#Another type of dissipation is the relaxation of the qubit 
+# Originating form the following collapse operator:
+# C = [sqrt(gr) * sigma_] 
+# This induces spontaneous flips of the qubit from the excited state to the ground state.
+# With a rate gr. We can observe the qubit dynamics on the Bloch sphere by defining:
+g_relax = 0.5 # Change and observe later what happens
+c_ops3 = [np.sqrt(g_relax) * sigmam()]
+
+# Solve the dynamics
+result_relax = mesolve(H,psi0,tlist,c_ops3, [sigmax(), sigmay(), sigmaz()])
+exp_sx_relax , exp_sy_relax, exp_sz_relax = result.expect# type: ignore
+
+b_relax = Bloch()
+b_relax.add_points([exp_sx_relax , exp_sy_relax, exp_sz_relax], meth='l')
+b_relax.add_states(psi0)
+b_relax.show()
+plt.show()
+
+#----------- Qubit relaxation -------------------------------------------------#
+
+
+#NB!With these methods you can explore different hamiltonians and dissipation processes
+# Also simulate any dissipative quantum system , whose dynamics are described by the master eq. 
+# See the qutip documentation for more details : http://qutip.org/docs/latest/guide/dynamics/dynamics-master.html
