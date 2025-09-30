@@ -68,7 +68,7 @@ t = 0.2*np.pi
 H = delta *(np.cos(t) * sigmaz() + np.sin(t) * sigmax())
 
 # Obtain Time Evolution 
-tlist = np.linspace(0,5,100)
+tlist = np.linspace(0,5,200) # Change for better resolution, sircle-radius and smoothness
 result = mesolve(H, psi0, tlist, [], [sigmax(), sigmay(), sigmaz()])
 
 #----------- Bloch sphere ---------------------------------------------------#
@@ -101,7 +101,7 @@ c_ops2 = [np.sqrt(g_phase) * sigmaz()]
 
 # Solve the dynamics
 result_phase = mesolve(H,psi0,tlist,c_ops2, [sigmax(), sigmay(), sigmaz()])
-exp_sx_dephase , exp_sy_dephase, exp_sz_dephase = result.expect# type: ignore
+exp_sx_dephase , exp_sy_dephase, exp_sz_dephase = result_phase.expect# type: ignore
 exp_sx_dephase , exp_sy_dephase, exp_sz_dephase= (
     np.array(exp_sx_dephase),
     np.array(exp_sy_dephase),
@@ -128,7 +128,7 @@ c_ops3 = [np.sqrt(g_relax) * sigmam()]
 
 # Solve the dynamics
 result_relax = mesolve(H,psi0,tlist,c_ops3, [sigmax(), sigmay(), sigmaz()])
-exp_sx_relax , exp_sy_relax, exp_sz_relax = result.expect# type: ignore
+exp_sx_relax , exp_sy_relax, exp_sz_relax = result_relax.expect# type: ignore
 
 b_relax = Bloch()
 b_relax.add_points([exp_sx_relax , exp_sy_relax, exp_sz_relax], meth='l')
