@@ -2,38 +2,6 @@ import numpy as np
 import qutip as qt
 from qutip import Bloch, about, basis, sigmam,sigmax, sigmay, sigmaz, mesolve
 
-#----------- Simple setup --------------------------------------------------#
-
-# We will start with a simple model of an NV-center as a spin-1 system.
-# In doing so we define H = [delta/2]sigmax 
-# We define an additional collaps operator , describing the dissipation
-# Of energy from the qubit to an external environment. C = [sqrt(g)]sigmaz
-
-delta = 2* np.pi 
-
-g = 0.25 
-
-# Hamiltonian 
-H = (delta/2) * sigmax()
-
-# Collapse operators
-c_ops = [np.sqrt(g) * sigmaz()]
-
-# Initial state
-psi0 = basis(2,0)  # Ground state
-
-# Time vector
-tlist = np.linspace(0, 5, 100)
-
-
-
-#----------- Simple setup --------------------------------------------------#
-
-
-
-
-
-
 
 
 #----------More advanced definitions---------------------------------------#
