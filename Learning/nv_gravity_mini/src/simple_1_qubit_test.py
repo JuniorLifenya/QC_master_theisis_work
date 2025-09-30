@@ -45,8 +45,8 @@ sz_analytical = np.cos(2*np.pi*tlist) * np.exp(-g*tlist)
 
 #----------- Plotting values ------------------------------------------------#
 
-plt.scatter(tlist,res.expect[0],label='Numerical ',s=10)
-plt.scatter(tlist, res.expect[0], c = "r", marker = "o", s = 10, label = "mesolve")
+plt.scatter(tlist,res.expect[0],label='Numerical ')
+plt.scatter(tlist, res.expect[0], c = "r", marker = "x", label = "mesolve")
 
 plt.plot(tlist,sz_analytical, label = "Analytical", c = "k")
 plt.xlabel('Time'), plt.ylabel('<sigmaz>')
@@ -55,3 +55,36 @@ plt.grid()
 plt.show()
 
 #----------- Plotting values -----------------------------------------------#
+
+#----------- Bloch sphere ---------------------------------------------------#
+# First consider the following hamiltonian H = delta(costsigmaz + sintsigmax)
+# t defines the angle of the qubit state between the z-axis towards the x-axis 
+# We can again use mesolve to obtain the dynamics of the system.
+# Here we pass an ampty list of collapse operators to indicate that we do not
+# Want to include any dissipation in the system
+
+t = 0.2*np.pi
+
+H = delta *(np.cos(t) * sigmaz() + np.sin(t) * sigmax())
+
+# Obtain Time Evolution 
+tlist = np.linspace(0,5,100)
+result = mesolve(H, psi0, tlist, [], [sigmax(), sigmay(), sigmaz()])
+
+#----------- Bloch sphere ---------------------------------------------------#
+
+#----------- Plotting Bloch sphere ------------------------------------------#
+# We can visulaize the state on the Bloch sphere using qutip.Bloch class. 
+# We can add points to the Block sphere and also vectors representing states. 
+
+exp_sx_circ, exp_sy_circ, exp_sz_circ = result.expect 
+exp_sx_circ, ex_sy_circ,  exp_sz_circ = (
+    np.array(exp_sx_circ),
+    np.array(exp_sy_circ),
+    np.array(exp_sz_circ),
+)
+
+b = Bloch()
+b.add_points([exp_sx_circ, exp_sy_circ, exp_sz_circ], 'm')
+b.add_states(psi0)
+b.show()
