@@ -52,7 +52,7 @@ plt.plot(tlist,sz_analytical, label = "Analytical", c = "k")
 plt.xlabel('Time'), plt.ylabel('<sigmaz>')
 plt.legend()
 plt.grid()
-plt.show()
+
 
 #----------- Plotting values -----------------------------------------------#
 
@@ -88,3 +88,14 @@ b = Bloch()
 b.add_points([exp_sx_circ, exp_sy_circ, exp_sz_circ], 'm')
 b.add_states(psi0)
 b.show()
+plt.show()
+
+#----------- Plotting Bloch sphere ------------------------------------------#
+
+#----------- Changing phase -------------------------------------------------#
+
+
+
+
+
+#----------- Changing phase -------------------------------------------------#
