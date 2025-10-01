@@ -8,7 +8,7 @@ from scipy import integrate
 
 
 
-#---------- Field Framework ---------------------------------------#
+#---------- Field Framework -------------------------------------------#
 class Field:
     """ Base field class for scalar fields, spinor, vector fields etc."""
     def __init__(self, name, dimensions, mass=0 ):
@@ -17,7 +17,8 @@ class Field:
         self.dim =  dimensions  # Number of spatial dimensions
         self.hbar = 1.0545718e-34  # Reduced Planck constant (J·s)
         self.c = 3e8  # Speed of light (m/s)
-    #------------------ Objects in field theory ------------------#
+
+    #------------------ Objects in field theory ----------------------#
 
     def lagrangian_density(self,Kinetic_Term,Potential_Term,ø, dø, t,): # This defines L = L (ø, dø, t) function for scalar field ø
         """Args: ø (float): Field value , dø (float): Time derivative of the field , t (float): Time"""
@@ -52,7 +53,8 @@ class Field:
                          [0, 0, T22, 0],
                          [0, 0, 0, T33]])
     
-    #------------------ Objects in field theory ------------------#
+    #------------------ Objects in field theory --------------------#
+
 
 class ScalarField(Field):
     """ Class for scalar fields (spin-0) """
@@ -67,16 +69,18 @@ class ScalarField(Field):
     def Hamiltonian_density(self,ø,dø,g_munu): # This defines H = H (ø, dø, t) function for scalar field ø
         """Args: ø (float): Field value, dø (float): Time derivative of the field"""
         pass # Implement specific hamiltonian for scalar field
+class Tensor4:
+    pass
+#---------- Field Framework ----------------------------------------#
 
-#---------- Field Framework ---------------------------------------#
 
-#---------- Exercise-----------------------------------------------#
+#---------- Exercise------------------------------------------------#
 
 # Implement scalar field Lagrangian in both Python and C++
 # Create metric tensor class that can handle flat and curved spacetime
 # Code variational derivative function using FDM
 
-#---------- Exercise-----------------------------------------------#
+#---------- Exercise------------------------------------------------#
 
 #---------- Example usage ------------------------------------------#
 
