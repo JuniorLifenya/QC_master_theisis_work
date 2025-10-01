@@ -28,3 +28,5 @@ using Vec4 = Vector4d;
 using Vec2 = Vector2d;
 
 using cplx = complex<double>;
+
+//------ Utilities ---------------------------------------------
