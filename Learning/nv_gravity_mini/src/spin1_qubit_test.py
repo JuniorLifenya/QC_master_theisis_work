@@ -31,6 +31,7 @@ tlist = np.linspace(0, 5, 100)
 
 
 #----------- Passing values -------------------------------------------------#
+
 res = mesolve(H,psi0,tlist,c_ops,[sigmaz()])
 
 # For this perticular Hamiltonian and dissipation process , we can derive 
