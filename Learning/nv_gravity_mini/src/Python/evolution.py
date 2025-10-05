@@ -1,6 +1,6 @@
 # src/evolution.py
 import qutip as qt
-from .Hamiltonians.hamiltonians import get_base_hamiltonian
+from ..Hamiltonians.hamiltonians import get_base_hamiltonian
 
 def simulate_nv_evolution(initial_state, times, args):
     Bz = args['Bz']

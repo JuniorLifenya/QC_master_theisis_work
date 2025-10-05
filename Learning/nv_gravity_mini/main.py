@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from src.hamiltonians import get_base_hamiltonian
-from nv_gravity_mini.src.gw_nv_strain import simple_gw_waveform
+from nv_gravity_mini.src.Hamiltonians.hamiltonians import get_base_hamiltonian
+from nv_gravity_mini.src.Gw_nv.gw_nv_strain import simple_gw_waveform
 from nv_gravity_mini.src.time_evolution import simulate_nv_evolution
 import qutip as qt
 
