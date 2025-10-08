@@ -3,17 +3,6 @@ import qutip as qt
 from qutip import Bloch, about, basis, sigmam,sigmax, sigmay, sigmaz, mesolve
 
 
-
-#----------More advanced definitions---------------------------------------#
-# Define NV-center spin-1 operators
-Sx = qt.jmat(1, 'x')
-Sy = qt.jmat(1, 'y')
-Sz = qt.jmat(1, 'z')
-
-Sx2 = Sx * Sx
-Sy2 = Sy * Sy
-Sz2 = Sz * Sz
-
 #---------Base Hamiltonian ------------------------------------------------#
 # Zero-field splitting constant (in Hz)
 D = 2.87e9

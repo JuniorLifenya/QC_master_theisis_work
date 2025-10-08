@@ -16,5 +16,6 @@
     "files.associations": {
         "complex": "cpp",
         "dense": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "C:/Users/Danye/OneDrive/Documents/MASTER I FYSIKK UIB!!!/LAST YEAR (THEISIS!!! )/Kode_materiale/Learning/eigen-3.4.0"
 }

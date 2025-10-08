@@ -143,3 +143,19 @@ plt.show()
 #NB!With these methods you can explore different hamiltonians and dissipation processes
 # Also simulate any dissipative quantum system , whose dynamics are described by the master eq. 
 # See the qutip documentation for more details : http://qutip.org/docs/latest/guide/dynamics/dynamics-master.html
+
+#///////////////////////////Now we level up the game////////////////////////////
+
+#----------More advanced definitions---------------------------------------#
+# Define NV-center spin-1 operators
+Sx = qt.jmat(1, 'x')
+Sy = qt.jmat(1, 'y')
+Sz = qt.jmat(1, 'z')
+
+Sx2 = Sx * Sx
+Sy2 = Sy * Sy
+Sz2 = Sz * Sz
+#-------- We check their properties-------------------#
+print(f"Shape of S_x is: {Sx.shape}")
+#-------- We check their properties-------------------#
+#----------More advanced definitions---------------------------------------#
