@@ -1,7 +1,44 @@
 import numpy as np
 import qutip as qt
-from qutip import Bloch, about, basis, sigmam,sigmax, sigmay, sigmaz, mesolve
 import matplotlib.pyplot as plt
+from qutip import (Qobj, about, basis, coherent, coherent_dm, create, destroy,
+                   expect, fock, fock_dm, mesolve, qeye, sigmax, sigmay,
+                   sigmaz, tensor, thermal_dm, anim_matrix_histogram,
+                   anim_fock_distribution, Bloch, fidelity, concurrence,sigmam)
+
+# We set a parameter to see animations in line 
+from matplotlib import rc
+rc('animation', html='jshtml')
+
+#----------- Introduction ---------------------------------------------------#
+
+q1 = Qobj([[1, 0], [0, 0]])  # |0><0| Well this one is apparently an operator
+q2 = Qobj([[1], [0]])  # |0> This is just a state vector with one column
+#print(q1)
+#print(q2)
+
+# Useful properties of Qobj
+# print(f"Shape of q1 is: {q1.shape}")
+# print(f"Type of q1 is: {q1.type}")
+# print(f"Dimension of q1 is: {q1.dims}")
+# print(f"Is q1 Hermitian? {q1.isherm}")
+# print(f"Is q1 unitary? {q1.isunitary}")
+# print(f"Dense matrix representation of q1:\n{q1.full()}")
+# print(f"Conjugate transpose of q1:\n{q1.dag()}")
+# print(f"Eigenvalues of q1: {q1.eigenenergies()}")
+
+# Now faster with fundamental basis states (Fock states of oscillatior modes)
+
+basis(2, 0)  # |0> same as fock(2,0)
+basis(2, 1)  # |1> same as fock(2,1)
+basis(2, 0).dag()  # <0| same as fock(2,0).dag()
+basis(2, 1).dag()  # <1| same as fock(2,1).dag()
+
+print(f" |0><0| : {(basis(2, 0) * basis(2, 0).dag())}")   # |0><0| same as fock_dm(2,0)
+
+
+
+#----------- Introduction ---------------------------------------------------#
 
 #----------- Simple setup ---------------------------------------------------#
 
@@ -48,16 +85,17 @@ sz_analytical = np.cos(2*np.pi*tlist) * np.exp(-g*tlist)
 
 plt.scatter(tlist,res.expect[0],label='Numerical ')
 plt.scatter(tlist, res.expect[0], c = "r", marker = "x", label = "mesolve")
-
 plt.plot(tlist,sz_analytical, label = "Analytical", c = "k")
 plt.xlabel('Time'), plt.ylabel('<sigmaz>')
 plt.legend()
 plt.grid()
+plt.title("Qubit dynamics with dissipation")
 plt.show()
 
 #----------- Plotting values -----------------------------------------------#
 
 #----------- Bloch sphere ---------------------------------------------------#
+
 # First consider the following hamiltonian H = delta(costsigmaz + sintsigmax)
 # t defines the angle of the qubit state between the z-axis towards the x-axis 
 # We can again use mesolve to obtain the dynamics of the system.
@@ -86,8 +124,9 @@ exp_sx_circ, ex_sy_circ,  exp_sz_circ = (
 )
 
 b = Bloch()
-b.add_points([exp_sx_circ, exp_sy_circ, exp_sz_circ], 'm')
+b.add_points([exp_sx_circ, exp_sy_circ, exp_sz_circ], 'm') # 's' for sphere and 'l' for line, you can also mix them 
 b.add_states(psi0)
+b.title = "Coherent evolution"
 b.show()
 plt.show()
 
@@ -97,7 +136,7 @@ plt.show()
 
 #To change the phase we introduce the following collapse operator:
 # C = [sqrt(g) * sigmay] 
-g_phase = 0.5 # Change and observe later what happens
+g_phase = 0.5 # Change and observe later what happens(more sircle rounds)
 c_ops2 = [np.sqrt(g_phase) * sigmaz()]
 
 # Solve the dynamics
@@ -112,6 +151,7 @@ exp_sx_dephase , exp_sy_dephase, exp_sz_dephase= (
 b_phase = Bloch()
 b_phase.add_points([exp_sx_dephase , exp_sy_dephase, exp_sz_dephase], meth='l')
 b_phase.add_states(psi0)
+b_phase.title = "Dephasing with rate g = 0.5"
 b_phase.show()
 plt.show()
 
@@ -134,6 +174,7 @@ exp_sx_relax , exp_sy_relax, exp_sz_relax = result_relax.expect# type: ignore
 b_relax = Bloch()
 b_relax.add_points([exp_sx_relax , exp_sy_relax, exp_sz_relax], meth='l')
 b_relax.add_states(psi0)
+b_relax.title = "Relaxation with rate g = 0.5"
 b_relax.show()
 plt.show()
 
@@ -143,6 +184,8 @@ plt.show()
 #NB!With these methods you can explore different hamiltonians and dissipation processes
 # Also simulate any dissipative quantum system , whose dynamics are described by the master eq. 
 # See the qutip documentation for more details : http://qutip.org/docs/latest/guide/dynamics/dynamics-master.html
+
+
 
 #///////////////////////////Now we level up the game////////////////////////////
 
