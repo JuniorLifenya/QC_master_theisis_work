@@ -9,12 +9,7 @@ D = 2.87e9
 gamma_e = 28e9  # Hz/T (electron gyromagnetic ratio)
 
 def get_base_hamiltonian(Bz=0.0):
-    """
-    Returns the static NV Hamiltonian H_0.
-    Args:
-        Bz (float): Magnetic field in Tesla (for Zeeman splitting)
-    """
-    # Spin-1 operators (3x3 matrices as Qobj)
+
     Sz = qt.jmat(1, 'z')
     Sz2 = Sz ** 2
 
@@ -22,7 +17,7 @@ def get_base_hamiltonian(Bz=0.0):
     D = 2.87e9  # Hz (zero-field splitting ~ 2.87 GHz)
     gamma_e = 28e9  # Hz/T (electron gyromagnetic ratio)
 
-    # Build Hamiltonian
+    # Zero-field Hamiltonian
     H_0 = D * Sz2
     if Bz != 0.0:
         H_0 += gamma_e * Bz * Sz
