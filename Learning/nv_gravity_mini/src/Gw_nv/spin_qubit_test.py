@@ -17,7 +17,7 @@ q2 = Qobj([[1], [0]])  # |0> This is just a state vector with one column
 #print(q1)
 #print(q2)
 
-# Useful properties of Qobj
+# Useful properties of Qobj 
 # print(f"Shape of q1 is: {q1.shape}")
 # print(f"Type of q1 is: {q1.type}")
 # print(f"Dimension of q1 is: {q1.dims}")
@@ -126,9 +126,16 @@ exp_sx_circ, ex_sy_circ,  exp_sz_circ = (
 b = Bloch()
 b.add_points([exp_sx_circ, exp_sy_circ, exp_sz_circ], 'm') # 's' for sphere and 'l' for line, you can also mix them 
 b.add_states(psi0)
-b.title = "Coherent evolution"
+
+# Create a larger figure so the title has room (optional)
+b.fig = plt.figure(figsize=(9, 9))
+# Put suptitle on the figure before drawing
+b.fig.suptitle("Coherent evolution", fontsize=40, y=0)
+
+# Make room at the top so the title isn't clipped
+b.fig.subplots_adjust(top=0.98)
 b.show()
-plt.show()
+#plt.show()
 
 #----------- Plotting Bloch sphere ------------------------------------------#
 
@@ -151,9 +158,16 @@ exp_sx_dephase , exp_sy_dephase, exp_sz_dephase= (
 b_phase = Bloch()
 b_phase.add_points([exp_sx_dephase , exp_sy_dephase, exp_sz_dephase], meth='l')
 b_phase.add_states(psi0)
-b_phase.title = "Dephasing with rate g = 0.5"
+
+# Create a larger figure so the title has room (optional)
+b_phase.fig = plt.figure(figsize=(9, 9))  
+# Put suptitle on the figure before drawing
+b_phase.fig.suptitle("Dephasing with rate g = 0.5", fontsize=40, y=0)
+
+# Make room at the top so the title isn't clipped
+b_phase.fig.subplots_adjust(top=0.98)
 b_phase.show()
-plt.show()
+#plt.show()
 
 #----------- Changing phase -------------------------------------------------#
 
@@ -174,9 +188,16 @@ exp_sx_relax , exp_sy_relax, exp_sz_relax = result_relax.expect# type: ignore
 b_relax = Bloch()
 b_relax.add_points([exp_sx_relax , exp_sy_relax, exp_sz_relax], meth='l')
 b_relax.add_states(psi0)
-b_relax.title = "Relaxation with rate g = 0.5"
+
+# Create a larger figure so the title has room 
+b_relax.fig = plt.figure(figsize=(9, 9))
+# Put subtitle on the figure before drawing
+b_relax.fig.suptitle("Relaxation with rate gr = 0.5", fontsize=40, y=0)
+
+# Make room at the bottom so the title isn't clipped
+b_relax.fig.subplots_adjust(top=0.98)
 b_relax.show()
-plt.show()
+#plt.show()
 
 #----------- Qubit relaxation -------------------------------------------------#
 
