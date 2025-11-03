@@ -31,7 +31,13 @@ H_nv = D * Sz2  # Zero-field splitting term
 
 print(" ✓ Setup done and Hamiltonian without magnetic field:\n", H_nv)
 
+# %%
+# %%
+# %%
 # ================ Gravitational Wave Interaction Hamiltonian =================#
+
+
+
 print("Defining the interaction Hamiltonian from gravitational wave strain")
 
 # Simple monochromatic GW waveform function
@@ -54,7 +60,7 @@ def H_int(t, args = None):
     """Time-dependent interaction Hamiltonian from GW strain"""
     h_p = h_plus(t)
     h_c = h_cross(t)
-    return h_p * H_int_operator  # Only h_plus contributes in this simple example
+    return h_p * H_int_operator   + h_c # Only h_plus contributes in this simple example
 
 print("✓ GW interaction setup complete")
 
@@ -69,8 +75,95 @@ H = [H_nv, [H_int, lambda t, args: 1.0]]  # QuTiP format for time-dependent Hami
 psi0 = psi_0
 
 # Time vector (math GW timescale)
-tlist = np.llinspace(0, 0.01, 1000)  # 10 ms total time, 1000 points
+tlist = np.linspace(0, 0.01, 1000)  # 10 ms total time, 1000 points
 
 # We run the simulation (NO decoherence for simplicity)
 result = qt.sesolve(H, psi0, tlist, [])
 print("✓ Time evolution simulation complete")
+
+# ==================== Analyzing and Plotting Results ====================#
+print("Analyzing results and plotting population in |0> state")
+
+# Calculate populations the different states over time
+# Calculate population in |0> state
+p0 = np.zeros(len(tlist))
+for i, state in enumerate(result.states):
+    p0[i] = np.abs(psi_0.overlap(state))**2 # Here we use enumerate to get index and state !
+
+
+#======================= An alternative way using list comprehension: ====================#
+pop_plus1 = [abs((psi_plus1.dag() * state).full()[0,0])**2 for state in result.states]
+pop_minus1 = [abs((psi_minus1.dag() * state).full()[0,0])**2 for state in result.states]
+pop_0 = [abs((psi_0.dag() * state).full()[0,0])**2 for state in result.states]
+# ========================================================================================#
+
+# Calculate expectation values
+exp_Sz = qt.expect(Sz, result.states)
+
+
+#======================= Plotting Results ================================================#
+plt.figure(figsize=(12, 8))
+
+
+#=================Plotting the populations first =========================================#
+
+plt.subplot(2, 2, 1)
+plt.plot(tlist * 1e3, pop_plus1, label='Population |+1>', linewidth = 2)
+plt.plot(tlist * 1e3, pop_0, label='Population |0>', linewidth = 2)
+plt.plot(tlist * 1e3, pop_minus1, label='Population |-1, ', linewidth = 2)
+
+#=================Plotting the populations first =========================================#
+
+# Plotting populations
+plt.figure(figsize=(10, 5))
+plt.plot(tlist * 1e3, p0)  # Time in ms
+plt.xlabel('Time (ms)')
+plt.ylabel('Population')
+plt.title('NV-Center Populations under monochromatic GW')
+plt.legend()
+plt.grid(True)
+
+# Plot GW strain for reference
+plt.subplot(2, 2, 2)
+gw_strain_values = [h_plus(t) for t in tlist]
+plt.plot(tlist * 1e3, gw_strain_values, "r-", color='orange', label='h_plus(t)', linewidth = 2)
+plt.xlabel('Time (ms)')
+plt.ylabel('GW Strain h_plus(t)')
+plt.title('Gravitational Wave Signal')
+plt.grid(True)
+
+
+# Plot expectation value of Sz
+plt.subplot(2, 2, 3)
+plt.plot(tlist * 1000, expect_Sz, 'g-', linewidth=2)
+plt.xlabel('Time (ms)')
+plt.ylabel('<S_z>')
+plt.title('Spin Expectation Value')
+plt.grid(True)
+
+
+# Plot energy level shifts (simplified)
+plt.subplot(2, 2, 4)
+# This is where you'd put your actual energy shift calculation
+energy_shift = [h_plus(t) * kappa * 0.01 for t in tlist]  # Placeholder!
+plt.plot(tlist * 1000, energy_shift, 'm-', linewidth=2)
+plt.xlabel('Time (ms)')
+plt.ylabel('Energy Shift (arb.)')
+plt.title('GW-induced Energy Level Shifts')
+plt.grid(True)
+
+
+plt.tight_layout()
+plt.show()
+
+print("✓ Analysis complete")
+print("\n🎯 NEXT STEPS:")
+print("1. Run this code - see if GW causes population transfers")
+print("2. Vary kappa to see stronger/weaker effects")  
+print("3. Add decoherence (collapse operators)")
+print("4. Replace placeholder kappa with your FW-derived value")
+
+
+
+
+
