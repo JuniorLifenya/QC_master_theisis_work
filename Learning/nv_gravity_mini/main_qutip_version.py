@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 #========= NV-center under Gravitational Wave Simulation using QuTiP ==========#
-print("Setting first up the NV-center as a spin-1 system")
+print("Setting first up the NV-center as a spin-1 system \n")
 
 # Spin-1 operators as (3x3 matrices)
 Sx = qt.jmat(1, 'x')
@@ -18,9 +18,9 @@ Sz2 = Sz ** 2
 
 # ================= Basis states and Hamiltonian Definitions ==================#
 
-psi_plus = qt.basis(3, 2)   # |ms = +1> 
+psi_plus1 = qt.basis(3, 0)   # |ms = +1> 
 psi_0    = qt.basis(3, 1)   # |ms = 0>
-psi_minus = qt.basis(3, 0)  # |ms = -1>
+psi_minus1 = qt.basis(3, 2)  # |ms = -1>
 
 # Nv center Hamiltonian (Zero-field splitting + Zeeman term)
 
@@ -29,11 +29,7 @@ gamma_e = 28e9  # Hz/T (electron gyromagnetic ratio)
 
 H_nv = D * Sz2  # Zero-field splitting term
 
-print(" ✓ Setup done and Hamiltonian without magnetic field:\n", H_nv)
-
-# %%
-# %%
-# %%
+print(" ✓ Setup done and Hamiltonian without magnetic field: \n", H_nv)
 # ================ Gravitational Wave Interaction Hamiltonian =================#
 
 
@@ -68,8 +64,9 @@ print("✓ GW interaction setup complete")
 print("Setting up time evolution simulation under GW influence")
 
 # Total Hamiltonian 
-H = [H_nv, [H_int, lambda t, args: 1.0]]  # QuTiP format for time-dependent Hamiltonian, the lambda  t is needed to match QuTiP's expected format
-# Alternative: H = [H_nv, [H_int, 't']] # if H_int is defined as a function of t
+H = [H_nv, [H_int_operator, h_plus]]
+# Alternative 1 : H = [H_nv, [H_int, lambda t, args: 1.0]]  # QuTiP format for time-dependent Hamiltonian, the lambda  t is needed to match QuTiP's expected format
+# Alternative 2 : H = [H_nv, [H_int, 't']] # if H_int is defined as a function of t
 
 # Initial state: ( We start in |0> )  
 psi0 = psi_0
@@ -92,9 +89,9 @@ for i, state in enumerate(result.states):
 
 
 #======================= An alternative way using list comprehension: ====================#
-pop_plus1 = [abs((psi_plus1.dag() * state).full()[0,0])**2 for state in result.states]
-pop_minus1 = [abs((psi_minus1.dag() * state).full()[0,0])**2 for state in result.states]
-pop_0 = [abs((psi_0.dag() * state).full()[0,0])**2 for state in result.states]
+pop_plus1 = [abs((psi_plus1.overlap(state))) **2 for state in result.states]
+pop_minus1 = [abs(((psi_minus1.overlap(state)))) **2 for state in result.states]
+pop_0 = [abs((psi_0.overlap(state))) **2 for state in result.states]
 # ========================================================================================#
 
 # Calculate expectation values
@@ -135,7 +132,7 @@ plt.grid(True)
 
 # Plot expectation value of Sz
 plt.subplot(2, 2, 3)
-plt.plot(tlist * 1000, expect_Sz, 'g-', linewidth=2)
+plt.plot(tlist * 1000, exp_Sz, 'g-', linewidth=2)
 plt.xlabel('Time (ms)')
 plt.ylabel('<S_z>')
 plt.title('Spin Expectation Value')
@@ -161,7 +158,7 @@ print("\n🎯 NEXT STEPS:")
 print("1. Run this code - see if GW causes population transfers")
 print("2. Vary kappa to see stronger/weaker effects")  
 print("3. Add decoherence (collapse operators)")
-print("4. Replace placeholder kappa with your FW-derived value")
+print("4. Replace placeholder kappa with FW-derived value")
 
 
 
