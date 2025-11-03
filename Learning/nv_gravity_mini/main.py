@@ -49,3 +49,5 @@ import os
 os.makedirs("outputs/figures", exist_ok=True)
 plt.savefig('outputs/figures/simple_simulation.png')
 plt.show()
+
+
