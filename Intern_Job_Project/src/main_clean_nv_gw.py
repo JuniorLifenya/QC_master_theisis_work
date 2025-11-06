@@ -20,14 +20,21 @@ psi_minus1 = qt.basis(3, 2) # |m_s = -1>
 
 print("✓ Spin operators and basis states defined")
 
-# ==================== 2. PHYSICAL PARAMETERS ==================== #
+# ==================== 2. PHYSICAL PARAMETERS ======================= #
+
 D = 2.87e9           # Zero-field splitting (Hz)
 gamma_e = 28e9       # Gyromagnetic ratio (Hz/T)
 kappa = 1e15         # GW coupling constant (PLACEHOLDER - from FW transformation)
-
+Bz = 0.0            # Static magnetic field (T)
 print(f"✓ Physical parameters: D={D/1e9:.2f} GHz, kappa={kappa:.1e}")
 
-# ==================== 3. GRAVITATIONAL WAVE ==================== #
+# We try now to define a scale , so we can change toy into real parameters later
+scale_factor = 1e9  # Scale factor to convert toy parameters to realistic ones
+D_toy = D/scale_factor
+
+
+# ==================== 3. GRAVITATIONAL WAVE ======================== #
+
 def h_plus(t, f_gw=100, h_max=1e-18):
     """Simple monochromatic GW - REALISTIC parameters"""
     return h_max * np.sin(2 * np.pi * f_gw * t)
@@ -35,7 +42,8 @@ def h_plus(t, f_gw=100, h_max=1e-18):
 print("✓ GW strain function defined")
 
 # ==================== 4. HAMILTONIANS ==================== #
-def get_hamiltonians(Bz=0.0):
+
+def get_hamiltonians(Bz):
     """Returns static and time-dependent Hamiltonians"""
     # Static NV Hamiltonian
     H_static = D * Sz**2
