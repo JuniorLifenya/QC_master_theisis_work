@@ -36,7 +36,10 @@ I3 = qt.qeye(3)
 Sx2 = Sx * Sx
 Sy2 = Sy * Sy
 Sz2 = Sz * Sz
+Sp = Sx + 1j * Sy # S_plus via Sx,Sy
+Sm = Sx - 1j * Sy
 
+print("Check operator identity (Op_plus - 0.5*(Sp^2 + Sm^2)):")
 # -------------------------
 # Base Hamiltonian (toy)
 # H0 = D Sz^2
@@ -56,9 +59,16 @@ psi_p1 = qt.basis(3, 0)   # |+1>
 psi_0  = qt.basis(3, 1)
 psi_m1 = qt.basis(3, 2)
 
+print((Op_plus - 0.5*(Sp*Sp + Sm*Sm)).norm())   # should be ~0
+print("<+1|Op_plus|0> =", Op_plus.matrix_element(psi_p1, psi_0))
+print("<+1|Sx|0>     =", Sx.matrix_element(psi_p1, psi_0))   # Δm=+1 allowed
+print("<+1|Sp|0>     =", Sp.matrix_element(psi_p1, psi_0))   # should be nonzero
+print("<+1|Sp^2|0>   =", (Sp*Sp).matrix_element(psi_p1, psi_0)) # zero: Δm=+2 needed
+
+# show some matrix elements
 print("Eigenenergies of H0 (toy units):", H0.eigenenergies())
-print("Matrix element <+1|Op_plus|0> =", (psi_p1.dag() * Op_plus * psi_0).full()[0,0])
-print("Matrix element <+1|Sz^2|0> =", (psi_p1.dag() * Sz2 * psi_0).full()[0,0])
+print("Matrix element <+1|Op_plus|0> =", (psi_p1.dag() * Op_plus * psi_0))
+print("Matrix element <+1|Sz^2|0> =", (psi_p1.dag() * Sz2 * psi_0))
 
 
 # -------------------------
