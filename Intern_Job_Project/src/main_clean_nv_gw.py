@@ -33,7 +33,7 @@ scale_factor = 1e9  # Scale factor to convert toy parameters to realistic ones
 D_toy = D/scale_factor
 
 
-# ==================== 3. GRAVITATIONAL WAVE ======================== #
+# ==================== 3. GRAVITATIONAL WAVE ================= #
 
 def h_plus(t, f_gw=100, h_max=1e-18):
     """Simple monochromatic GW - REALISTIC parameters"""
@@ -41,7 +41,7 @@ def h_plus(t, f_gw=100, h_max=1e-18):
 
 print("✓ GW strain function defined")
 
-# ==================== 4. HAMILTONIANS ==================== #
+# ==================== 4. HAMILTONIANS ======================= #
 
 def get_hamiltonians(Bz):
     """Returns static and time-dependent Hamiltonians"""
@@ -60,7 +60,7 @@ def get_hamiltonians(Bz):
 
 print("✓ Hamiltonians defined")
 
-# ==================== 5. SIMULATION ==================== #
+# ==================== 5. SIMULATION ========================= #
 def run_simulation():
     """Run the complete simulation"""
     print("Starting simulation...")
@@ -82,12 +82,13 @@ def run_simulation():
     
     return result, tlist
 
-# ==================== 6. ANALYSIS ==================== #
+# ==================== 6. ANALYSIS ========================= #
+
 def analyze_results(result, tlist):
     """Analyze and plot results"""
     print("Analyzing results...")
     
-    # Calculate populations
+    # Calculate populations , SNB!! This is the main calculation
     pop_plus1 = [abs(psi_plus1.overlap(state))**2 for state in result.states]
     pop_0 = [abs(psi_0.overlap(state))**2 for state in result.states] 
     pop_minus1 = [abs(psi_minus1.overlap(state))**2 for state in result.states]
@@ -100,7 +101,8 @@ def analyze_results(result, tlist):
     
     return pop_plus1, pop_0, pop_minus1, exp_Sz, gw_strain
 
-# ==================== 7. VISUALIZATION ==================== #
+# ==================== 7. VISUALIZATION ====================== #
+
 def plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz, gw_strain):
     """Create clear, interpretable plots"""
     
@@ -144,7 +146,8 @@ def plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz, gw_strain):
     
     return fig
 
-# ==================== 8. INTERPRETATION ==================== #
+# ==================== 8. INTERPRETATION ===================== #
+
 def interpret_results(pop_plus1, pop_0, pop_minus1):
     """Provide clear interpretation of what we're seeing"""
     max_transfer = max(max(pop_plus1), max(pop_minus1))
@@ -180,7 +183,7 @@ def interpret_results(pop_plus1, pop_0, pop_minus1):
         print("   - Try different GW frequencies")
         print("   - Use real LIGO data")
 
-# ==================== 9. MAIN EXECUTION ==================== #
+# ==================== 9. MAIN EXECUTION ===================== #
 if __name__ == "__main__":
     print("🚀 NV-CENTER GRAVITATIONAL WAVE SIMULATION")
     print("=" * 50)
@@ -191,5 +194,5 @@ if __name__ == "__main__":
     plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz, gw_strain)
     interpret_results(pop_plus1, pop_0, pop_minus1)
     
-    print(f"\n✅ SIMULATION COMPLETE!")
+    
     print("Next: Derive actual kappa from Foldy-Wouthuysen transformation")
