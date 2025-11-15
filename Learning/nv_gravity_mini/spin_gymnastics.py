@@ -16,7 +16,7 @@ def spin_gym():
     return challenges
 #================= Spin Gymnastics Challenges =================#
 # Warmup Challenge #
-Sx = qt.jmat(1, 'x')
+Sx = qt.jmat(1, 'x') # We define the spin-1 operators
 Sy = qt.jmat(1, 'y')
 Sz = qt.jmat(1, 'z')
 def spin_commutation(a, b):
