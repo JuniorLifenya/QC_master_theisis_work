@@ -18,7 +18,7 @@ psi_plus1 = qt.basis(3, 0)  # |m_s = +1>
 psi_0 = qt.basis(3, 1)      # |m_s = 0>  
 psi_minus1 = qt.basis(3, 2) # |m_s = -1>
 
-print("✓ Spin operators and basis states defined")
+print(" Spin operators and basis states defined")
 
 # ==================== 2. PHYSICAL PARAMETERS ======================= #
 
@@ -26,7 +26,7 @@ D = 2.87e9           # Zero-field splitting (Hz)
 gamma_e = 28e9       # Gyromagnetic ratio (Hz/T)
 kappa = 1e15         # GW coupling constant (PLACEHOLDER - from FW transformation)
 Bz = 0.0            # Static magnetic field (T)
-print(f"✓ Physical parameters: D={D/1e9:.2f} GHz, kappa={kappa:.1e}")
+print(f" Physical parameters: D={D/1e9:.2f} GHz, kappa={kappa:.1e}")
 
 # We try now to define a scale , so we can change toy into real parameters later
 scale_factor = 1e9  # Scale factor to convert toy parameters to realistic ones
@@ -39,7 +39,7 @@ def h_plus(t, f_gw=100, h_max=1e-18):
     """Simple monochromatic GW - REALISTIC parameters"""
     return h_max * np.sin(2 * np.pi * f_gw * t)
 
-print("✓ GW strain function defined")
+print(" GW strain function defined")
 
 # ==================== 4. HAMILTONIANS ======================= #
 
@@ -58,7 +58,7 @@ def get_hamiltonians(Bz):
     
     return H_td
 
-print("✓ Hamiltonians defined")
+print(" Hamiltonians defined")
 
 # ==================== 5. SIMULATION ========================= #
 def run_simulation():
@@ -78,7 +78,7 @@ def run_simulation():
     
     # Run simulation
     result = qt.sesolve(H, psi0, tlist)
-    print("✓ Time evolution complete")
+    print("Time evolution complete")
     
     return result, tlist
 
@@ -154,26 +154,26 @@ def interpret_results(pop_plus1, pop_0, pop_minus1):
     initial_pop = pop_0[0]
     final_pop = pop_0[-1]
     
-    print(f"\n📊 QUANTITATIVE RESULTS:")
+    print(f"\n QUANTITATIVE RESULTS:")
     print(f"Initial |0⟩ population: {initial_pop:.6f}")
     print(f"Final |0⟩ population: {final_pop:.6f}") 
     print(f"Maximum transfer to |±1⟩ states: {max_transfer:.6f}")
     
-    print(f"\n🎯 PHYSICAL INTERPRETATION:")
+    print(f"\n PHYSICAL INTERPRETATION:")
     if max_transfer > 0.1:
-        print("➡️ STRONG EFFECT: GW causes significant population transfer")
+        print(" STRONG EFFECT: GW causes significant population transfer")
         print("   The gravitational wave is strongly driving transitions between spin states")
     elif max_transfer > 0.01:
-        print("➡️ MODERATE EFFECT: Observable population transfer") 
+        print(" MODERATE EFFECT: Observable population transfer") 
         print("   The GW is having a measurable effect on the spin dynamics")
     elif max_transfer > 0.001:
-        print("➡️ WEAK EFFECT: Small but detectable population transfer")
+        print(" WEAK EFFECT: Small but detectable population transfer")
         print("   The GW effect is present but requires sensitive measurement")
     else:
-        print("➡️ NEGLIGIBLE EFFECT: Population transfer below detection threshold")
+        print(" NEGLIGIBLE EFFECT: Population transfer below detection threshold")
         print("   Try increasing kappa or using more realistic GW parameters")
     
-    print(f"\n🔧 SUGGESTIONS:")
+    print(f"\n SUGGESTIONS:")
     if max_transfer < 0.01:
         print("   - Increase kappa to 1e18-1e20 (stronger coupling)")
         print("   - Use larger GW strain h_max=1e-15 to 1e-12")
@@ -185,7 +185,7 @@ def interpret_results(pop_plus1, pop_0, pop_minus1):
 
 # ==================== 9. MAIN EXECUTION ===================== #
 if __name__ == "__main__":
-    print("🚀 NV-CENTER GRAVITATIONAL WAVE SIMULATION")
+    print(" NV-CENTER GRAVITATIONAL WAVE SIMULATION")
     print("=" * 50)
     
     # Run everything
