@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-#========= NV-center under Gravitational Wave Simulation using QuTiP ==========#
+#========= NV-center under Gravitational Wave Simulation using QuTiP ============#
 print("Setting first up the NV-center as a spin-1 system \n")
 
 # Spin-1 operators as (3x3 matrices)
@@ -16,7 +16,7 @@ Sx2 = Sx ** 2
 Sy2 = Sy ** 2
 Sz2 = Sz ** 2
 
-# ================= Basis states and Hamiltonian Definitions ==================#
+# ================= Basis states and Hamiltonian Definitions ===================#
 
 psi_plus1 = qt.basis(3, 0)   # |ms = +1> 
 psi_0    = qt.basis(3, 1)   # |ms = 0>
@@ -27,14 +27,9 @@ psi_minus1 = qt.basis(3, 2)  # |ms = -1>
 D = 2.87e9  # Hz (zero-field splitting ~ 2.87 GHz)
 gamma_e = 28e9  # Hz/T (electron gyromagnetic ratio)
 
-H_nv = D * Sz2  # Zero-field splitting term
+H_nv = D * Sz2  # Zero-field splitting term, simple for now 
 
-print(" ✓ Setup done and Hamiltonian without magnetic field: \n", H_nv)
-# ================ Gravitational Wave Interaction Hamiltonian =================#
-
-
-
-print("Defining the interaction Hamiltonian from gravitational wave strain")
+# ================ Gravitational Wave Interaction Hamiltonian ==================#
 
 # Simple monochromatic GW waveform function
 def h_plus(t, f_gw = 1000, h_max = 1e-20):
@@ -58,10 +53,8 @@ def H_int(t, args = None):
     h_c = h_cross(t)
     return h_p * H_int_operator   + h_c # Only h_plus contributes in this simple example
 
-print("✓ GW interaction setup complete")
 
-# ==================== Time Evolution Simulation ====================#
-print("Setting up time evolution simulation under GW influence")
+# ==================== Time Evolution Simulation =============================#
 
 # Total Hamiltonian 
 H = [H_nv, [H_int_operator, h_plus]]
