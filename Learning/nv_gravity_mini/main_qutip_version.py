@@ -69,7 +69,7 @@ tlist = np.linspace(0, 0.01, 1000)  # 10 ms total time, 1000 points
 
 # We run the simulation (NO decoherence for simplicity)
 result = qt.sesolve(H, psi0, tlist, [])
-print("✓ Time evolution simulation complete")
+
 
 # ==================== Analyzing and Plotting Results ====================#
 print("Analyzing results and plotting population in |0> state")

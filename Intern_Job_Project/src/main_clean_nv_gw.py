@@ -5,7 +5,7 @@ import numpy as np
 import qutip as qt
 import matplotlib.pyplot as plt
 
-# ==================== 1. SPIN OPERATORS & BASIS ==================== #
+# ==================== 1. SPIN OPERATORS & BASIS ============== #
 # Spin-1 operators
 Sx = qt.jmat(1, 'x')
 Sy = qt.jmat(1, 'y') 
@@ -17,7 +17,7 @@ psi_0 = qt.basis(3, 1)      # |m_s = 0>
 psi_minus1 = qt.basis(3, 2) # |m_s = -1>
 
 
-# ==================== 2. PHYSICAL PARAMETERS ======================= #
+# ==================== 2. PHYSICAL PARAMETERS ================ #
 
 D = 2.87e9           # Zero-field splitting (Hz)
 gamma_e = 28e9       # Gyromagnetic ratio (Hz/T)
@@ -53,10 +53,10 @@ def get_hamiltonians(Bz):
     return H_td
 
 # ==================== 5. SIMULATION ========================= #
+
 def run_simulation():
     """Run the complete simulation"""
-    print("Starting simulation...")
-    
+
     # Parameters
     Bz = 0.01  # 10 mT magnetic field
     t_final = 0.1  # 100 ms (to see multiple GW cycles)
@@ -69,8 +69,8 @@ def run_simulation():
     psi0 = psi_0
     
     # Run simulation
-    result = qt.sesolve(H, psi0, tlist)
-    print("Time evolution complete")
+    result = qt.sesolve(H, psi0, tlist) 
+    
     
     return result, tlist
 
@@ -93,7 +93,7 @@ def analyze_results(result, tlist):
     
     return pop_plus1, pop_0, pop_minus1, exp_Sz, gw_strain
 
-# ==================== 7. VISUALIZATION ====================== #
+# ==================== 7. VISUALIZATION =================== #
 
 def plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz, gw_strain):
     """Create clear, interpretable plots"""
