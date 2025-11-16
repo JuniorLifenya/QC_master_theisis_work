@@ -14,12 +14,40 @@ def spin_gym():
         "gw_detector": "Detect a hidden GW signal in noisy population data"
     }
     return challenges
+
 #================= Spin Gymnastics Challenges =================#
 # Warmup Challenge #
 Sx = qt.jmat(1, 'x') # We define the spin-1 operators
 Sy = qt.jmat(1, 'y')
 Sz = qt.jmat(1, 'z')
+
+
 def spin_commutation(a, b):
     """Compute the commutator [a, b]"""
     return a * b - b * a
+print("Verifying spin-1 commutation relation [Sx, Sy] = iħSz:")
 print(spin_commutation(Sx, Sy))
+print("Expected: i * Sz")
+print("\n")
+
+def print_matrix(mat, name):
+    """Helper function to print matrices nicely"""
+    print(f"{name} =\n{mat.full()}\n")
+print_matrix(Sx, "Sx")
+print_matrix(Sy, "Sy")
+print_matrix(Sz, "Sz")
+
+def verify_commutation():
+    """Verify the commutation relations for spin-1 operators"""
+    comm_Sx_Sy = spin_commutation(Sx, Sy)
+    expected = 1j * Sz
+    if np.allclose(comm_Sx_Sy.full(), expected.full()):
+        print("✓ Commutation relation [Sx, Sy] = iħSz verified!")
+    else:
+        print("✗ Commutation relation [Sx, Sy] = iħSz NOT verified!")
+
+verify_commutation()
+
+#================= Level 2 Challenges =================#
+
+
