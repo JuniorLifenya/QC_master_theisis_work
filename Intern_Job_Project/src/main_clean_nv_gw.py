@@ -21,7 +21,7 @@ psi_minus1 = qt.basis(3, 2) # |m_s = -1>
 
 D = 2.87e9           # Zero-field splitting (Hz)
 gamma_e = 28e9       # Gyromagnetic ratio (Hz/T)
-kappa = 1e15         # GW coupling constant (PLACEHOLDER - from FW transformation)
+kappa = 1e19        # GW coupling constant (PLACEHOLDER - from FW transformation)
 Bz = 0.0            # Static magnetic field (T)
 
 # We try now to define a scale , so we can change toy into real parameters later

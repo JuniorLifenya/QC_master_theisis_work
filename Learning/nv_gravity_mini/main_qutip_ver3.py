@@ -93,13 +93,14 @@ print(f"<+1|Sx|0>     = {Sx.matrix_element(psi_p1, psi_0)} \n")   # Δm=+1 allow
 print(f"<+1|Sy|0>     = {Sy.matrix_element(psi_p1, psi_0)} \n")   # Δm=+1 allowed
 print(f"<+1|Sz|0>     = {Sz.matrix_element(psi_p1, psi_0)} \n")   # should be zero: Δm=+1 not allowed
 
-print("Checking some S_i matrix elements <+1|Si^2|0>:", "\n")
+print("Checking some S^2_i matrix elements <+1|Si^2|0>:", "\n")
 print(f"<+1|Sx^2|0>   = {(Sx2).matrix_element(psi_p1, psi_0)} \n") # zero: Δm=+2 needed
 print(f"<+1|Sy^2|0>   = {(Sy2).matrix_element(psi_p1, psi_0)} \n") # zero: Δm=+2 needed
 print(f"<+1|Sz^2|0>   = {(Sz2).matrix_element(psi_p1, psi_0)} \n") # zero: Δm=+2 needed
 
 print("Checking some S_plus and S_minus matrix elements <+1|Sp/Sm|0>:", "\n")
 print(f"<+1|Sp|0>     = {Sp.matrix_element(psi_p1, psi_0)} \n")   # should be nonzero
+print(f"<+1|Sm|0>     = {Sm.matrix_element(psi_p1, psi_0)} \n")   # should be zero: Δm=+1 not allowed
 print(f"<+1|Sp^2|0>   = {(Sp*Sp).matrix_element(psi_p1, psi_0)} \n") # zero: Δm=+2 needed
 # --------------------------------------------------------------------
 # Checking NV-center stuff, and GW interaction operator
@@ -117,24 +118,21 @@ print("\n================ End of Debug Info ================\n")
 
 #================= Gravitational Wave Interaction Hamiltonian ====================#
 
-
-
 # --------------------------------------------------------------------
 # Functions defining GW strain polarizations from h (t)
 # --------------------------------------------------------------------
-
 
 # Simple monochromatic GW waveform function
 
 def h_plus(t, A, omega): #Change f_gw and h_max as needed
     """GW strain: h_plus(t) = h_max * sin(2π f_gw t)"""
-    return A * np.sin(omega* t)
+    return A * np.sin(omega * t)
 
 def h_cross(t,A, omega):
     """No cross polarization in this simple example"""
     return 0.0
 
-# --------------------------------------------------------------------
+# ---------------------------------------------------------------------
 # Interaction Hamiltonian (MUST BE DERIVED FROM THEORY, MAIN PHYSICS)
 # Based on quadrupole coupling: H_int = κ h_plus(t) (S_x² - S_y²)
 # --------------------------------------------------------------------
@@ -150,14 +148,13 @@ H_int_operator = kappa * Op_cross  # Operator part of H_int, time-dep part is h_
 # QuTiP time-dependent Hamiltonian function
 # --------------------------------------------------------------------
 # Methode 1: Using string-based time-dep (Recommended for simple cases)
-H_nv = H0 # Static NV Hamiltonian
-H_td = [H0, [H_int_operator, f"A*sin(omega*t)"]]  # QuTiP format for time-dependent Hamiltonian
+H_td = [H0, [H_int_operator, f'A * sin(omega * t)']]  # QuTiP format for time-dependent Hamiltonian
 
 # Methode 2: Using lambda function-based time-dep (more flexible for complex cases)
-# H_td = [H0, [H_int_operator, lambda t, args: args['A'] * np.sin(args['omega'] * t)]]
+#H_td = [H0, [H_int_operator, lambda t, args: args['A'] * np.sin(args['omega'] * t)]]
 
 # Arguments for time-dependent Hamiltonian
-args = {'A': A_toy, 'omega': omega_gw}
+args = {'A': A_toy, 'omega': omega_gw}  
 
 # --------------------------------------------------------------------
 # Checking some Operator relations 
@@ -206,20 +203,17 @@ proj_m1 = psi_m1.proj()
 # T2 dephasing (|+1> <-> |-1>)
 #gamma_T1 = 1/ (1e-3)  # 1 ms
 gamma_T2 = 1/ (0.5e-3)  # 0.5 ms
-c_ops = []
+c_ops = [np.sqrt(gamma_T2) * qt.spre(Sz)]  # Dephasing operator
 # c_ops.append(np.sqrt(gamma_T1) * qt.spre(psi_0 * psi_p1.dag()))  # |+1> -> |0>
 # c_ops.append(np.sqrt(gamma_T1) * qt.spre(psi_0 * psi_m1.dag()))  # |-1> -> |0>
-c_ops.append(np.sqrt(gamma_T2) * Sz)  # Simple Dephasing
 
 #====================== Some decoherence options (not used now) ==================#
 
 #===================== Time evolution ============================================#
 
 print(f"\n===== Starting time evolution simulation ======\n")
-
-
 # --------------------------------------------------------------------
-# Solve with mesolve (Lindblad)
+# Solve with mesolve (Lindblad basically no decoherence here)
 # --------------------------------------------------------------------
 
 # We run the simulation (NO decoherence for simplicity)
@@ -229,31 +223,33 @@ result = qt.mesolve(H_td,rho0, tlist, c_ops=c_ops, e_ops=[proj_p1,proj_0,proj_m1
 p_p1, p_0, p_m1 , exp_Sz = [np.real(x) for x in result.expect]
 
 print(f"Final populations: P(+1)={p_p1[-1]:.4f}, P(0)={p_0[-1]:.4f}, P(-1)={p_m1[-1]:.4f}")
-print(f"Final expectation <Sz> ={exp_Sz[-1]}\n")
+print(f"Final expectation <Sz> ={exp_Sz[-1]:.6f}\n")
 
 #===================== Solving the Master Equation ===============================#
 
 
 
 #======================= Plotting Results ========================================#
-
-plt.figure(figsize=(12, 10))
+# Use a different cleaner approach for figures and axes at the same time
+fig,axes = plt.subplots(2,2,figsize=(15,10))
+fig.suptitle('NV Center Dynamics under Gravitational Wave Influence', fontsize=16, fontweight='bold')
 
 # --------------------------------------------------------------------
 #Plotting the populations first #
 # --------------------------------------------------------------------
 
 # Plotting populations
-plt.subplot(2, 3, 1)
-plt.plot(tlist * 1e3, p_p1, label='Population |+1>', linewidth = 2, color = "red") 
-plt.plot(tlist * 1e3, p_0, label='Population |0>', linewidth = 2, color = "blue")
-plt.plot(tlist * 1e3, p_m1, label='Population |-1>, ', linewidth = 2, color = "green")
 
-plt.xlabel('Time (ms)')
-plt.ylabel('Population')
-plt.title(f'NV center Populations under GW Influence with :(A={A_toy}, f={f_gw} cycles/unit)')
+axes[0,0].plot(tlist * 1e3, p_p1, label='Population |+1>', linewidth = 2, color = "red") 
+axes[0,0].plot(tlist * 1e3, p_0, label='Population |0>', linewidth = 2, color = "blue")
+axes[0,0].plot(tlist * 1e3, p_m1, label='Population |-1>, ', linewidth = 2, color = "green")
 
-plt.legend();plt.grid(True)
+axes[0,0].set_xlabel('Time (ms)')
+axes[0,0].set_ylabel('Population')
+axes[0,0].set_title(f'NV center Populations under GW Influence with :(A={A_toy}, f={f_gw} cycles/unit)')
+
+axes[0,0].legend()
+axes[0,0].grid(True, alpha = 0.3)
 #plt.tight_layout() # Change layout to avoid overlap
 plt.show()
 
@@ -261,35 +257,22 @@ plt.show()
 # Plot GW strain h_plus(t) 
 # --------------------------------------------------------------------
 
-plt.subplot(2, 3, 2)
-gw_strain = A_toy*np.sin(omega_gw * tlist)
-plt.plot(tlist * 1e3, gw_strain, "r-", color='orange', label='h_plus(t)', linewidth = 2)
-plt.xlabel('Time (ms)')
-plt.ylabel('GW Strain h_plus(t)')
-plt.title('Gravitational Wave Signal')
-plt.grid(True)
+gw_strain = A_toy * np.sin(omega_gw * tlist)
+axes[0,1].plot(tlist * 1e3, gw_strain, "r-", color='orange', label='h_plus(t)', linewidth = 2)
+axes[0,1].set_xlabel('Time (ms)')
+axes[0,1].set_ylabel('GW Strain h_plus(t)')
+axes[0,1].set_title('Gravitational Wave Signal')
+axes[0,1].grid(True,alpha=0.3)
 
 # --------------------------------------------------------------------
 # Plot expectation value of Sz
 # --------------------------------------------------------------------
 
-plt.subplot(2, 3, 3)
-plt.plot(tlist * 1e3, exp_Sz, 'g-', linewidth=2, color='purple')
-plt.xlabel('Time (ms)')
-plt.ylabel('<S_z>')
-plt.title('Spin Expectation Value')
-plt.grid(True)
-
-# --------------------------------------------------------------------
-# Population in |0> state (most relevant for sensing)
-# --------------------------------------------------------------------
-
-plt.subplot(2,3,4)
-plt.plot(tlist * 1000, p_0, 'b-', linewidth=2,color='cyan')
-plt.xlabel('Time (ms)')
-plt.ylabel('Population P(|0>)')
-plt.title('Population in |0> State')
-plt.grid(True)
+axes[1,0].plot(tlist * 1e3, exp_Sz, 'g-', linewidth=2, color='purple')
+axes[1,0].set_xlabel('Time (ms)')
+axes[1,0].set_ylabel('<S_z>')
+axes[1,0].set_title('Spin Expectation Value')
+axes[1,0].grid(True)
 
 # --------------------------------------------------------------------
 # Plot energy level shifts (simplified)
@@ -308,41 +291,32 @@ plt.grid(True)
 #plt.show()
 
 # --------------------------------------------------------------------
-# Ploting Combined view of GW effect and population
+# FFT Analysis of Population Dynamics
 # --------------------------------------------------------------------
-plt.subplot(2, 3, 5)
-
-# Calculate population transfer amplitude
-transfer_amplitude = np.sqrt((p_p1-p_p1[0])**2 + (p_m1-p_m1[0])**2) # Simple measure of transfer
-plt.plot(tlist * 1e3, transfer_amplitude, 'o-', label='h_plus(t)', linewidth=1, color='brown')
-plt.xlabel('Time (ms)')
-plt.ylabel('Population Transfer Amplitude')
-plt.title('GW-induced Population Transfer')
-plt.grid(True)
-
-# --------------------------------------------------------------------
-# Frequency scan (final population P(+1) vs omega) — quick coarse scan
-# --------------------------------------------------------------------
-plt.subplot(2, 3, 5)
 
 # FFT of population in |0> state to see GW frequency components
 from scipy.fft import fft, fftfreq
 dt = tlist[1] - tlist[0]
 fft_p0 = fft(p_0 - np.mean(p_0))  # Remove DC component
 freqs = fftfreq(len(tlist), dt)
-positive_freq_index = freqs>0 # Only positive frequencies
-plt.plot(freqs[positive_freq_index]/1e3, np.abs(fft_p0[positive_freq_index]), 'b-', linewidth=2, color='magenta')
-plt.axvline(x= f_gw/1e3, color='red', linestyle='--', label=f'GW freq: {f_gw/1e3:.1f} kHz')
-plt.xlabel('Frequency (kHz)')
-plt.ylabel('FFT Amplitude of P(|0>)')
-plt.title('FFT Spectrum of Population P(|0>)')
-plt.legend()
-plt.grid(True)
+positive_freq_index = freqs > 0 # Only positive frequencies
+
+axes[1,1].plot(freqs[positive_freq_index]/1e3, np.abs(fft_p0[positive_freq_index]), 'b-', linewidth=2, color='magenta', label = 'FFT of P(|0>)')
+axes[1,1].axvline(x= f_gw/1e3, color='red', linestyle='--', label=f'GW freq: {f_gw/1e3:.1f} kHz', linewidth = 2)
+
+axes[1,1].set_xlabel('Frequency (kHz)')
+axes[1,1].set_ylabel('FFT Amplitude of P(|0>)')
+axes[1,1].set_title('FFT Spectrum of Population P(|0>)')
+axes[1,1].legend()
+axes[1,1].grid(True)
 
 plt.tight_layout()
 plt.show()
 
-# ======================= Resonance Analysis (Optional) =========================#
+# --------------------------------------------------------------------
+# Frequency Scan Analysis (Optional) #
+# --------------------------------------------------------------------
+
 print("\n===== Starting frequency scan simulation ======\n")
 def freq_scan(omega_vals, A=A_toy):
     """Scan different GW frequencies to find some resonance"""
@@ -350,26 +324,64 @@ def freq_scan(omega_vals, A=A_toy):
     for i, w in enumerate(omega_vals):
         if i % 10 == 0:
             print(f"Scanning freq ({i+1}/{len(omega_vals)})..., omega={w:.2f}")
+
+        # We create new args for each frequency    
         args_scan = {'A': A, 'omega': w}
-        result_scan = qt.mesolve(H_td, rho0, tlist, c_ops=c_ops, e_ops= [proj_p1], args=args)
+        result_scan = qt.mesolve(H_td, rho0, tlist, c_ops=c_ops, e_ops= [proj_p1], args=args_scan)
         final_populations.append(np.real(result_scan.expect[0][-1]))
+
     return np.array(final_populations)
 
 # Frequency range for scan, these are expected sesonant frequencies
-omega_scan = np.linspace(0.5* omega_gw, 2*omega_gw, 50)
+freq_scane_range= np.linspace(100,5000,50) # in cycles/unit (Hz)
+omega_scan =2* np.pi * freq_scane_range  # convert to rad/unit
 final_p_plus1 = freq_scan(omega_scan)
 
+# Plot frequency scan results
 plt.figure(figsize=(10,6))
-plt.plot(omega_scan/(2*np.pi), final_p_plus1, '-o',linewidth= 2, markersize = 4)  # convert back to cycles if desired
+plt.plot(freq_scane_range, final_p_plus1, '-o',linewidth= 2, markersize = 4, label = 'Final P(|+1>)')  # convert back to cycles if desired
 plt.axvline(x= f_gw, color='red', linestyle='--', label=f'Input GW freq: {f_gw} Hz')
 plt.xlabel('GW Frequency Hz or (cycles/unit)')
 plt.ylabel('Final Population P(|+1>)')
 plt.title('Frequency Scan: Final Population in |+1> vs GW Frequency')
 plt.legend()
-plt.grid(True)
+plt.grid(True, alpha = 0.3)
 plt.show()
 
+
 #======================= Plotting Results ========================================#
+
+#======================= Additional Plots ========================================#
+fig2, axes2 = plt.subplots(2,3,figsize=(15,10))
+fig2.suptitle('Additional NV Center Dynamics under Gravitational Wave Influence', fontsize=16, fontweight='bold')
+
+
+# --------------------------------------------------------------------
+# Detailed Population in |0> state (most relevant for sensing)
+# --------------------------------------------------------------------
+
+
+axes2[0].plot(tlist * 1e3, p_0, 'b-', linewidth=2,color='cyan')
+axes2[0].set_xlabel('Time (ms)')
+axes2[0].set_ylabel('Population P(|0>)')
+axes2[0].set_title('Population in |0> State (Sensing State)')
+axes2[0].grid(True, alpha=0.3)
+
+# --------------------------------------------------------------------
+# Calculate population transfer amplitude
+# --------------------------------------------------------------------
+
+transfer_to_excited = p_p1 + p_m1  # Total population in |+1> and |-1>
+axes2[1].plot(tlist * 1e3, transfer_to_excited, 'o-', label='h(t)', linewidth=1, color='brown')
+axes2[1].set_xlabel('Time (ms)')
+axes2[1].set_ylabel('Population Transfer P(|+1>) + P(|-1>)')
+axes2[1].set_title('GW-induced Population Transfer')
+axes2[1].grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+#======================= Additional Plots ========================================#
 
 #======================= Physical Analysis========================================#
 
@@ -382,22 +394,32 @@ print(f"GW strain amplitude: {(A_toy)}")
 
 # Calculate approximate Rabi frequency induced by GW interaction
 # Using matrix element <0|Op_plus|+1> for estimation of two-level system
-matrix_element = Op_plus.matrix_element(psi_0, psi_p1) # Or written as (psi_0.dag() * Op_plus * psi_p1)
-Omega_Rabi = kappa * A_toy * np.abs(matrix_element)  # Rabi frequency estimate
-print(f"Estimated GW-induced Rabi frequency Omega_Rabi = {Omega_Rabi:.4}) Hz")
-print(f"Corresponding Rabi period T_Rabi = {2*np.pi/Omega_Rabi:.4f} time units")
-effective_coupling = np.abs(matrix_element)* A_toy
-print(f" Matrix element <+1|Op_plus|0> = {matrix_element:.3e}, Effective rabi coupling frequency = {effective_coupling:.3e} Hz")
+matrix_element = (psi_p1.dag() * H_int_operator * psi_0).data[0,0] # Extract scalar value
+effective_coupling = np.abs(matrix_element) * A_toy  # Effective coupling strength
+rabi_frequency = effective_coupling / (2 * np.pi)
+
+
+print(f"\nPhysical Parameters:")
+print(f"Matrix element <+1|H_int|0>: {matrix_element:.3e}")
+print(f"Effective coupling: {effective_coupling:.3e} Hz")
+print(f"Estimated Rabi frequency: {rabi_frequency:.3e} Hz")
+
+# Calculate some metrics
+max_transfer = np.max(p_p1) - p_p1[0]
+print(f"\nGW Effect Metrics:")
+print(f"Maximum population transfer to |+1>: {max_transfer:.6f}")
+print(f"Oscillation amplitude in P(|0>): {np.std(p_0):.6f}")
 
 print("\n======================= End of Analysis =======================\n")
 
 #======================= Physical Analysis========================================#
-print(" Analysis complete")
-print("NEXT STEPS:")
-print("1. Run this code - see if GW causes population transfers")
-print("2. Vary kappa to see stronger/weaker effects")  
-print("3. Add decoherence (collapse operators)")
-print("4. Replace placeholder kappa with FW-derived value")
+
+print("\nNEXT STEPS FOR RESEARCH:")
+print("1. Calibrate kappa with realistic physical values")
+print("2. Include magnetic field for Zeeman splitting")
+print("3. Add multiple NV centers and entanglement")
+print("4. Implement realistic GW waveforms from astrophysical sources")
+print("5. Calculate sensitivity limits and noise analysis")
 
 
 
