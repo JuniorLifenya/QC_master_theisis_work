@@ -2,7 +2,7 @@
 ULTIMATE NV-CENTER GRAVITATIONAL WAVE DETECTOR SIMULATION
 Master Thesis Level - Industry Ready (NASA/IBM/Microsoft Quality)
 
-FIXED VERSION: Corrected matrix element calculation and improved error handling
+COMPLETE INTEGRATED VERSION: Includes animation suite in the same file
 """
 
 import numpy as np
@@ -11,6 +11,105 @@ import matplotlib.pyplot as plt
 from scipy.fft import fft, fftfreq
 import warnings
 warnings.filterwarnings('ignore')
+
+# ==================== ANIMATION SUITE ==================== #
+
+class NVGWAnimator:
+    """
+    Professional animation suite for NV-center GW detection results
+    Creates publication-quality animated visualizations
+    """
+    
+    def __init__(self, simulation_results, detector_params):
+        self.results = simulation_results
+        self.params = detector_params
+        self.setup_colors()
+        
+    def setup_colors(self):
+        """Define professional color scheme"""
+        self.colors = {
+            'p0': '#1f77b4',      # Blue for |0⟩
+            'p1': '#d62728',      # Red for |+1⟩  
+            'm1': '#2ca02c',      # Green for |-1⟩
+            'gw': '#9467bd',      # Purple for GW strain
+            'sz': '#ff7f0e',      # Orange for Sz
+            'sx': '#e377c2',      # Pink for Sx
+            'sy': '#17becf',      # Cyan for Sy
+            'phase': '#7f7f7f',   # Gray for phase space
+            'bg': '#f8f9fa',      # Light background
+            'grid': '#e9ecef'     # Grid color
+        }
+        
+    def create_population_animation(self, filename="population_dynamics.mp4"):
+        """Create focused population dynamics animation"""
+        try:
+            import matplotlib.animation as animation
+            from matplotlib.animation import FFMpegWriter
+            
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+            fig.patch.set_facecolor(self.colors['bg'])
+            
+            t_ms = self.results['time'] * 1000
+            p_p1, p_0, p_m1 = self.results['populations']
+            gw_strain = self.results['gw_strain']
+            
+            # Top: Populations
+            ax1.set_facecolor(self.colors['bg'])
+            line0, = ax1.plot([], [], color=self.colors['p0'], linewidth=3, label='$|0\\rangle$')
+            line1, = ax1.plot([], [], color=self.colors['p1'], linewidth=2, label='$|+1\\rangle$')
+            line2, = ax1.plot([], [], color=self.colors['m1'], linewidth=2, label='$|-1\\rangle$')
+            vert1, = ax1.plot([], [], 'k--', alpha=0.5)
+            
+            ax1.set_xlim(0, np.max(t_ms))
+            ax1.set_ylim(0, 1)
+            ax1.set_ylabel('Population')
+            ax1.set_title('GW-Driven Population Transfer', fontweight='bold', fontsize=14)
+            ax1.legend()
+            ax1.grid(True, alpha=0.3)
+            
+            # Bottom: GW Strain
+            ax2.set_facecolor(self.colors['bg'])
+            gw_line, = ax2.plot([], [], color=self.colors['gw'], linewidth=2)
+            vert2, = ax2.plot([], [], 'k--', alpha=0.5)
+            
+            ax2.set_xlim(0, np.max(t_ms))
+            ax2.set_ylim(np.min(gw_strain)*1.1, np.max(gw_strain)*1.1)
+            ax2.set_xlabel('Time (ms)')
+            ax2.set_ylabel('GW Strain')
+            ax2.grid(True, alpha=0.3)
+            
+            def update(frame):
+                line0.set_data(t_ms[:frame+1], p_0[:frame+1])
+                line1.set_data(t_ms[:frame+1], p_p1[:frame+1])
+                line2.set_data(t_ms[:frame+1], p_m1[:frame+1])
+                vert1.set_data([t_ms[frame], t_ms[frame]], [0, 1])
+                
+                gw_line.set_data(t_ms[:frame+1], gw_strain[:frame+1])
+                vert2.set_data([t_ms[frame], t_ms[frame]], 
+                             [np.min(gw_strain), np.max(gw_strain)])
+                
+                return line0, line1, line2, vert1, gw_line, vert2
+            
+            # Create animation with fewer frames for speed
+            frames = min(200, len(t_ms))  # Limit frames for performance
+            anim = animation.FuncAnimation(fig, update, frames=frames, interval=50, blit=False)
+            
+            # Try to save, but provide fallback if ffmpeg not available
+            try:
+                writer = FFMpegWriter(fps=20, bitrate=1800)
+                anim.save(filename, writer=writer)
+                print(f"✅ Population animation saved: {filename}")
+            except:
+                print("⚠️  FFmpeg not available. Animation will be displayed but not saved.")
+                plt.show()
+                
+            plt.close()
+            
+        except ImportError as e:
+            print(f"⚠️  Animation dependencies not available: {e}")
+            print("   Install: pip install matplotlib ffmpeg-python")
+
+# ==================== MAIN DETECTOR CLASS ==================== #
 
 class UltimateNVGWDetector:
     """
@@ -498,6 +597,29 @@ class UltimateNVGWDetector:
         print("  - GPU acceleration with CUDA/OpenCL")
         print("  - Cache Hamiltonian evaluations")
         print("  - Use complex number optimizations")
+    
+    def create_animation(self, results):
+        """Create animation from simulation results"""
+        print("\n🎬 Creating Animation...")
+        
+        # Extract parameters for animator
+        params = {
+            'D': self.D,
+            'Bz': self.Bz,
+            'kappa': self.kappa,
+            'f_gw': self.f_gw,
+            'h_max': self.h_max,
+            'T1': self.T1,
+            'T2': self.T2
+        }
+        
+        # Create animator
+        animator = NVGWAnimator(results, params)
+        
+        # Create population animation
+        animator.create_population_animation()
+        
+        print("🎉 Animation created successfully!")
 
 # ==================== DEMONSTRATION AND TESTING ==================== #
 
@@ -511,6 +633,11 @@ def demonstrate_toy_model():
     results = detector.analyze_results()
     detector.plot_comprehensive_results(results)
     detector.generate_detection_report()
+    
+    # Create animation
+    detector.create_animation(results)
+    
+    return detector, results
 
 def demonstrate_realistic_detection():
     """Demonstrate the detector with realistic parameters"""
@@ -534,6 +661,8 @@ def demonstrate_realistic_detection():
     
     # C++ translation guide
     detector.cpp_translation_guide()
+    
+    return detector, results
 
 # ==================== MAIN EXECUTION ==================== #
 
@@ -544,13 +673,13 @@ if __name__ == "__main__":
     print("="*65)
     
     # Run both demonstrations
-    demonstrate_toy_model()
+    detector_toy, results_toy = demonstrate_toy_model()
     
     print("\n"*2 + "="*65)
     print("Now running realistic scenario...")
     print("="*65)
     
-    demonstrate_realistic_detection()
+    detector_real, results_real = demonstrate_realistic_detection()
     
     print("\n" + "="*65)
     print("🎉 SIMULATION SUITE COMPLETE")
