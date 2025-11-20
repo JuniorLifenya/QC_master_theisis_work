@@ -398,7 +398,7 @@ print(f"GW strain amplitude: {(A_toy)}")
 
 # Calculate approximate Rabi frequency induced by GW interaction
 # Using matrix element <0|Op_plus|+1> for estimation of two-level system
-matrix_element = (psi_p1.dag() * H_int_operator * psi_0).data[0,0] # Extract scalar value
+matrix_element = np.array(psi_p1.dag() * H_int_operator * psi_0).flatten()[0] # Converts to NumPy array, then extracts the scalar
 effective_coupling = np.abs(matrix_element) * A_toy  # Effective coupling strength
 rabi_frequency = effective_coupling / (2 * np.pi)
 
