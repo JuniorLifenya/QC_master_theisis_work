@@ -28,7 +28,7 @@ class NVGWParameters:
     Bz: float = 0.01                     # Magnetic field (T)
     
     # GW Parameters
-    f_gw: float = 1000.0                 # GW frequency (Hz)
+    f_gw: float = 100000                 # GW frequency (Hz)
     h_max: float = 1e-6                  # GW strain amplitude
     kappa: float = 1e10                  # Coupling constant
     

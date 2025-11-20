@@ -115,6 +115,7 @@
         "hamiltonians",
         "incorect",
         "jmat",
+        "levelname",
         "Lphi",
         "Lrel",
         "mesolve",

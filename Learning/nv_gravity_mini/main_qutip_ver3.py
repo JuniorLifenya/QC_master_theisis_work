@@ -217,7 +217,7 @@ print(f"\n===== Starting time evolution simulation ======\n")
 # --------------------------------------------------------------------
 
 # We run the simulation (NO decoherence for simplicity)
-result = qt.mesolve(H_td,rho0, tlist, c_ops=c_ops, e_ops=[proj_p1,proj_0,proj_m1,Sz,], args=args)
+result = qt.mesolve(H_td,rho0, tlist, c_ops=c_ops, e_ops=[proj_p1,proj_0,proj_m1,Sz,Sx,Sy,], args=args)
 
 # Extract results for populations
 p_p1, p_0, p_m1 , exp_Sz, exp_Sx, exp_Sy = [np.real(x) for x in result.expect]
