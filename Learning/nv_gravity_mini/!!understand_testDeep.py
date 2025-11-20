@@ -149,7 +149,7 @@ class UltimateNVGWDetector:
             'atol': 1e-12,
             'rtol': 1e-10,
             'max_step': self.p.t_final / 1000,
-            'progress_bar': True
+            'progress_bar': "text"
         }
         
         logger.info(f"Simulation: {self.p.t_final*1000:.1f} ms, {self.p.nsteps} steps")
