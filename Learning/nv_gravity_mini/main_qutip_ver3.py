@@ -220,9 +220,11 @@ print(f"\n===== Starting time evolution simulation ======\n")
 result = qt.mesolve(H_td,rho0, tlist, c_ops=c_ops, e_ops=[proj_p1,proj_0,proj_m1,Sz,], args=args)
 
 # Extract results for populations
-p_p1, p_0, p_m1 , exp_Sz = [np.real(x) for x in result.expect]
+p_p1, p_0, p_m1 , exp_Sz, exp_Sx, exp_Sy = [np.real(x) for x in result.expect]
 
 print(f"Final populations: P(+1)={p_p1[-1]:.4f}, P(0)={p_0[-1]:.4f}, P(-1)={p_m1[-1]:.4f}")
+print(f"Final expectation <Sx> ={exp_Sx[-1]:.6f}\n")
+print(f"Final expectation <Sy> ={exp_Sy[-1]:.6f}\n")
 print(f"Final expectation <Sz> ={exp_Sz[-1]:.6f}\n")
 
 #===================== Solving the Master Equation ===============================#
@@ -269,6 +271,8 @@ axes[0,1].grid(True,alpha=0.3)
 # --------------------------------------------------------------------
 
 axes[1,0].plot(tlist * 1e3, exp_Sz, 'g-', linewidth=2, color='purple')
+axes[1,0].plot(tlist * 1e3, exp_Sx, 'r-', linewidth=2, color='rose')
+axes[1,0].plot(tlist * 1e3, exp_Sy, 'b-', linewidth=2, color='grey')
 axes[1,0].set_xlabel('Time (ms)')
 axes[1,0].set_ylabel('<S_z>')
 axes[1,0].set_title('Spin Expectation Value')

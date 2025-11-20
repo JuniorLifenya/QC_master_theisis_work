@@ -87,15 +87,17 @@ def analyze_results(result, tlist):
     
     # Calculate expectation values
     exp_Sz = qt.expect(Sz, result.states)
+    exp_Sx = qt.expect(Sx, result.states)
+    exp_Sy = qt.expect(Sy, result.states)
     
     # GW strain for reference
     gw_strain = [h_plus(t) for t in tlist]
     
-    return pop_plus1, pop_0, pop_minus1, exp_Sz, gw_strain
+    return pop_plus1, pop_0, pop_minus1, exp_Sx,exp_Sy,exp_Sz, gw_strain
 
 # ==================== 7. VISUALIZATION =================== #
 
-def plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz, gw_strain):
+def plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz,exp_Sx,exp_Sy, gw_strain):
     """Create clear, interpretable plots"""
     
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 10))
@@ -119,6 +121,8 @@ def plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz, gw_strain):
     
     # Plot 3: Spin expectation
     ax3.plot(tlist * 1000, exp_Sz, 'orange', linewidth=2)
+    ax3.plot(tlist * 1000, exp_Sx, 'purple', linewidth=2)
+    ax3.plot(tlist * 1000, exp_Sy, 'red', linewidth=2)
     ax3.set_xlabel('Time (ms)')
     ax3.set_ylabel('⟨S_z⟩')
     ax3.set_title('Spin Expectation Value')
@@ -182,9 +186,7 @@ if __name__ == "__main__":
     
     # Run everything
     result, tlist = run_simulation()
-    pop_plus1, pop_0, pop_minus1, exp_Sz, gw_strain = analyze_results(result, tlist)
-    plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz, gw_strain)
+    pop_plus1, pop_0, pop_minus1, exp_Sz,exp_Sx,exp_Sy, gw_strain = analyze_results(result, tlist)
+    plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz, exp_Sx,exp_Sy,gw_strain)
     interpret_results(pop_plus1, pop_0, pop_minus1)
-    
-    
     print("Next: Derive actual kappa from Foldy-Wouthuysen transformation")
