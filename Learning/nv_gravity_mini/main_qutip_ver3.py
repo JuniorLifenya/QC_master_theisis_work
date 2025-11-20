@@ -271,7 +271,7 @@ axes[0,1].grid(True,alpha=0.3)
 # --------------------------------------------------------------------
 
 axes[1,0].plot(tlist * 1e3, exp_Sz, 'g-', linewidth=2, color='purple')
-axes[1,0].plot(tlist * 1e3, exp_Sx, 'r-', linewidth=2, color='rose')
+axes[1,0].plot(tlist * 1e3, exp_Sx, 'r-', linewidth=2, color='magenta')
 axes[1,0].plot(tlist * 1e3, exp_Sy, 'b-', linewidth=2, color='grey')
 axes[1,0].set_xlabel('Time (ms)')
 axes[1,0].set_ylabel('<S_z>')
@@ -365,22 +365,22 @@ fig2.suptitle('Additional NV Center Dynamics under Gravitational Wave Influence'
 # --------------------------------------------------------------------
 
 
-axes2[0].plot(tlist * 1e3, p_0, 'b-', linewidth=2,color='cyan')
-axes2[0].set_xlabel('Time (ms)')
-axes2[0].set_ylabel('Population P(|0>)')
-axes2[0].set_title('Population in |0> State (Sensing State)')
-axes2[0].grid(True, alpha=0.3)
+axes2[0,0].plot(tlist * 1e3, p_0, 'b-', linewidth=2,color='cyan')
+axes2[0,0].set_xlabel('Time (ms)')
+axes2[0,0].set_ylabel('Population P(|0>)')
+axes2[0,0].set_title('Population in |0> State (Sensing State)')
+axes2[0,0].grid(True, alpha=0.3)
 
 # --------------------------------------------------------------------
 # Calculate population transfer amplitude
 # --------------------------------------------------------------------
 
 transfer_to_excited = p_p1 + p_m1  # Total population in |+1> and |-1>
-axes2[1].plot(tlist * 1e3, transfer_to_excited, 'o-', label='h(t)', linewidth=1, color='brown')
-axes2[1].set_xlabel('Time (ms)')
-axes2[1].set_ylabel('Population Transfer P(|+1>) + P(|-1>)')
-axes2[1].set_title('GW-induced Population Transfer')
-axes2[1].grid(True, alpha=0.3)
+axes2[0,1].plot(tlist * 1e3, transfer_to_excited, 'o-', label='h(t)', linewidth=1, color='brown')
+axes2[0,1].set_xlabel('Time (ms)')
+axes2[0,1].set_ylabel('Population Transfer P(|+1>) + P(|-1>)')
+axes2[0,1].set_title('GW-induced Population Transfer')
+axes2[0,1].grid(True, alpha=0.3)
 
 plt.tight_layout()
 plt.show()
