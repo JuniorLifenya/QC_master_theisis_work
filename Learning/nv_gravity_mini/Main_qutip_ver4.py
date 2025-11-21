@@ -2,15 +2,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import qutip as qt
+import os 
+os.makedirs("plots",exist_ok=True)
 
 
 from src.config import SimulateParameters
 from src.nv_quantum_setup import QuantumSystem
 from src.nv_quantum_setup import NVCenter
 from src.analyze_plotting import ResultAnalyzer
-
-
-
 
 
 # --------------------------------------------------------------------
@@ -109,7 +108,8 @@ def main():
     fig = analyzer.plot_populations()
     analyzer.print_simulation_summary(results)
 
-    plt.show()
+    plt.savefig("plots/nv_center_states.png")
+    #plt.show()
     print("Simulation completed successfully!")
     
 if __name__ == "__main__": # This actually defines and executes the function at the same time 
