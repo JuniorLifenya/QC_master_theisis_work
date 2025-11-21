@@ -48,9 +48,9 @@ class SimulateParameters:
     D: float = 2.87e9
     gamma_e: float = 28e9
     Bz: float = 0.0
-    
+
     # GW Parameters  
-    f_gw: float = 100
+    f_gw: float = 2000
     h_max: float = 1e-20
     kappa: float = 1e15
     
@@ -58,9 +58,14 @@ class SimulateParameters:
     t_final: float = 0.001
     n_steps: int = 1000
 
-    def __post_init__(self): # This runs automatically after init
-        self.omega_gw = 2 * np.pi * self.f_gw
-        self.dt = self.t_final / self.n_steps
+    # Best definition of property
+    @property
+    def omega_gw(self):
+        return 2*np.pi * self.f_gw
+    
+    #def __post_init__(self): # This runs automatically after init ALTERNATIVE
+        #self.omega_gw = 2 * np.pi * self.f_gw
+        #self.dt = self.t_final / self.n_steps
 
 # --------------------------------------------------------------------
 # Main simulation class, QuantumSystem
@@ -70,7 +75,7 @@ class QuantumSystem:
     """Base class for any quantum system simulation"""
 
     def __init__(self,params):
-        self.params = params
+        self.p = params
         self.setup_operators() # These are methods defined below
         self.setup_states()
 
@@ -101,29 +106,33 @@ class NVCenter(QuantumSystem):
         self.Sx2 = self.Sx * self.Sx # Better then using dag og np (numpy)
         self.Sy2 = self.Sy * self.Sy
         self.Sz2 = self.Sz * self.Sz
+
+        # GW Interaction Operators
+        self.Op_plus = self.Sx2 - self.Sy2
+        self.Op_cross = self.Sx * self.Sy + self.Sy * self.Sx
     
     """ Define initial states """
     def setup_states(self):
         self.psi_p1 = qt.basis(3, 0)  # |+1>
         self.psi_0 = qt.basis(3, 1)   # |0>
         self.psi_m1 = qt.basis(3, 2)  # |-1>
+    
 
     
-    def get_hamiltonian(self):
+    def get_hamiltonian_0(self):
         """Construct the Hamiltonian for the NV center"""
-        H0 = self.params.D * self.Sz2 
-        if self.params.Bz != 0.0:
+        H0 = self.p.D * self.Sz2 
+        if self.p.Bz != 0.0:
 
-            H0 += self.params.gamma_e * self.params.Bz * self.Sz
+            H0 += self.p.gamma_e * self.p.Bz * self.Sz
         return H0
 
     def get_gw_interaction_operator(self):
         """Gravitational wave interaction Hamiltonian"""
         #h_t = self.params.h_max * np.sin(2 * np.pi * self.params.f_gw * t) * np.exp(-t / self.params.kappa)
-        H_gw = self.params.kappa * (self.Sx2 - self.Sy2)
+        H_gw = self.p.kappa * (self.Op_plus)
         # This is a postulated form, please adjust based on actual physics
-        return H_gw
-    
+        return H_gw    
 
 # --------------------------------------------------------------------
 # Simulation engine class
@@ -143,20 +152,23 @@ class SimulationEngine:
     def run_time_evolution(self):
         """ Run the main simulation loop here """
 
-        H_static = self.system.get_hamiltonian()
+        H_static = self.system.get_hamiltonian_0() # This is the same as H0
         H_int_operator = self.system.get_gw_interaction_operator()
 
         # Time-dependent Hamiltonian component
         H_td = [H_static, [H_int_operator, self.h_plus]]
-
+        
         args ={
-            'h_max': self.system.params.h_max,
-            'omega_gw': self.system.params.omega_gw
+            'h_max': self.system.p.h_max,
+            'omega_gw': self.system.p.omega_gw
         }
 
         #Run the simulation using QuTiP's mesolve
-        tlist = np.linspace(0, self.system.params.t_final, self.system.params.n_steps)
+        tlist = np.linspace(0, self.system.p.t_final, self.system.p.n_steps)
 
+        # Initial state |0>
+        #rho0 = self.p_0 * self.psi_0.dag()
+        
         e_ops =[self.system.psi_p1*self.system.psi_p1.dag(), # This is the evolution of the projectors
                 self.system.psi_0*self.system.psi_0.dag(), # Projector onto |0>
                 self.system.psi_m1*self.system.psi_m1.dag(),
@@ -168,7 +180,7 @@ class SimulationEngine:
         print(f"Running simulation with {len(tlist)} time steps...")
         # We pass c_ops =[] (empty list) as the 4th argument
         # Then afterwards we pass e_ops = e_ops as the 5th argument 
-        self.results= qt.mesolve(H_td,self.system.psi_0,tlist,c_ops=[], e_ops=e_ops, args =args)
+        self.results= qt.mesolve(H_td, self.system.psi_0, tlist, c_ops=[], e_ops=e_ops, args =args)
         print("Simulation completed successfully!")
 
 
@@ -193,7 +205,7 @@ class ResultAnalyzer:
         
         
         p_p1,p_0,p_m1, exp_sz, exp_sx, exp_sy = self.engine.results.expect
-        tlist = np.linspace(0,self.system.params.t_final, len(p_0))
+        tlist = np.linspace(0,self.system.p.t_final, len(p_0))
 
         fig,ax = plt.subplots(figsize =(10,6))
         ax.plot(tlist* 1e3, p_0,label = '|0>', linewidth=2)
@@ -215,9 +227,9 @@ class ResultAnalyzer:
         print('\n' + '='*50)
         print('Simulation Summary'.center(50))
         print('='*50)
-        print(f" GW Frequency: {self.system.params.f_gw/1e3:.2f} kHz")
-        print(f" GW Amplitude (h_max): {self.system.params.h_max:.2e}")
-        print(f" GW Strain: {self.system.params.kappa:.2e}")
+        print(f" GW Frequency: {self.system.p.f_gw/1e3:.2f} kHz")
+        print(f" GW Amplitude (h_max): {self.system.p.h_max:.2e}")
+        print(f" GW Strain: {self.system.p.kappa:.2e}")
         print(f" Final populations:")
         print(f"  |+1>: {p_p1[-1]:.4f}")
         print(f"  |0>: {p_0[-1]:.4f}")
@@ -233,7 +245,7 @@ def main():
     print("Starting NV-Center Gravitational Wave Simulation")
     
     # Setup Parameters
-    params = SimulateParameters(
+    new_params = SimulateParameters(
         f_gw= 1e2, # 1 kHz GW
         h_max= 1e-15, # We choose a higher amplitude for visibility try between 1e-20 to 1e-18
         kappa= 1e12,
@@ -244,7 +256,7 @@ def main():
 
     # We create the NV center quantum system
     print("Setting up simulation engine...")
-    nv_system = NVCenter(params)
+    nv_system = NVCenter(new_params)
 
     #We run simulation 
     print("Setting up simulation engine...")
@@ -260,5 +272,5 @@ def main():
     plt.show()
     print("Simulation completed successfully!")
     
-if __name__ == "__main__":
+if __name__ == "__main__": # This actually defines and executes the function at the same time 
     main()
