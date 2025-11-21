@@ -4,7 +4,6 @@ Master Thesis Level - Optimized & Robust
 
 FIXED VERSION: Corrected matrix element calculation
 """
-
 import numpy as np
 import qutip as qt
 import matplotlib.pyplot as plt
