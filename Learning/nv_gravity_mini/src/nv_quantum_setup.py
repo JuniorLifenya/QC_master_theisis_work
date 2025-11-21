@@ -1,6 +1,6 @@
 import qutip as qt
 import numpy as np
-from config import SimulateParameters
+from src.config import SimulateParameters
 cfg = SimulateParameters()
 
 # --------------------------------------------------------------------

@@ -3,10 +3,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import qutip as qt
 
-from config import SimulateParameters
-from nv_quantum_setup import QuantumSystem
-from nv_quantum_setup import NVCenter
-from analyze_plotting import ResultAnalyzer
+
+from src.config import SimulateParameters
+from src.nv_quantum_setup import QuantumSystem
+from src.nv_quantum_setup import NVCenter
+from src.analyze_plotting import ResultAnalyzer
+
 
 
 
