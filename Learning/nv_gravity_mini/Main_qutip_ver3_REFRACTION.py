@@ -166,7 +166,9 @@ class SimulationEngine:
             ]
         
         print(f"Running simulation with {len(tlist)} time steps...")
-        self.results= qt.mesolve(H_td,self.system.psi_0,tlist, e_ops, args =args)
+        # We pass c_ops =[] (empty list) as the 4th argument
+        # Then afterwards we pass e_ops = e_ops as the 5th argument 
+        self.results= qt.mesolve(H_td,self.system.psi_0,tlist,c_ops=[], e_ops=e_ops, args =args)
         print("Simulation completed successfully!")
 
 
@@ -205,22 +207,22 @@ class ResultAnalyzer:
 
         return fig
 
-def print_simulation_summary(self, results):
-    """Print a professional summary of the simulation results"""
+    def print_simulation_summary(self, results):
+        """Print a professional summary of the simulation results"""
 
-    p_p1, p_0, p_m1 , exp_sz, exp_sx, exp_sy = results.expect
+        p_p1, p_0, p_m1 , exp_sz, exp_sx, exp_sy = results.expect
 
-    print('\n' + '='*50)
-    print('Simulation Summary'.center(50))
-    print('='*50)
-    print(f" GW Frequency: {self.system.params.f_gw/1e3:.2f} kHz")
-    print(f" GW Amplitude (h_max): {self.system.params.h_max:.2e}")
-    print(f" GW Strain: {self.system.params.kappa:.2e}")
-    print(f" Final populations:")
-    print(f"  |+1>: {p_p1[-1]:.4f}")
-    print(f"  |0>: {p_0[-1]:.4f}")
-    print(f"  |-1>: {p_m1[-1]:.4f}")
-    print(f" Maximum transfer to |+1>: {max(p_p1):.4f}")
+        print('\n' + '='*50)
+        print('Simulation Summary'.center(50))
+        print('='*50)
+        print(f" GW Frequency: {self.system.params.f_gw/1e3:.2f} kHz")
+        print(f" GW Amplitude (h_max): {self.system.params.h_max:.2e}")
+        print(f" GW Strain: {self.system.params.kappa:.2e}")
+        print(f" Final populations:")
+        print(f"  |+1>: {p_p1[-1]:.4f}")
+        print(f"  |0>: {p_0[-1]:.4f}")
+        print(f"  |-1>: {p_m1[-1]:.4f}")
+        print(f" Maximum transfer to |+1>: {max(p_p1):.4f}")
     
 # --------------------------------------------------------------------
 # Putting it all together in main
