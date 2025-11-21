@@ -65,7 +65,8 @@ class QuantumSystem:
         self.setup_states()
 
     def setup_operators(self):
-        raise NotImplementedError("Subclasses must implement this!")
+        raise NotImplementedError("Subclasses must implement this!") # Here we force subclasses to implement this method
+        # Which means that any subclass of QuantumSystem must have this method implemented
     
     def setup_states(self):
         raise NotImplementedError("Subclasses must implement this!")
@@ -80,19 +81,15 @@ class NVCenter(QuantumSystem):
 
     """NV Center quantum system implementation"""
     def setup_operators(self):
-        """Define spin operators for spin-1 system"""
-        self.Sx = np.array([[0, 1/np.sqrt(2), 0],
-                            [1/np.sqrt(2), 0, 1/np.sqrt(2)],
-                            [0, 1/np.sqrt(2), 0]])
-        self.Sy = np.array([[0, -1j/np.sqrt(2), 0],
-                            [1j/np.sqrt(2), 0, -1j/np.sqrt(2)],
-                            [0, 1j/np.sqrt(2), 0]])
-        self.Sz = np.array([[1, 0, 0],
-                            [0, 0, 0],
-                            [0, 0, -1]])
+
+        #Define spin operators for spin-1 system
+        self.Sx = qt.jmat(1, 'x')
+        self.Sy = qt.jmat(1, 'y')
+        self.Sz = qt.jmat(1, 'z')
+
         #Square of operators
-        self.Sx2 = np.dot(self.Sx, self.Sx)
-        self.Sy2 = np.dot(self.Sy, self.Sy)
+        self.Sx2 = np.dot(self.Sx, self.Sx) # Alternatively self.Sx2 = self.Sx*self.Sx
+        self.Sy2 = np.dot(self.Sy, self.Sy) # 
         self.Sz2 = np.dot(self.Sz, self.Sz)
     
     """ Define initial states """
@@ -103,8 +100,7 @@ class NVCenter(QuantumSystem):
 
     """Construct the Hamiltonian for the NV center"""
     def get_hamiltonian(self):
-
-        Bz = 0.0
+        
         H0 = self.params.D * self.Sz2 
         if self.params.Bz != 0.0:
             H0 += self.params.gamma_e * self.params.Bz * self.Sz
@@ -122,3 +118,44 @@ class NVCenter(QuantumSystem):
 # --------------------------------------------------------------------
 # Simulation engine class
 # --------------------------------------------------------------------   
+
+class SimulationEngine:
+    """ We Handle time evolution and anylsis here"""
+
+    def __init__(self, quantum_system: QuantumSystem):
+        self.system = quantum_system
+        self.results = None
+    
+    def run_time_evolution(self):
+        """ Run the main simulation loop here """
+
+        H_static = self.system.get_hamiltonian()
+        H_int = self.system.get_gw_interaction()
+
+        # Time evolution code would go here
+        def h_plus(t,args):
+            return args['h_max']*np.sin(args['omega_gw']*t)
+
+        H_td = [H_static, [H_int, h_plus]]
+
+        args ={
+            'h_max': self.system.params.h_max,
+            'omega_gw': self.system.params.omega_gw
+        }
+
+        #Run the simulation using QuTiP's mesolve
+        tlist = np.linspace(0, self.system.params.t_final, self.system.params.n_steps)
+
+        e_ops =[self.system.psi_p1*self.system.psi_p1.dag(),
+                self.system.psi_0*self.system.psi_0.dag(),
+                self.system.psi_m1*self.system.psi_m1.dag(),
+                self.system.Sz
+            ]
+        
+        self.results= qt.mesolve(H_td,self.system.psi_0,tlist, e_ops, args =args)
+        return self.results
+    
+# --------------------------------------------------------------------
+# Example usage of the NVcenter_demo class
+# --------------------------------------------------------------------
+
