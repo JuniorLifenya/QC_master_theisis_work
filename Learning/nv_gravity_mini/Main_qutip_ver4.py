@@ -37,6 +37,35 @@ H2 = nv2.some_method()
 H_total = H1 + H2
 
 # --------------------------------------------------------------------
+# Mini Refraction code 
+# --------------------------------------------------------------------
+# Minimal test - add this at the end of your file
+def minimal_test():
+    """Absolute minimal test to verify QuTiP works"""
+    print("Running minimal test...")
+    
+    # Simple spin-1 system
+    Sz = qt.jmat(1, 'z')
+    psi0 = qt.basis(3, 1)  # |0>
+    
+    # Simple static Hamiltonian
+    H = 2.87e9 * Sz**2
+    
+    # Short time evolution
+    tlist = np.linspace(0, 1e-9, 10)
+    result = qt.sesolve(H, psi0, tlist, [Sz])
+    
+    print("Minimal test passed!")
+    return result
+minimal_test()
+
+# --------------------------------------------------------------------
+
+
+
+
+
+# --------------------------------------------------------------------
 # Data classes for simulation parameters, actually used in the simulation
 # --------------------------------------------------------------------
 
