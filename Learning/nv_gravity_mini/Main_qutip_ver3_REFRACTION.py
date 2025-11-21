@@ -100,7 +100,6 @@ class NVCenter(QuantumSystem):
 
     """Construct the Hamiltonian for the NV center"""
     def get_hamiltonian(self):
-        
         H0 = self.params.D * self.Sz2 
         if self.params.Bz != 0.0:
             H0 += self.params.gamma_e * self.params.Bz * self.Sz
@@ -109,7 +108,6 @@ class NVCenter(QuantumSystem):
     def get_gw_interaction(self, t):
         """Gravitational wave interaction Hamiltonian"""
         h_t = self.params.h_max * np.sin(2 * np.pi * self.params.f_gw * t) * np.exp(-t / self.params.kappa)
-
         H_gw = h_t * (self.Sx2 - self.Sy2)
         # Alternatively H_gw = self.params.kappa *(self.Sx2 - self.Sy2)
         return H_gw
@@ -146,16 +144,84 @@ class SimulationEngine:
         #Run the simulation using QuTiP's mesolve
         tlist = np.linspace(0, self.system.params.t_final, self.system.params.n_steps)
 
-        e_ops =[self.system.psi_p1*self.system.psi_p1.dag(),
-                self.system.psi_0*self.system.psi_0.dag(),
+        e_ops =[self.system.psi_p1*self.system.psi_p1.dag(), # This is the evolution of the projectors
+                self.system.psi_0*self.system.psi_0.dag(), # Projector onto |0>
                 self.system.psi_m1*self.system.psi_m1.dag(),
                 self.system.Sz
             ]
         
         self.results= qt.mesolve(H_td,self.system.psi_0,tlist, e_ops, args =args)
+
+        # We will also try with sesolve later to solve for pure states like spin coherent states
         return self.results
-    
+
+        
 # --------------------------------------------------------------------
 # Example usage of the NVcenter_demo class
 # --------------------------------------------------------------------
 
+
+# --------------------------------------------------------------------
+# Analysis and plotting
+# ------------------------------------------------------------------
+class ResultAnalyzer:
+    """"" Handle analysis and plotting of results """
+
+    def __init__(self, simulation_engine):
+        self.engine = simulation_engine
+        self.system = simulation_engine.system
+
+    def plot_populations(self):
+        """ Professional population plotting now"""
+
+        if self.engine.results is None:
+            raise ValueError("No results to analyze. Run the simulation first!")
+        
+        p_p1,p_p0,p_m1, expsz, expsx, expsy = self.enigine.results.expect
+        tlist = np.linspace(0,self.system.params.t_final, len(p_p0))
+
+        fig,ax = plt.subplots(figsize =(10,6))
+        ax.plot(tlist* 1e3, p_p0,label = '|0>', linewidth=2)
+        ax.plot(tlist* 1e3, p_p1,label = '|+1>', linewidth=2)
+        ax.plot(tlist* 1e3, p_m1,label = '|-1>', linewidth=2)
+
+        ax.set_xlabel('Time (ms)', fontsize=14)
+        ax.set_ylabel('Population', fontsize=14)
+        ax.legend(fontsize=12);ax.grid(True)
+        ax.set_title('NV Center State Populations under GW Interaction', fontsize=16)
+
+        return fig
+# --------------------------------------------------------------------
+# Putting it all togetehr
+# --------------------------------------------------------------------
+
+def main():
+    """ Clean, professional main function to run the simulation """
+
+    # Setup Parameters
+    params = SimulateParameters(
+        f_gw= 1e3,
+        h_max= 1e-18, # We choose a higher amplitude for visibility try between 1e-20 to 1e-18
+        kappa= 1e15,
+        t_final= 0.01,
+        n_steps= 2000,
+
+    )
+
+    # We create the NV center quantum system
+    nv_system = NVCenter(params)
+
+    #We run simulation 
+    simulator = SimulationEngine(nv_system)
+    results = simulator.run_time_evolution()
+
+    # We analyze and plot results
+    analyzer = ResultAnalyzer(simulator)
+    fig = analyzer.plot_populations()
+    plt.show()
+
+    # Print professional summary
+    print_simulation_summary(nv_system, results) # type: ignore
+
+if __name__ == "__main__":
+    main()
