@@ -10,16 +10,25 @@ import matplotlib.pyplot as plt
 # --------------------------------------------------------------------
 
 class NVcenter_demo:
-    def__init__(self, D=2.87e9, Bz=0.0) # type: ignore 
     """" Init runs autumatically when we create an object"""
     """ Self refers to THIS specific NV center instance not all NV centers"""
-    self.D = D  # type: ignore # Zero-field splitting in Hz
-    self.Bz = Bz  # type: ignore # Magnetic field along the NV axis in Tesla
-    self.setup_operators() # type: ignore
+
+    def __init__(self, D=2.87e9, Bz=0.0):
+        self.D = D   # Zero-field splitting in Hz
+        self.Bz = Bz  # Magnetic field along the NV axis in Tesla
+        self.setup_operators() 
+
+    def setup_operators(self):
+        self.Sx = qt.jmat(1, 'x')  # type: ignore
+        self.Sy = qt.jmat(1, 'y')  # type: ignore
+        self.Sz = qt.jmat(1, 'z')  # type: ignore
+        self.Sx2 = self.Sx * self.Sx  # type: ignore
+        self.Sy2 = self.Sy * self.Sy  # type: ignore
+        self.Sz2 = self.Sz * self.Sz  # type: ignore
 
     def some_method(self):
         # All methods need "self" to access the object'sdata
-        return self.D * self .Sz*Sz  # type: ignore
+        return self.D * self .Sz2  # type: ignore
 # usage example
 nv1 = NVcenter_demo(D=2.87e9, Bz=0.01)
 nv2 = NVcenter_demo(D=2.87e9, Bz=0.02)
@@ -41,7 +50,7 @@ class SimulateParameters:
     Bz: float = 0.0
     
     # GW Parameters  
-    f_gw: float = 1000
+    f_gw: float = 100
     h_max: float = 1e-20
     kappa: float = 1e15
     
@@ -49,7 +58,8 @@ class SimulateParameters:
     t_final: float = 0.001
     n_steps: int = 1000
 
-    def __post__init__(self): # type: ignore Here we can compute derived parameters
+    def __post_init__(self): # This runs automatically after init
+        self.omega_gw = 2 * np.pi * self.f_gw
         self.dt = self.t_final / self.n_steps
 
 # --------------------------------------------------------------------
@@ -75,22 +85,22 @@ class QuantumSystem:
         raise NotImplementedError("Subclasses must implement this!")
     
 # --------------------------------------------------------------------
-# Subclass for NV Center specific implementation
+# Subclass for NV Center specific implementation< 
 # --------------------------------------------------------------------    
 class NVCenter(QuantumSystem):
 
     """NV Center quantum system implementation"""
-    def setup_operators(self):
 
+    def setup_operators(self):
         #Define spin operators for spin-1 system
         self.Sx = qt.jmat(1, 'x')
         self.Sy = qt.jmat(1, 'y')
         self.Sz = qt.jmat(1, 'z')
 
         #Square of operators
-        self.Sx2 = np.dot(self.Sx, self.Sx) # Alternatively self.Sx2 = self.Sx*self.Sx
-        self.Sy2 = np.dot(self.Sy, self.Sy) # 
-        self.Sz2 = np.dot(self.Sz, self.Sz)
+        self.Sx2 = self.Sx * self.Sx # Better then using dag og np (numpy)
+        self.Sy2 = self.Sy * self.Sy
+        self.Sz2 = self.Sz * self.Sz
     
     """ Define initial states """
     def setup_states(self):
@@ -98,18 +108,20 @@ class NVCenter(QuantumSystem):
         self.psi_0 = qt.basis(3, 1)   # |0>
         self.psi_m1 = qt.basis(3, 2)  # |-1>
 
-    """Construct the Hamiltonian for the NV center"""
+    
     def get_hamiltonian(self):
+        """Construct the Hamiltonian for the NV center"""
         H0 = self.params.D * self.Sz2 
         if self.params.Bz != 0.0:
+
             H0 += self.params.gamma_e * self.params.Bz * self.Sz
         return H0
 
-    def get_gw_interaction(self, t):
+    def get_gw_interaction_operator(self):
         """Gravitational wave interaction Hamiltonian"""
-        h_t = self.params.h_max * np.sin(2 * np.pi * self.params.f_gw * t) * np.exp(-t / self.params.kappa)
-        H_gw = h_t * (self.Sx2 - self.Sy2)
-        # Alternatively H_gw = self.params.kappa *(self.Sx2 - self.Sy2)
+        #h_t = self.params.h_max * np.sin(2 * np.pi * self.params.f_gw * t) * np.exp(-t / self.params.kappa)
+        H_gw = self.params.kappa * (self.Sx2 - self.Sy2)
+        # This is a postulated form, please adjust based on actual physics
         return H_gw
     
 
@@ -123,18 +135,19 @@ class SimulationEngine:
     def __init__(self, quantum_system: QuantumSystem):
         self.system = quantum_system
         self.results = None
+
+    def h_plus(self,t,args):
+        """GW strain function for QuTip"""
+        return args['h_max']* np.sin(args['omega_gw']*t)
     
     def run_time_evolution(self):
         """ Run the main simulation loop here """
 
         H_static = self.system.get_hamiltonian()
-        H_int = self.system.get_gw_interaction()
+        H_int_operator = self.system.get_gw_interaction_operator()
 
-        # Time evolution code would go here
-        def h_plus(t,args):
-            return args['h_max']*np.sin(args['omega_gw']*t)
-
-        H_td = [H_static, [H_int, h_plus]]
+        # Time-dependent Hamiltonian component
+        H_td = [H_static, [H_int_operator, self.h_plus]]
 
         args ={
             'h_max': self.system.params.h_max,
@@ -147,23 +160,22 @@ class SimulationEngine:
         e_ops =[self.system.psi_p1*self.system.psi_p1.dag(), # This is the evolution of the projectors
                 self.system.psi_0*self.system.psi_0.dag(), # Projector onto |0>
                 self.system.psi_m1*self.system.psi_m1.dag(),
-                self.system.Sz
+                self.system.Sz ,# Expectation value of Sz
+                self.system.Sx,
+                self.system.Sy
             ]
         
+        print(f"Running simulation with {len(tlist)} time steps...")
         self.results= qt.mesolve(H_td,self.system.psi_0,tlist, e_ops, args =args)
+        print("Simulation completed successfully!")
+
 
         # We will also try with sesolve later to solve for pure states like spin coherent states
         return self.results
 
-        
-# --------------------------------------------------------------------
-# Example usage of the NVcenter_demo class
-# --------------------------------------------------------------------
-
-
 # --------------------------------------------------------------------
 # Analysis and plotting
-# ------------------------------------------------------------------
+# --------------------------------------------------------------------
 class ResultAnalyzer:
     """"" Handle analysis and plotting of results """
 
@@ -171,17 +183,18 @@ class ResultAnalyzer:
         self.engine = simulation_engine
         self.system = simulation_engine.system
 
+
     def plot_populations(self):
         """ Professional population plotting now"""
-
         if self.engine.results is None:
             raise ValueError("No results to analyze. Run the simulation first!")
         
-        p_p1,p_p0,p_m1, expsz, expsx, expsy = self.enigine.results.expect
-        tlist = np.linspace(0,self.system.params.t_final, len(p_p0))
+        
+        p_p1,p_0,p_m1, exp_sz, exp_sx, exp_sy = self.engine.results.expect
+        tlist = np.linspace(0,self.system.params.t_final, len(p_0))
 
         fig,ax = plt.subplots(figsize =(10,6))
-        ax.plot(tlist* 1e3, p_p0,label = '|0>', linewidth=2)
+        ax.plot(tlist* 1e3, p_0,label = '|0>', linewidth=2)
         ax.plot(tlist* 1e3, p_p1,label = '|+1>', linewidth=2)
         ax.plot(tlist* 1e3, p_m1,label = '|-1>', linewidth=2)
 
@@ -191,37 +204,59 @@ class ResultAnalyzer:
         ax.set_title('NV Center State Populations under GW Interaction', fontsize=16)
 
         return fig
+
+def print_simulation_summary(self, results):
+    """Print a professional summary of the simulation results"""
+
+    p_p1, p_0, p_m1 , exp_sz, exp_sx, exp_sy = results.expect
+
+    print('\n' + '='*50)
+    print('Simulation Summary'.center(50))
+    print('='*50)
+    print(f" GW Frequency: {self.system.params.f_gw/1e3:.2f} kHz")
+    print(f" GW Amplitude (h_max): {self.system.params.h_max:.2e}")
+    print(f" GW Strain: {self.system.params.kappa:.2e}")
+    print(f" Final populations:")
+    print(f"  |+1>: {p_p1[-1]:.4f}")
+    print(f"  |0>: {p_0[-1]:.4f}")
+    print(f"  |-1>: {p_m1[-1]:.4f}")
+    print(f" Maximum transfer to |+1>: {max(p_p1):.4f}")
+    
 # --------------------------------------------------------------------
-# Putting it all togetehr
+# Putting it all together in main
 # --------------------------------------------------------------------
 
 def main():
     """ Clean, professional main function to run the simulation """
-
+    print("Starting NV-Center Gravitational Wave Simulation")
+    
     # Setup Parameters
     params = SimulateParameters(
-        f_gw= 1e3,
-        h_max= 1e-18, # We choose a higher amplitude for visibility try between 1e-20 to 1e-18
-        kappa= 1e15,
-        t_final= 0.01,
-        n_steps= 2000,
+        f_gw= 1e2, # 1 kHz GW
+        h_max= 1e-15, # We choose a higher amplitude for visibility try between 1e-20 to 1e-18
+        kappa= 1e12,
+        t_final= 0.1, # 10 ms simulation
+        n_steps= 1000,
 
     )
 
     # We create the NV center quantum system
+    print("Setting up simulation engine...")
     nv_system = NVCenter(params)
 
     #We run simulation 
+    print("Setting up simulation engine...")
     simulator = SimulationEngine(nv_system)
     results = simulator.run_time_evolution()
 
     # We analyze and plot results
+    print("Analyzing results...")
     analyzer = ResultAnalyzer(simulator)
     fig = analyzer.plot_populations()
+    analyzer.print_simulation_summary(results)
+
     plt.show()
-
-    # Print professional summary
-    print_simulation_summary(nv_system, results) # type: ignore
-
+    print("Simulation completed successfully!")
+    
 if __name__ == "__main__":
     main()
