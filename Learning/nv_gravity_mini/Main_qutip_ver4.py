@@ -31,7 +31,7 @@ class SimulationEngine:
         """ Run the main simulation loop here """
 
         H_static = self.system.get_hamiltonian_0() # This is the same as H0
-        H_int_operator = self.system.get_fw_gw_interaction_operator()
+        H_int_operator = self.system.get_Fw_gw_interaction_operator()
 
         # Time-dependent Hamiltonian component
         H_td = [H_static, [H_int_operator, self.h_plus]]
