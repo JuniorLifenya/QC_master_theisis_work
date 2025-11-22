@@ -104,7 +104,8 @@ class NVCenter(QuantumSystem):
         # Effective momentum coupling from GW strain derivatives 
         H_p = self.build_p_coupling()
 
-        return H_i + H_t + H_p
+        H_gw = H_i + H_t + H_p
+        return 
     
     def calculate_w_i(self):
     # From your PDF: ω_b^a ≈ k/2 (G_ab - ∂_k^a)
