@@ -46,6 +46,7 @@ int main()
 
     std::cout << "Wavefunction decomposition:\n";
     std::cout << "|Ψ⟩ = ∑cₙ|φₙ⟩ where {φₙ} ⊂ ℋ\n";
+    E
 
-    return 0;
+        return 0;
 }
