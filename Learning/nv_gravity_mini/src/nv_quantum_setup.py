@@ -71,6 +71,7 @@ class NVCenter(QuantumSystem):
         # This is a postulated form, please adjust based on actual physics
         return H_gw    
     
+    
     # Usage example in your NVCenter class
     def get_Fw_gw_interaction_operator(self):
         """Proper implementation with sigma_ab = (i/2)[γ_a, γ_b]"""
