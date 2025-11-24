@@ -1,6 +1,63 @@
 import qutip as qt
 import numpy as np 
 
+
+# --------------------------------------------------------------------
+# Small tutorial on OOP in Python
+# --------------------------------------------------------------------
+# Data class = A special kind of class thats designed mostly for holding data
+# Without writing a lot of the boilerplate code for regular classes.
+# They automatically generate: __init__, __repr__, __eq__
+
+class Person: #The class is just holding daata
+    def __init__(self,name,age):
+        self.name = name 
+        self.age = age
+        self.is_alive= True 
+    
+    def __repr__(self):
+        return f"(name={self.name}, age= {self.age}, is_alive ={self.is_alive})"
+    
+    def __eq__(self,other):
+        if not isinstance(other,Person):
+            return NotImplemented
+        return self.name == other.name and self.age == other.age
+person1 = Person("Dude",30)
+person2 = Person("Bro",30)
+print(person1)
+print(person2)
+
+# --------------------------------------------------------------------
+
+# Same as above but we dont need dunder init for example and so on 
+from dataclasses import dataclass, field
+
+@dataclass
+class Person:
+    # Only need to list attributes and data types 
+    name: str
+    age :int
+    is_alive: bool = True 
+    password : str = field(repr=False) # The field is a helper function to costumize individual behavior of attributes
+    # With false we say that its display will be false( meaning you cannot see it)
+
+    def __post_init__(self): # We can write some logic here now
+        if self.age < 0:
+            raise ValueError("Age cannot be negative")
+
+# Now create person objects 
+person3 = (Person("Dude",30))
+person4 = (Person("Patrick",35, "Password"))
+print(person3)
+print(person4)
+print( person3 == person2)
+
+person_negative_age = (Person("Neg-Dude",-1))
+print(person_negative_age)
+# --------------------------------------------------------------------
+
+
+
 # --------------------------------------------------------------------
 # Small tutorial on OOP in Python
 # --------------------------------------------------------------------
