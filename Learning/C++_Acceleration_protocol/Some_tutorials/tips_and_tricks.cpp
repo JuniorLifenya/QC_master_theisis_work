@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 using namespace std; // Using the standard namespace to avoid std:: prefix
 
