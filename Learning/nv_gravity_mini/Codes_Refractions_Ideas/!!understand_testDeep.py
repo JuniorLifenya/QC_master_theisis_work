@@ -364,7 +364,7 @@ class UltimateNVGWDetector:
 
 def demonstrate_detector():
     """Complete demonstration"""
-    print("🚀 ULTIMATE NV-CENTER GRAVITATIONAL WAVE DETECTOR")
+    print(" ULTIMATE NV-CENTER GRAVITATIONAL WAVE DETECTOR")
     print("    FIXED VERSION - Matrix Element Calculation")
     print("=" * 55)
     
