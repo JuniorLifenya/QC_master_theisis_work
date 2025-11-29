@@ -1,8 +1,13 @@
 {
     "cSpell.words": [
         "Eigen",
+        "fftfreq",
         "figsize",
+        "jmat",
+        "levelname",
         "minkowski",
+        "NVGW",
+        "qutip",
         "Spinor",
         "Wouthuysen",
         "xlabel",

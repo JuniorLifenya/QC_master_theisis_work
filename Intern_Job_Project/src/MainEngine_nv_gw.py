@@ -4,7 +4,14 @@
 import numpy as np
 import qutip as qt
 import matplotlib.pyplot as plt
+import logging
+from scipy.fft import fft, fftfreq
 
+# ============================================================= #
+# Set up the logging for the system to start and register information
+logging.basicConfig(levels = logging.INFO, format = '%(levelname)s: %(message)s')
+logger = logging.getlogger("NVGWDetector")
+# ============================================================= #
 # ==================== 1. SPIN OPERATORS & BASIS ============== #
 # Spin-1 operators
 Sx = qt.jmat(1, 'x')
