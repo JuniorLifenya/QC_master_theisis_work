@@ -2,6 +2,15 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 import qutip as qt
+import logging
+from typing import Optional, Tuple, Dict, Any 
+import warnings
+warnings.filterwarnings('ignore')
+
+# Setup logging
+logging.basicConfig(level = logging. INFO, format = '%(levelname)s: %(mesage)s')
+logger = logging.getLogger('NVGWDetector')
+
 
 # --------------------------------------------------------------------
 # Data classes for simulation parameters, actually used in the simulation
@@ -22,19 +31,31 @@ class SimulateParameters:
     
     # Simulation
     t_final: float = 0.001
-    n_steps: int = 1000
-
+    n_steps: int = 5000
+    use_mesolve: bool = False # We initiate the parameters for mesolve
     # Best definition of property
-    @property
-    def omega_gw(self):
-        return 2*np.pi * self.f_gw
-    
-    #def __post_init__(self): # This runs automatically after init ALTERNATIVE
-        #self.omega_gw = 2 * np.pi * self.f_gw
-        #self.dt = self.t_final / self.n_steps
 
-    # Decoherence (optional)
-    T2: Optional[float] = None   # seconds, None = no dephasing
+    # Decoherence Paramenters
+    T1: Optional[float] = 1e-3
+    T2: Optional[float] = 500e-6
+
+    # Options for output
+    save_animation: bool = False
+    demo_mode: bool = True # We will use this
+    Realistic_mode: bool = False # This is what we will have inside INTERN
+
+
+    # @property Alternative methode
+    # def omega_gw(self):
+    #     return 2*np.pi * self.f_gw
+    
+    def __post_init__(self): # This runs automatically after init ALTERNATIVE
+        if self.demo_mode:
+            logger.info("Demo mode: Change paramaters for visibility")
+            self.h_max *= 1e6
+            self.kappa *= 1e12 
+        self.omega_gw = 2*np.pi * self.f_gw
+
 
 
     

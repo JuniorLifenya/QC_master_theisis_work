@@ -3,6 +3,7 @@
         "Eigen",
         "fftfreq",
         "figsize",
+        "hamiltonians",
         "jmat",
         "levelname",
         "minkowski",

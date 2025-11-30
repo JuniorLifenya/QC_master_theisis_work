@@ -1,4 +1,4 @@
-# Compared to the previouse version, this version includes refraction at the interfaces of different media.
+# Compared to the previous version, this version includes refraction at the interfaces of different media.
 import matplotlib.pyplot as plt
 import numpy as np
 import qutip as qt
