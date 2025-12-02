@@ -90,7 +90,7 @@ def run_cpmg_simulation():
     ax[1].set_xlabel('Time (us)')
     ax[1].legend()
     ax[1].set_title(f'GW Sensing with CPMG-{n_pulses}')
-    ax[1].grid(True)
+    ax[1].grid(True) # Newly introdeced
     
     plt.tight_layout()
     plt.savefig("plots/cpmg_sensing.png")
