@@ -59,6 +59,11 @@ def get_hamiltonians(Bz):
     
     return H_td
 
+def pulse_sequence(t,args):
+    tau = args['tau']
+    pulse_width = args['width']
+    # CPMG timing: pulses at t = tau/2, 3tau/2, 5tau/2... 
+
 # ==================== 5. SIMULATION ========================= #
 
 def run_simulation():
@@ -108,6 +113,9 @@ def plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz,exp_Sx,exp_Sy, gw_s
     """Create clear, interpretable plots"""
     
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 10))
+
+    #Plot 0: Pulse Sequence
+    pulses = [pulse_sequence(t,args) for t in tlist]
     
     # Plot 1: Populations (MAIN RESULT)
     ax1.plot(tlist * 1000, pop_0, 'b-', linewidth=2, label='|0⟩ population')
