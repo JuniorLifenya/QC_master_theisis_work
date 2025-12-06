@@ -9,8 +9,9 @@ from scipy.fft import fft, fftfreq
 
 # ============================================================= #
 # Set up the logging for the system to start and register information
-logging.basicConfig(levels = logging.INFO, format = '%(levelname)s: %(message)s')
-logger = logging.getlogger("NVGWDetector")
+#logging.basicConfig(levels = logging.INFO, format = '%(levelname)s: %(message)s')
+#logger = logging.getlogger("NVGWDetector")
+
 # ============================================================= #
 # ==================== 1. SPIN OPERATORS & BASIS ============== #
 # Spin-1 operators
@@ -79,7 +80,8 @@ def run_simulation():
     
     # Initial state
     psi0 = psi_0
-    
+
+    args = {'tau': 0.01, 'width': 0.0005}  # CPMG parameters
     # Run simulation
     result = qt.sesolve(H, psi0, tlist) 
     

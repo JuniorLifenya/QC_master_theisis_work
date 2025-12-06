@@ -41,11 +41,11 @@ class SimulationEngine:
             'omega_gw': self.system.cfg.omega_gw
         }
 
-        #Run the simulation using QuTiP's mesolve
+        # Run the simulation using QuTiP's mesolve
         tlist = np.linspace(0, self.system.cfg.t_final, self.system.cfg.n_steps)
 
         # Initial state |0>
-        #rho0 = self.p_0 * self.psi_0.dag()
+        # rho0 = self.p_0 * self.psi_0.dag()
         
         e_ops =[self.system.psi_p1*self.system.psi_p1.dag(), # This is the evolution of the projectors
                 self.system.psi_0*self.system.psi_0.dag(), # Projector onto |0>
@@ -64,8 +64,8 @@ class SimulationEngine:
         )
 
 
-        #rho0 = self.system.psi_0 * self.system.psi_0.dag()
-        #self.results = qt.mesolve(H_td, rho0, tlist, c_ops=[], e_ops=e_ops, args=args)
+        # rho0 = self.system.psi_0 * self.system.psi_0.dag()
+        # self.results = qt.mesolve(H_td, rho0, tlist, c_ops=[], e_ops=e_ops, args=args)
         print("Simulation completed successfully!")
 
         # We will also try with sesolve later to solve for pure states like spin coherent states

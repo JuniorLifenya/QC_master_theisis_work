@@ -22,10 +22,10 @@ class SimulateParameters:
      # NV Physics
     D: float = 2.87e9
     gamma_e: float = 28e9
-    Bz: float = 0.0
+    Bz: float = 0.01
 
     # GW Parameters  
-    f_gw: float = 2000
+    f_gw: float = 1e5
     h_max: float = 1e-20
     kappa: float = 1e15
     
