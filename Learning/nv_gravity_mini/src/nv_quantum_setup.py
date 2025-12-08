@@ -53,6 +53,12 @@ class NVCenter(QuantumSystem):
         self.psi_p1 = qt.basis(3, 0)  # |+1>
         self.psi_0 = qt.basis(3, 1)   # |0>
         self.psi_m1 = qt.basis(3, 2)  # |-1>
+
+    def setup_analysis_colors(self):
+        self.colors = {
+                        'p0': '#1f77b4', 'p1': '#d62728', 'm1': '#2ca02c',
+            'gw': "#53257f", 'sz': '#ff7f0e', 'bg': '#f8f9fa','we': "#956416" 
+        }
     
 
     
@@ -60,7 +66,6 @@ class NVCenter(QuantumSystem):
         """Construct the Hamiltonian for the NV center"""
         H0 = self.cfg.D * self.Sz2 
         if self.cfg.Bz != 0.0:
-
             H0 += self.cfg.gamma_e * self.cfg.Bz * self.Sz
         return H0
 
