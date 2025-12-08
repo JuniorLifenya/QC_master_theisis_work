@@ -35,9 +35,7 @@ class SimulateParameters:
     use_mesolve: bool = False # We initiate the parameters for mesolve
     # Best definition of property
 
-    # Decoherence Paramenters
-    T1: Optional[float] = 1e-3
-    T2: Optional[float] = 500e-6
+
 
     # Options for output
     save_animation: bool = False
@@ -54,7 +52,12 @@ class SimulateParameters:
             logger.info("Demo mode: Change paramaters for visibility")
             self.h_max *= 1e6
             self.kappa *= 1e12 
+
         self.omega_gw = 2*np.pi * self.f_gw
+
+        # Calculate derived parameters
+        self.gamma_T1 = 1.0 / self.T1 if self.T1 else 0
+        self.gamma_T2 = 1.0 / self.T2 if self.T2 else 0
 
 
 
