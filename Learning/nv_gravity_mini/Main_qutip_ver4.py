@@ -114,7 +114,7 @@ class SimulationEngine:
         else:
             result = qt.sesolve(H, self.psi_0, self.tlist, e_ops, args=args, options=options)
         
-        logger.info("✅ Simulation completed successfully")
+        logger.info("Simulation completed successfully")
         return result, self.tlist
     def calculate_matrix_element(self) -> float:
         """FIXED: Safely calculate matrix element <+1|H_int|0>"""
@@ -164,10 +164,10 @@ class SimulationEngine:
             'snr': snr
         }
         
-        logger.info(f"📊 Max transfer: {max_transfer:.2e}")
-        logger.info(f"📊 Matrix element: {matrix_element:.3e}")
-        logger.info(f"📊 Rabi frequency: {rabi_freq:.3e} Hz")
-        logger.info(f"📊 SNR: {snr:.3f}")
+        logger.info(f"Max transfer: {max_transfer:.2e}")
+        logger.info(f"Matrix element: {matrix_element:.3e}")
+        logger.info(f"Rabi frequency: {rabi_freq:.3e} Hz")
+        logger.info(f"SNR: {snr:.3f}")
         
         return metrics
 
