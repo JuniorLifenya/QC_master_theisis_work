@@ -11,7 +11,7 @@ import logging
 
 # --- CONFIGURATION SWITCH ---
 # Options: "dynamics" (Original Rabi/Population) OR "sensing" (CPMG Sequence)
-MODE = "sensing"  # Change to "dynamics" for original simulation
+MODE = "dynamics"  # Change to "dynamics" for original simulation
 # ----------------------------
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')

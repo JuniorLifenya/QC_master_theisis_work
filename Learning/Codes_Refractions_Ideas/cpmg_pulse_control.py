@@ -93,7 +93,7 @@ def run_cpmg_simulation():
     ax[1].grid(True) # Newly introdeced
     plt.show()
     plt.tight_layout()
-    plt.savefig("plots/cpmg_sensing.png")
+    
     print("Simulation complete. Check 'plots/cpmg_sensing.png'.")
 
 if __name__ == "__main__":
