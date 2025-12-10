@@ -17,7 +17,7 @@ MODE = "dynamics"  # Change to "dynamics" for original simulation
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def main():
-    print(f"🚀 Initializing NV-GW Simulation in [{MODE.upper()}] mode...")
+    print(f" Initializing NV-GW Simulation in [{MODE.upper()}] mode...")
 
     # 1. Setup Common Physics (The NV Center)
     # Note: Adjust parameters based on the mode if needed

@@ -9,7 +9,7 @@ class ResultAnalyzer:
         self.cfg = config
         os.makedirs("plots", exist_ok=True)
         
-        # --- THE FIX ---
+        
         # 1. Force the time axis to be a Numpy array immediately.
         # This prevents the "list repetition" bug (3000 vs 3000000).
         if hasattr(result, 'times') and len(result.times) > 0:
