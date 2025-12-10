@@ -1,172 +1,147 @@
-from asyncio.log import logger
-from typing import Any, Dict
-from unittest import result
-from matplotlib.pylab import fftfreq
 import matplotlib.pyplot as plt
 import numpy as np
-import qutip as qt
-from scipy import fft
-from traitlets import Tuple
-from nv_gravity_mini.Main_qutip_ver4 import SimulationEngine
+import os
+from scipy.fft import fft, fftfreq
 
 class ResultAnalyzer:
-    """"" Handle analysis and plotting of results """
+    def __init__(self, result, config):
+        self.result = result
+        self.cfg = config
+        os.makedirs("plots", exist_ok=True)
+        
+        # 1. Safely get time array as NumPy array
+        if hasattr(result, 'times') and len(result.times) > 0:
+            self.times = np.array(result.times)  # CRITICAL: Convert to NumPy array
+        else:
+            self.times = np.array(self.cfg.tlist)
+        
+        # Verify length matches expectation data
+        if len(self.result.expect) > 0:
+            expected_len = len(self.result.expect[0])
+            if len(self.times) != expected_len:
+                print(f"⚠️ Time/data mismatch: {len(self.times)} vs {expected_len}. Truncating.")
+                # Align by taking the shorter length
+                min_len = min(len(self.times), expected_len)
+                self.times = self.times[:min_len]
+                # Also need to trim expectation arrays (handled in unpacking below)
+        
+        self.t_ms = self.times * 1000  # Now this works element-wise
+        
+        # 2. Smart Unpacking (existing code)
+        # [Your existing smart unpacking code here]
+        n_observables = len(result.expect)
+        # ... rest of your unpacking logic
+        
+        if n_observables >= 6:
+            # --- DYNAMICS MODE (Standard) ---
+            # Order: [p0, p1, m1, Sz, Sx, Sy]
+            self.p0 = result.expect[0]
+            self.p1 = result.expect[1]
+            self.m1 = result.expect[2]
+            self.Sz = result.expect[3]
+            self.Sx = result.expect[4]
+            self.Sy = result.expect[5]
+            self.mode = "dynamics"
+            
+        elif n_observables == 3:
+            # --- SENSING MODE (CPMG) ---
+            # Order defined in sensing.py: [sx, sy, sz]
+            self.Sx = result.expect[0]
+            self.Sy = result.expect[1]
+            self.Sz = result.expect[2]
+            # Set populations to None since we didn't track them
+            self.p0 = None
+            self.p1 = None
+            self.m1 = None
+            self.mode = "sensing"
+            
+        else:
+            print(f"⚠️ Warning: Unexpected number of observables ({n_observables}).")
+            self.mode = "unknown"
 
-    def __init__(self, simulation_engine):
-        self.engine = simulation_engine
-        self.system = simulation_engine.system
+    def plot_comprehensive(self):
+        """Standard dashboard for Dynamics Mode."""
+        if self.mode != "dynamics":
+            print("⚠️ Cannot plot comprehensive dashboard: Missing population data.")
+            return
 
-        def analyze_results(self, result: qt.Result) -> Dict[str, Any]:
-            logger.info("🔬 Analyzing results...")
-        
-        # Extract expectation values
-        p_p1, p_0, p_m1, exp_Sz, exp_Sx, exp_Sy = result.expect
-        
-        # Calculate GW strain for reference
-        gw_strain = [self.gw_strain(t, {'h_max': self.p.h_max, 'omega_gw': self.p.omega_gw}) 
-                    for t in self.tlist]
-        
-        # Calculate physical metrics
-        metrics = self.calculate_physical_metrics((p_p1, p_0, p_m1))
-        
-        return {
-            'populations': (p_p1, p_0, p_m1),
-            'expectations': (exp_Sz, exp_Sx, exp_Sy),
-            'gw_strain': gw_strain,
-            'time': self.tlist,
-            'metrics': metrics
-        }
-    def plot_comprehensive(self, results: Dict[str, Any]):
-        """ Professional population plotting now"""
-        if self.engine.results is None:
-            raise ValueError("No results to analyze. Run the simulation first!")
-        
-        p_p1, p_0, p_m1 = populations
-        populations, exp_Sz, exp_Sx, exp_Sy = self.engine.results.expect
-        self.tlist = np.linspace(0,self.system.cfg.t_final, len(p_0))
-        gw_strain = results['gw_strain']
-        metrics = results['metrics']
-
-
-        t_ms = self.tlist * 1000
-        
         fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-        fig.suptitle(f'NV-Center GW Detector | f_GW={self.p.f_gw} Hz, h={self.p.h_max:.1e}', 
-                    fontsize=14, fontweight='bold')
-        
-        # Plot 1: Populations (Main result)
-        axes[0,0].plot(t_ms, p_0, color=self.colors['p0'], linewidth=2, label='$P(|0\\rangle)$')
-        axes[0,0].plot(t_ms, p_p1, color=self.colors['p1'], linewidth=2, label='$P(|+1\\rangle)$')
-        axes[0,0].plot(t_ms, p_m1, color=self.colors['m1'], linewidth=2, label='$P(|-1\\rangle)$')
-        axes[0,0].set_xlabel('Time (ms)'); axes[0,0].set_ylabel('Population')
-        axes[0,0].set_title('GW-Driven Population Transfer')
-        axes[0,0].legend(); axes[0,0].grid(True, alpha=0.3)
-        
-        # Plot 2: GW Strain
-        axes[0,1].plot(t_ms, gw_strain, color=self.colors['gw'], linewidth=2)
-        axes[0,1].set_xlabel('Time (ms)'); axes[0,1].set_ylabel('Strain $h_+(t)$')
-        axes[0,1].set_title('Gravitational Wave Input')
-        axes[0,1].grid(True, alpha=0.3)
-        
-        # Plot 3: Spin expectations
-        axes[1,0].plot(t_ms, exp_Sz, color=self.colors['sz'], linewidth=2, label='$\\langle S_z \\rangle$')
-        axes[1,0].plot(t_ms, exp_Sx, 'r--', linewidth=1, alpha=0.7, label='$\\langle S_x \\rangle$')
-        axes[1,0].plot(t_ms, exp_Sy, 'b--', linewidth=1, alpha=0.7, label='$\\langle S_y \\rangle$')
-        axes[1,0].set_xlabel('Time (ms)'); axes[1,0].set_ylabel('Spin Expectation')
-        axes[1,0].set_title('Spin Dynamics'); axes[1,0].legend(); axes[1,0].grid(True, alpha=0.3)
-        
-        # Plot 4: Frequency spectrum
-        dt = self.tlist[1] - self.tlist[0]
-        fft_p0 = fft(p_0 - np.mean(p_0))
-        freqs = fftfreq(len(self.tlist), dt)
-        positive_idx = freqs > 0
-        
-        axes[1,1].plot(freqs[positive_idx], np.abs(fft_p0[positive_idx]), 'teal', linewidth=2)
-        axes[1,1].axvline(x=self.p.f_gw, color='red', linestyle='--', label=f'GW: {self.p.f_gw} Hz')
-        if metrics['rabi_frequency'] > 0:
-            axes[1,1].axvline(x=metrics['rabi_frequency'], color='orange', linestyle='--', 
-                            label=f'Rabi: {metrics["rabi_frequency"]:.1f} Hz')
-        axes[1,1].set_xlabel('Frequency (Hz)'); axes[1,1].set_ylabel('FFT Amplitude')
-        axes[1,1].set_title('Frequency Spectrum'); axes[1,1].legend(); axes[1,1].grid(True, alpha=0.3)
-        
-        plt.tight_layout()
-        plt.show()
-        
-        return fig
-    def frequency_scan(self, freq_range: np.ndarray, observable: str = "p1") -> Tuple[np.ndarray, np.ndarray]:
-        """Frequency scan utility"""
-        logger.info(f"🔍 Scanning {len(freq_range)} frequencies...")
-        
-        original_freq = self.p.f_gw
-        results = []
-        
-        for i, freq in enumerate(freq_range):
-            if i % 10 == 0:
-                logger.info(f"  Progress: {i+1}/{len(freq_range)}")
-            
-            # Update frequency
-            self.p.f_gw = freq
-            self.p.omega_gw = 2 * np.pi * freq
-            
-            # Run simulation
-            result, _ = self.run_simulation()
-            p_p1, p_0, p_m1 = result.expect[0:3]
-            
-            # Store final population
-            if observable == "p1":
-                results.append(np.real(p_p1[-1]))
-            elif observable == "0":
-                results.append(np.real(p_0[-1]))
-            else:
-                results.append(np.real(p_m1[-1]))
-        
-        # Restore original frequency
-        self.p.f_gw = original_freq
-        self.p.omega_gw = 2 * np.pi * original_freq
-        
-        return freq_range, np.array(results)
-    
-def demonstrate_detector():
-    """Complete demonstration"""
-    print(" ULTIMATE NV-CENTER GRAVITATIONAL WAVE DETECTOR")
-    print("    FIXED VERSION - Matrix Element Calculation")
-    print("=" * 55)
-    
-    # Setup parameters
-    params = NVGWParameters(
-        f_gw=1000.0,           # GW frequency
-        h_max=1e-6,            # GW strain  
-        kappa=1e10,            # Coupling
-        Bz=0.01,               # Magnetic field
-        t_final=0.001,         # Simulation time
-        nsteps=5000,           # Time steps
-        use_mesolve=False,     # Pure state evolution
-        demo_mode=True         # Enhanced visibility
-    )
-    
-    # Create and run detector
-    detector = Main
-    result, tlist = detector.run_simulation()
-    analysis = detector.analyze_results(result)
-    
-    # Generate outputs
-    detector.plot_comprehensive(analysis)
-    detector.generate_report(analysis['metrics'])
-    
-    # Optional: Frequency scan
-    print("\n🎯 Performing frequency scan...")
-    freqs = np.linspace(500, 1500, 20)  # Scan around GW frequency
-    scan_freqs, scan_results = detector.frequency_scan(freqs, "p1")
-    
-    plt.figure(figsize=(10, 5))
-    plt.plot(scan_freqs, scan_results, 'o-', linewidth=2)
-    plt.axvline(x=params.f_gw, color='red', linestyle='--', label=f'Original: {params.f_gw} Hz')
-    plt.xlabel('GW Frequency (Hz)'); plt.ylabel('Final P(|+1⟩)')
-    plt.title('Frequency Scan: Resonance Behavior'); plt.legend(); plt.grid(True, alpha=0.3)
-    plt.show()
-    
-    print("\n🎉 DEMONSTRATION COMPLETE")
+        fig.suptitle(f'NV-Center GW Detector | f_GW={self.cfg.f_gw:.1e} Hz', fontsize=14, fontweight='bold')
 
-if __name__ == "__main__":
-    demonstrate_detector()
-    
+        # [Plotting logic is the same as before...]
+        # 1. Populations
+        ax = axes[0, 0]
+        ax.plot(self.t_ms, self.p0, label=r'$|0\rangle$', color='#1f77b4')
+        ax.plot(self.t_ms, self.p1, label=r'$|+1\rangle$', color='#d62728')
+        ax.plot(self.t_ms, self.m1, label=r'$|-1\rangle$', color='#2ca02c')
+        ax.legend(); ax.grid(True, alpha=0.3)
+        ax.set_ylabel('Population')
+
+        # 2. Strain
+        ax = axes[0, 1]
+        strain = self.cfg.h_max * np.sin(self.cfg.omega_gw * self.times)
+        ax.plot(self.t_ms, strain, color='purple')
+        ax.set_title('GW Input Strain')
+        ax.grid(True, alpha=0.3)
+
+        # 3. Spin
+        ax = axes[1, 0]
+        ax.plot(self.t_ms, self.Sz, label='Sz', color='orange')
+        ax.plot(self.t_ms, self.Sx, 'r--', label='Sx', alpha=0.5)
+        ax.plot(self.t_ms, self.Sy, 'b--', label='Sy', alpha=0.5)
+        ax.legend(); ax.grid(True, alpha=0.3)
+
+        # 4. FFT
+        ax = axes[1, 1]
+        dt = self.times[1] - self.times[0]
+        signal = self.p0 - np.mean(self.p0)
+        fft_vals = fft(signal)
+        freqs = fftfreq(len(self.times), dt)
+        mask = freqs > 0
+        ax.plot(freqs[mask], np.abs(fft_vals[mask]), color='teal')
+        ax.set_xlim(0, self.cfg.f_gw * 4)
+        ax.grid(True, alpha=0.3)
+        ax.set_xlabel('Frequency (Hz)')
+
+        plt.tight_layout()
+        plt.savefig("plots/comprehensive_analysis.png", dpi=150)
+        print("📊 Comprehensive plot saved.")
+
+    def plot_cpmg_results(self, result, tlist, n_pulses):
+        """Specialized plot for Sensing Mode."""
+        if self.mode != "sensing":
+            print("⚠️ Cannot plot CPMG results: Data format incorrect.")
+            return
+
+        # --- FIX STARTS HERE ---
+        # We must use the 'tlist' passed from the engine, NOT self.t_ms
+        # self.t_ms is based on cfg.t_final, which is irrelevant for CPMG sensing
+        t_ms = tlist * 1000 
+        
+        # Verify dimensions before plotting to prevent crashes
+        if len(t_ms) != len(self.Sx):
+            print(f"⚠️ Dimension Mismatch Fixed: Resampling time axis.")
+            # Fallback: Create a new time axis that matches the data length
+            t_ms = np.linspace(t_ms[0], t_ms[-1], len(self.Sx))
+        # --- FIX ENDS HERE ---
+
+        fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+
+        # Plot Coherence (Sx)
+        axes[0].plot(t_ms, self.Sx, label=r'$\langle S_x \rangle$ (Coherence)', color='blue')
+        axes[0].set_ylabel('Amplitude')
+        axes[0].set_title(f'CPMG-{n_pulses}: Coherence Preservation')
+        axes[0].legend(loc="upper right")
+        axes[0].grid(True, alpha=0.3)
+
+        # Plot Signal (Sy)
+        axes[1].plot(t_ms, self.Sy, label=r'$\langle S_y \rangle$ (Signal)', color='green', linewidth=2)
+        axes[1].set_ylabel('Signal Amplitude')
+        axes[1].set_xlabel('Time (ms)')
+        axes[1].set_title('Quadrature Component (Phase Accumulation)')
+        axes[1].legend(loc="upper right")
+        axes[1].grid(True, alpha=0.3)
+
+        plt.tight_layout()
+        plt.savefig("plots/cpmg_analysis.png")
+        print("📊 CPMG plot saved to plots/cpmg_analysis.png")

@@ -1,17 +1,23 @@
 {
     "cSpell.words": [
+        "cmpg",
         "cplx",
         "Diracspinor",
         "Eigen",
         "evol",
+        "fftfreq",
+        "freqs",
         "hamiltonians",
         "Initializaed",
         "jmat",
         "levelname",
+        "mesolve",
         "NVGW",
         "qiskit",
+        "Qobj",
         "qodo",
         "qutip",
+        "qzero",
         "Spinor"
     ],
     "C_Cpp.errorSquiggles": "disabled",

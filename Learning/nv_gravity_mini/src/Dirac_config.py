@@ -2,7 +2,10 @@ import qutip as qt
 import numpy as np 
 
 class DiracMatrices:
-        """Dirac gamma matrices for RQM"""
+        """
+        Dirac gamma matrices utility.
+        Note: These are 4x4 matrices. 
+        """
 
         def __init__(self):
             self.setup_gamma_matrices()
@@ -46,25 +49,25 @@ class DiracMatrices:
             self.beta = self.gamma0
             
             self.alpha_matrices = [self.alpha1, self.alpha2, self.alpha3]
+        def get_sigma_ab(self, a: int, b: int) -> qt.Qobj:
+            """Calculate sigma_ab = (i/2)[gamma_a, gamma_b]"""
+            commutation = self.gammas[a] * self.gammas[b] - self.gammas[b] * self.gammas[a]
+            return (1j / 2) * commutation
 
         def get_spin_connection_operator(self, omega_mu, derivative_terms):
             """
             Construct spin connection operator for gravitational coupling
-            Based on your PDF: Γ_μ = (i/4) ω_μ^{ab} γ_a γ_b
+            Based on your PDF: Γ_μ = (i/4) ω_μ^{ab} σ_{ab}. Where σ_{ab} = (i/2)[γ_a, γ_b]
+            and ω_μ^{ab} = k(∂^a h_{μ}^b)
             """
-            # Simplified implementation - adapt based on your specific needs
-            H_connection = qt.qzero(4)
+            omega_mu = derivative_terms  # Placeholder for actual derivative terms
+            spin_connection = 0
+            for a in range(4):
+                for b in range(4):
+                    sigma_ab = self.get_sigma_ab(a, b)
+                    spin_connection += (1j / 4) * omega_mu[a][b] * sigma_ab
+            return spin_connection
             
-            for i in range(4):
-                for j in range(4):
-                    if i != j:
-                        # γ_a γ_b term (antisymmetric)
-                        gamma_ab = self.gamma_matrices[i] * self.gamma_matrices[j]
-                        gamma_ba = self.gamma_matrices[j] * self.gamma_matrices[i]
-                        sigma_ab = ((np.sqrt(-1))/2)(gamma_ab-gamma_ba)
-                        H_connection += omega_mu[i][j] * sigma_ab
-            
-            return ((np.sqrt(-1)*j)/4) * H_connection  # Factor of i for Hermiticity
 # --------------------------------------------------------------------
 # Alternative: chiral (Weyl) representation
 # --------------------------------------------------------------------
