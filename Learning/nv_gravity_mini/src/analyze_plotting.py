@@ -48,7 +48,7 @@ class ResultAnalyzer:
     def plot_comprehensive(self):
         """Standard dashboard for Dynamics Mode."""
         if self.mode != "dynamics":
-            print("⚠️ Cannot plot comprehensive dashboard: Missing population data.")
+            print(" Cannot plot comprehensive dashboard: Missing population data.")
             return
 
         fig, axes = plt.subplots(2, 2, figsize=(14, 10))
@@ -102,12 +102,12 @@ class ResultAnalyzer:
         plt.tight_layout()
         plt.savefig("plots/comprehensive_analysis.png", dpi=150)
         plt.show()
-        print("📊 Comprehensive plot saved to plots/comprehensive_analysis.png")
+        print(" Comprehensive plot saved to plots/comprehensive_analysis.png")
 
     def plot_cpmg_results(self, result, tlist, n_pulses):
         """Specialized plot for Sensing Mode."""
         if self.mode != "sensing":
-            print("⚠️ Cannot plot CPMG results: Data format incorrect.")
+            print(" Cannot plot CPMG results: Data format incorrect.")
             return
 
         # Use the specific time list passed from the sensing engine
@@ -135,4 +135,4 @@ class ResultAnalyzer:
         plt.tight_layout()
         plt.savefig("plots/cpmg_analysis.png")
         plt.show()
-        print("📊 CPMG plot saved to plots/cpmg_analysis.png")
+        printCPMG plot saved to plots/cpmg_analysis.png")
