@@ -135,4 +135,4 @@ class ResultAnalyzer:
         plt.tight_layout()
         plt.savefig("plots/cpmg_analysis.png")
         plt.show()
-        printCPMG plot saved to plots/cpmg_analysis.png")
+        print("CPMG plot saved to plots/cpmg_analysis.png")
