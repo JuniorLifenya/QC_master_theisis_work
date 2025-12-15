@@ -63,8 +63,12 @@ print(person_negative_age)
 # --------------------------------------------------------------------
 
 class NVcenter_demo:
-    """" Init runs autumatically when we create an object"""
-    """ Self refers to THIS specific NV center instance not all NV centers"""
+    """ Init runs automatically when we create an object
+    Self refers to THIS specific NV center instance not all NV centers
+    
+    The self variable allows us to add attributes to our object.
+    It also prevents name conflicts, since name and self.name are different variables.
+    """
 
     def __init__(self, D=2.87e9, Bz=0.0):
         self.D = D   # Zero-field splitting in Hz
