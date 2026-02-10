@@ -1,7 +1,6 @@
 import qutip as qt
 import numpy as np
 from src.config import SimulationConfig
-from src.Dirac_config import DiracMatrices
 cfg = SimulationConfig()
 
 
