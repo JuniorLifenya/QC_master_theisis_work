@@ -1,19 +1,25 @@
 import numpy as np
 import qutip as qt
 import logging
-from src.Engin_timeStepper import SimulationEngine
+from src.Solver import SimulationEngine
 
 logger = logging.getLogger(__name__)
 
 class SensingEngine(SimulationEngine):
     """
-    Subclass specifically for Experimental Sequences (CPMG, DD).
-    Inherits hardware/Hamiltonian logic from SimulationEngine.
+        Subclass for Experimental Sequences (CPMG, DD).
+        
+        Parameters:
+        -----------
+        system : NVCenter
+            The NV center quantum system
+        n_pulses : int, default=8
+            Number of π-pulses in CPMG sequence
     """
 
-    def __init__(self, system, n_pulses=8):
+    def __init__(self, system, n_pulses: int = 8):
         super().__init__(system)
-        self.n_pulses = n_pulses
+        self.n_pulses: int = n_pulses
         # Setup specific to qubit sensing subspace (|0> and |-1>)
         self._setup_sensing_params()
 
@@ -24,9 +30,10 @@ class SensingEngine(SimulationEngine):
         
         # Qubit subspace operators (Mapping Spin-1 to effective Spin-1/2)
         # Using the Sz transition between |0> and |-1>
-        self.sz_eff = qt.sigmaz()
-        self.sx_eff = qt.sigmax()
-        self.sy_eff = qt.sigmay()
+        # Project onto the {|0>, |-1>} subspace
+        self.sz_eff = qt.Qobj(np.array([[0,0],[0,1]])) 
+        self.sx_eff = qt.Qobj(np.array([[0,1], [1,0]]))/np.sqrt(2)
+        self.sy_eff = qt.Qobj(np.array([[0,-1j],[1j,0]]))/ np.sqrt(2)
         
         # Rabi drive frequency for pulses
         self.omega_rabi = 500.0  # MHz (Strong limit)
@@ -48,7 +55,7 @@ class SensingEngine(SimulationEngine):
 
         # 2. Hamiltonians
         # H_gw: effective coupling is Sz (detuning) in rotating frame
-        H_gw = self.cfg.h_max * self.sz_eff
+        H_gw = [self.cfg.h_max * self.sz_eff, lambda t, args: np.cos(args['omega_gw'] * t)]
         # H_control: Rabi drive around Sx axis
         H_control = self.omega_rabi * self.sx_eff
 

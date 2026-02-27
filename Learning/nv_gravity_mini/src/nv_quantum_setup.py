@@ -61,10 +61,6 @@ class NVCenter(QuantumSystem):
             'gw': "#53257f", 'sz': '#ff7f0e', 'bg': '#f8f9fa','we': "#956416" 
         }
     
-
-    
-    
-        
     def get_static_hamiltonian(self) -> qt.Qobj:
         """H0 = D * Sz^2 + gamma * B * Sz"""
         H0 = self.cfg.D * self.Sz2
@@ -91,4 +87,12 @@ class NVCenter(QuantumSystem):
             c_ops.append(np.sqrt(self.cfg.gamma_T1) * (self.psi_0 * self.psi_m1.dag()))
             
         return c_ops
+    def get_two_level_operators(self, subspace: str = "0m1"):
+        """Get effective 2x2 operators for sensing subspace."""
+        if subspace == "0m1":  # |0> and |-1> subspace
+            # Basis ordering: |0>, |-1>
+            sz_eff = qt.Qobj(np.array([[0, 0], [0, -1]]))
+            sx_eff = qt.Qobj(np.array([[0, 1], [1, 0]]) / np.sqrt(2))
+            sy_eff = qt.Qobj(np.array([[0, -1j], [1j, 0]]) / np.sqrt(2))
+            return sx_eff, sy_eff, sz_eff
                 

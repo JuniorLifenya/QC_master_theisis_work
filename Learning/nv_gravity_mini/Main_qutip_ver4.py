@@ -1,6 +1,6 @@
 from src.config import SimulationConfig
 from src.nv_quantum_setup import NVCenter
-from src.Engin_timeStepper import SimulationEngine
+from src.Solver import SimulationEngine
 from src.analyze_plotting import ResultAnalyzer
 from src.cmpg_sensing import SensingEngine
 import numpy as np

@@ -2,14 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 from scipy.fft import fft, fftfreq
-
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go 
 class ResultAnalyzer:
     def __init__(self, result, config):
         self.result = result
         self.cfg = config
         os.makedirs("plots", exist_ok=True)
-        
-        
         # 1. Force the time axis to be a Numpy array immediately.
         # This prevents the "list repetition" bug (3000 vs 3000000).
         if hasattr(result, 'times') and len(result.times) > 0:
@@ -31,7 +30,6 @@ class ResultAnalyzer:
             self.Sx = result.expect[4]
             self.Sy = result.expect[5]
             self.mode = "dynamics"
-            
         elif n_observables == 3:
             # --- SENSING MODE (CPMG) ---
             self.Sx = result.expect[0]
@@ -42,15 +40,16 @@ class ResultAnalyzer:
             self.mode = "sensing"
             
         else:
-            print(f"⚠️ Warning: Unexpected number of observables ({n_observables}).")
+            print(f" Warning: Unexpected number of observables ({n_observables}).")
             self.mode = "unknown"
-
     def plot_comprehensive(self):
         """Standard dashboard for Dynamics Mode."""
         if self.mode != "dynamics":
-            print(" Cannot plot comprehensive dashboard: Missing population data.")
-            return
-
+                raise ValueError(
+                        f"Cannot plot comprehensive dashboard in {self.mode} mode. "
+                        f"Required: dynamics mode with population data."
+                )
+            
         fig, axes = plt.subplots(2, 2, figsize=(14, 10))
         fig.suptitle(f'NV-Center GW Detector | f_GW={self.cfg.f_gw:.1e} Hz', fontsize=14, fontweight='bold')
 
@@ -136,3 +135,10 @@ class ResultAnalyzer:
         plt.savefig("plots/cpmg_analysis.png")
         plt.show()
         print("CPMG plot saved to plots/cpmg_analysis.png")
+
+class InteractiveAnalyzer:
+    def create_interactive_dashboard(self):
+        fig = make_subplots(rows=2, cols=2)
+        # Add interactive traces
+        fig.update_layout(template="plotly_dark")
+        fig.show()
