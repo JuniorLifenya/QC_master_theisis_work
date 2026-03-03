@@ -78,7 +78,8 @@ class SensingEngine(SimulationEngine):
         result = qt.mesolve(H, psi_init, tlist, [], 
                            [self.sx_eff, self.sy_eff, self.sz_eff], 
                            args=args)
-        return result, tlist
+        return result, tlist        
+    
         """Executes the CPMG sequence simulation."""
         # 1. Prepare initial state: Superposition (|0> + |-1>)/sqrt(2)
         # Standard in sensing: pi/2 pulse creates coherence
