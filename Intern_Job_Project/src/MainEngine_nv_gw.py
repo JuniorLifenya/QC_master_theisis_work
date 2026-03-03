@@ -1,209 +1,60 @@
-
-# main_clean_nv_gw.py
-"""This code here will be translated to c++ and used for a job interview."""
+from src.io_input_output.config import SimulationConfig
+from src.Physics.Gravitational_wave_NV_center.nv_quantum_setup   import NVCenter
+from src.Numerical.solvers.LinbadSolver.QutipSolver import SimulationEngine
+from Python.visualization_simulate.visualize import ResultAnalyzer
+from Python.analysis.cmpg_sensing import SensingEngine
 import numpy as np
-import qutip as qt
-import matplotlib.pyplot as plt
+import numpy as np
 import logging
-from scipy.fft import fft, fftfreq
-
-# ============================================================= #
-# Set up the logging for the system to start and register information
-#logging.basicConfig(levels = logging.INFO, format = '%(levelname)s: %(message)s')
-#logger = logging.getlogger("NVGWDetector")
-
-# ============================================================= #
-# ==================== 1. SPIN OPERATORS & BASIS ============== #
-# Spin-1 operators
-Sx = qt.jmat(1, 'x')
-Sy = qt.jmat(1, 'y') 
-Sz = qt.jmat(1, 'z')
-
-# Basis states
-psi_plus1 = qt.basis(3, 0)  # |m_s = +1>
-psi_0 = qt.basis(3, 1)      # |m_s = 0>  
-psi_minus1 = qt.basis(3, 2) # |m_s = -1>
 
 
-# ==================== 2. PHYSICAL PARAMETERS ================ #
+# --- CONFIGURATION SWITCH ---
+# Options: "dynamics" (Original Rabi/Population) OR "sensing" (CPMG Sequence)
+MODE = "sensing"  # Change to "dynamics" for original simulation
+# ----------------------------
 
-D = 2.87e9           # Zero-field splitting (Hz)
-gamma_e = 28e9       # Gyromagnetic ratio (Hz/T)
-kappa = 1e19        # GW coupling constant (PLACEHOLDER - from FW transformation)
-Bz = 0.0            # Static magnetic field (T)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-# We try now to define a scale , so we can change toy into real parameters later
-scale_factor = 1e9  # Scale factor to convert toy parameters to realistic ones
-D_toy = D/scale_factor
+def main():
+    print(f" Initializing NV-GW Simulation in [{MODE.upper()}] mode...")
 
-# ==================== 3. GRAVITATIONAL WAVE ================= #
-
-def h_plus(t, f_gw=100, h_max=1e-18):
-    """Simple monochromatic GW - REALISTIC parameters"""
-    return h_max * np.sin(2 * np.pi * f_gw * t)
-
-
-# ==================== 4. HAMILTONIANS ======================= #
-
-def get_hamiltonians(Bz):
-    """Returns static and time-dependent Hamiltonians"""
-    # Static NV Hamiltonian
-    H_static = D * Sz**2
-    if Bz != 0.0:
-        H_static += gamma_e * Bz * Sz
-    
-    # GW Interaction Hamiltonian  
-    H_int_operator = kappa * (Sx**2 - Sy**2)
-    
-    # Time-dependent Hamiltonian for QuTiP
-    H_td = [H_static, [H_int_operator, h_plus]]
-    
-    return H_td
-
-def pulse_sequence(t,args):
-    tau = args['tau']
-    pulse_width = args['width']
-    # CPMG timing: pulses at t = tau/2, 3tau/2, 5tau/2... 
-
-# ==================== 5. SIMULATION ========================= #
-
-def run_simulation():
-    """Run the complete simulation"""
-
-    # Parameters
-    Bz = 0.01  # 10 mT magnetic field
-    t_final = 0.1  # 100 ms (to see multiple GW cycles)
-    tlist = np.linspace(0, t_final, 2000)
-    
-    # Get Hamiltonian
-    H = get_hamiltonians(Bz)
-    
-    # Initial state
-    psi0 = psi_0
-
-    args = {'tau': 0.01, 'width': 0.0005}  # CPMG parameters
-    # Run simulation
-    result = qt.sesolve(H, psi0, tlist) 
-    
-    
-    return result, tlist
-    
-# ==================== 6. ANALYSIS ========================= #
-
-def analyze_results(result, tlist):
-    """Analyze and plot results"""
-    print("Analyzing results...")
-    
-    # Calculate populations , SNB!! This is the main calculation
-    pop_plus1 = [abs(psi_plus1.overlap(state))**2 for state in result.states]
-    pop_0 = [abs(psi_0.overlap(state))**2 for state in result.states] 
-    pop_minus1 = [abs(psi_minus1.overlap(state))**2 for state in result.states]
-    
-    # Calculate expectation values
-    exp_Sz = qt.expect(Sz, result.states)
-    exp_Sx = qt.expect(Sx, result.states)
-    exp_Sy = qt.expect(Sy, result.states)
-    
-    # GW strain for reference
-    gw_strain = [h_plus(t) for t in tlist]
-    
-    return pop_plus1, pop_0, pop_minus1, exp_Sx,exp_Sy,exp_Sz, gw_strain
-
-# ==================== 7. VISUALIZATION =================== #
-
-def plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz,exp_Sx,exp_Sy, gw_strain):
-    """Create clear, interpretable plots"""
-    
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 10))
-
-    #Plot 0: Pulse Sequence
-    pulses = [pulse_sequence(t,args) for t in tlist]
-    
-    # Plot 1: Populations (MAIN RESULT)
-    ax1.plot(tlist * 1000, pop_0, 'b-', linewidth=2, label='|0⟩ population')
-    ax1.plot(tlist * 1000, pop_plus1, 'r-', linewidth=2, label='|+1⟩ population')
-    ax1.plot(tlist * 1000, pop_minus1, 'g-', linewidth=2, label='|-1⟩ population')
-    ax1.set_xlabel('Time (ms)')
-    ax1.set_ylabel('Population')
-    ax1.set_title('NV-Center Populations under GW Influence')
-    ax1.legend()
-    ax1.grid(True, alpha=0.3)
-    
-    # Plot 2: GW Strain
-    ax2.plot(tlist * 1000, gw_strain, 'purple', linewidth=2)
-    ax2.set_xlabel('Time (ms)') 
-    ax2.set_ylabel('Strain h₊(t)')
-    ax2.set_title('Gravitational Wave Signal')
-    ax2.grid(True, alpha=0.3)
-    
-    # Plot 3: Spin expectation
-    ax3.plot(tlist * 1000, exp_Sz, 'orange', linewidth=2)
-    ax3.plot(tlist * 1000, exp_Sx, 'purple', linewidth=2)
-    ax3.plot(tlist * 1000, exp_Sy, 'red', linewidth=2)
-    ax3.set_xlabel('Time (ms)')
-    ax3.set_ylabel('⟨S_z⟩')
-    ax3.set_title('Spin Expectation Value')
-    ax3.grid(True, alpha=0.3)
-    
-    # Plot 4: Population changes (zoomed)
-    ax4.plot(tlist * 1000, pop_0, 'b-', linewidth=2, label='|0⟩')
-    ax4.plot(tlist * 1000, pop_plus1, 'r-', linewidth=2, label='|+1⟩')
-    ax4.set_xlabel('Time (ms)')
-    ax4.set_ylabel('Population')
-    ax4.set_title('GW-Induced Population Transfer')
-    ax4.legend()
-    ax4.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.show()
-    
-    return fig
-
-# ==================== 8. INTERPRETATION ===================== #
-
-def interpret_results(pop_plus1, pop_0, pop_minus1):
-    """Provide clear interpretation of what we're seeing"""
-    max_transfer = max(max(pop_plus1), max(pop_minus1))
-    initial_pop = pop_0[0]
-    final_pop = pop_0[-1]
-    
-    print(f"\n QUANTITATIVE RESULTS:")
-    print(f"Initial |0⟩ population: {initial_pop:.6f}")
-    print(f"Final |0⟩ population: {final_pop:.6f}") 
-    print(f"Maximum transfer to |±1⟩ states: {max_transfer:.6f}")
-    
-    print(f"\n PHYSICAL INTERPRETATION:")
-    if max_transfer > 0.1:
-        print(" STRONG EFFECT: GW causes significant population transfer")
-        print("   The gravitational wave is strongly driving transitions between spin states")
-    elif max_transfer > 0.01:
-        print(" MODERATE EFFECT: Observable population transfer") 
-        print("   The GW is having a measurable effect on the spin dynamics")
-    elif max_transfer > 0.001:
-        print(" WEAK EFFECT: Small but detectable population transfer")
-        print("   The GW effect is present but requires sensitive measurement")
+    # 1. Setup Common Physics (The NV Center)
+    # Note: Adjust parameters based on the mode if needed
+    if MODE == "dynamics":
+        # Parameters for Direct Population Transfer (High Frequency, Resonance)
+        cfg = SimulationConfig(f_gw=1000, h_max=1e-10, n_steps=3000, t_final=0.01)
     else:
-        print(" NEGLIGIBLE EFFECT: Population transfer below detection threshold")
-        print("   Try increasing kappa or using more realistic GW parameters")
-    
-    print(f"\n SUGGESTIONS:")
-    if max_transfer < 0.01:
-        print("   - Increase kappa to 1e18-1e20 (stronger coupling)")
-        print("   - Use larger GW strain h_max=1e-15 to 1e-12")
-        print("   - Add magnetic field to break degeneracy")
-    else:
-        print("   - Add decoherence with collapse operators")
-        print("   - Try different GW frequencies")
-        print("   - Use real LIGO data")
+        # Parameters for Sensing (Low Frequency, Long Coherence)
+        cfg = SimulationConfig(f_gw=50e3, h_max=0.5, n_steps=5000)
 
-# ==================== 9. MAIN EXECUTION ===================== #
+    nv = NVCenter(cfg)
+
+    # 2. SELECT THE ENGINE
+    if MODE == "dynamics":
+        # --- PATH A: Original Simulation ---
+        engine = SimulationEngine(nv)
+        result = engine.run()
+        
+        # Analyze
+        analyzer = ResultAnalyzer(result, cfg)
+        analyzer.plot_comprehensive()
+        
+        # Optional: Run Frequency Scan
+        # freqs = np.linspace(500, 1500, 20)
+        # scan_x, scan_y = engine.frequency_scan(freqs)
+        # analyzer.plot_frequency_scan(scan_x, scan_y)
+
+    elif MODE == "sensing":
+        # --- PATH B: CPMG Sensing Sequence ---
+        # We initialize the SensingEngine (which inherits from SimulationEngine)
+        engine = SensingEngine(nv, n_pulses=8)
+        result, tlist = engine.run_cpmg()
+        
+        # Analyze
+        analyzer = ResultAnalyzer(result, cfg)
+        analyzer.plot_cpmg_results(result, tlist, engine.n_pulses)
+
+    print(f"✅ {MODE.upper()} simulation completed successfully.")
+
 if __name__ == "__main__":
-    print(" NV-CENTER GRAVITATIONAL WAVE SIMULATION")
-    print("=" * 50)
-    
-    # Run everything
-    result, tlist = run_simulation()
-    pop_plus1, pop_0, pop_minus1, exp_Sz,exp_Sx,exp_Sy, gw_strain = analyze_results(result, tlist)
-    plot_results(tlist, pop_plus1, pop_0, pop_minus1, exp_Sz, exp_Sx,exp_Sy,gw_strain)
-    interpret_results(pop_plus1, pop_0, pop_minus1)
-    print("Next: Derive actual kappa from Foldy-Wouthuysen transformation")
+    main()

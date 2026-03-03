@@ -3,8 +3,8 @@
 #include <Eigen/Dense>
 #include <Eigen/Core>
 #include <complex>
-#include "Tetrad.hpp"
-#include "DiracSpinor.hpp"
+#include "src/Physics/Gravitational_wave_NV_center/spinors_inGR/Tetrad.hpp"
+#include "src/Physics/Gravitational_wave_NV_center/spinors_behavior/dirac_spinor.hpp"
 
 using namespace Eigen;
 class NVHamiltonian

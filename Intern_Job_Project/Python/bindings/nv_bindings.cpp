@@ -1,6 +1,6 @@
-# intern_project/python/bindings/nv_bindings.cpp
+// # intern_project/python/bindings/nv_bindings.cpp
 #include <pybind11/pybind11.h>
-#include "nv_hamiltonian.hpp"
+#include "src/Physics/Hamiltonians"
 
 PYBIND11_MODULE(nv_physics, m) {
     py::class_<NVHamiltonian>(m, "NVHamiltonian")
