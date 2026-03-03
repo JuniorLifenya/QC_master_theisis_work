@@ -54,7 +54,7 @@ def main():
         analyzer = ResultAnalyzer(result, cfg)
         analyzer.plot_cpmg_results(result, tlist, engine.n_pulses)
 
-    print(f"✅ {MODE.upper()} simulation completed successfully.")
+    print(f"{MODE.upper()} simulation completed successfully.")
 
 if __name__ == "__main__":
     main()
