@@ -1,4 +1,4 @@
-from src.config import SimulationConfig
+from src.config1 import SimulationConfig
 from src.nv_quantum_setup import NVCenter
 from src.Solver import SimulationEngine
 from src.analyze_plotting import ResultAnalyzer
