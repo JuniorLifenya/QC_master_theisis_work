@@ -112,3 +112,8 @@ class SensingEngine(SimulationEngine):
                            [self.sx_eff, self.sy_eff, self.sz_eff], 
                            args=args)
         return result, tlist
+    
+def XY8():
+    return 
+def DD():
+    return
