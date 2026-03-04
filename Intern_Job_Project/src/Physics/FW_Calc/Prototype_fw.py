@@ -1,5 +1,5 @@
-import sympy as sp
-from sympy.physics.matrices import msigma, mgamma
+import sympy as sp # type: ignore
+from sympy.physics.matrices import msigma, mgamma # type: ignore
 
 def commutator(A, B):
     return A * B - B * A
