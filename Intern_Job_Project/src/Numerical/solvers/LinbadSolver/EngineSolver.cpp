@@ -3,11 +3,18 @@
 #include <cmath>
 #include <Eigen/Dense>
 
-using ComplexMatrix = Eigen::MatrixXcd;
-using complexvector = Eigen::VectorXcd;
+using complexMatrix = Eigen::MatrixXcd;
+using complexVector = Eigen::VectorXcd;
+typedef complex<double> cd; 
 
 
-class SimulationEngine: 
+// A simple Struct to hold ur 2-level quantum state (qubit) needed?
+struct QuantumState{
+    cd c0; // Amplitude for |0>
+    cd c1; // Amplitude for |-1>
+}
+
+class SimulationEngine 
 {
 
 private:
@@ -15,15 +22,17 @@ private:
     double h_max = 1.0;
     double omega_gw = 3.14;
 
-    ComplexMatrix H0; // Set value before use later as well
-    ComplexMatrix H_int; // Set value before use later
-    ComplexMatrix Sz,Sx,Sy; 
-    ComplexMatrix psi0,psi_p1,psi_m1;
-    
+    complexMatrix H0; // Set value before use later as well
+    complexMatrix H_int; // Set value before use later
+    complexMatrix Sz,Sx,Sy; 
 
+    // State Vectors
+    complexVector psi0,psi_p1,psi_m1;
+    
 public: 
+
     // Time-dependent coefficient for Hamiltonia: h(t)
-    double _strain_func(double t,double h){
+    double _strain_func(double t){
         return h_max * std::sin(omega_gw * t);
     } // In python this was return args['h_max'] * np.sin(args['omega_gw'] * t)
 
@@ -46,16 +55,16 @@ public:
         };
 
         std::vector<ComplexMatrix> c_ops;
-        if (/* condition for using mesolve */) {
-            // Add your dissipation matrices here. For example:
-            // c_ops.push_back(some_decay_matrix);
-        }
-        return 
+        // Add your dissipation matrices here if needed
+        
+        // Note: QuTiP's mesolve ran a loop over all time steps and returned results.
+        // In C++, you will need to implement an ODE solver loop here to actually
+        // evolve the system over time, rather than just evaluating it at one 't'.
     }
 
     
     
-}
+};
 
 
 int main{
