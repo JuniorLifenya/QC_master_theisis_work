@@ -1,7 +1,7 @@
 import qutip as qt
 import numpy as np
 import logging
-from src.Physics.libenvgw.nv_quantum_setup import NVCenter
+from src.libenvgw.nv_quantum_setup import NVCenter
 
 # Configure logger
 logger = logging.getLogger(__name__)
