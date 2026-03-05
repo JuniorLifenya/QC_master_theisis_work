@@ -55,7 +55,7 @@ class SimulationEngine:
         Scans over a range of GW frequencies to find resonance.
         Returns: (frequencies, max_population_transfer)
         """
-        logger.info(f"🔍 Starting Frequency Scan over {len(freqs)} points...")
+        logger.info(f" Starting Frequency Scan over {len(freqs)} points...")
         
         original_f = self.cfg.f_gw
         results = []

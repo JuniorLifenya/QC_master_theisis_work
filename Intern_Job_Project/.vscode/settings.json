@@ -9,16 +9,20 @@
         "fftfreq",
         "figsize",
         "freqs",
+        "Hamiltonia",
         "hamiltonians",
         "jmat",
         "levelname",
         "libenvgw",
         "Linbad",
+        "mesolve",
         "minkowski",
         "NVGW",
+        "placehodler",
         "qeye",
         "qutip",
         "qzero",
+        "sesolve",
         "sigmax",
         "sigmay",
         "sigmaz",
@@ -28,5 +32,6 @@
         "xlabel",
         "ylabel"
     ],
-    "python-envs.defaultEnvManager": "ms-python.python:system"
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "C_Cpp.errorSquiggles": "disabled"
 }
