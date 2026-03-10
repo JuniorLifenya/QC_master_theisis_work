@@ -1,7 +1,7 @@
 import numpy as np
 import qutip as qt
 import logging
-from python.scripts.Solver import SimulationEngine
+from scripts.Solver import SimulationEngine
 
 logger = logging.getLogger(__name__)
 

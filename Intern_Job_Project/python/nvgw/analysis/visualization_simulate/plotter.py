@@ -99,7 +99,7 @@ class ResultAnalyzer:
         ax.set_title('System Response Spectrum')
 
         plt.tight_layout()
-        plt.savefig("plots/comprehensive_analysis.png", dpi=150)
+        plt.savefig("python/nvgw/analysis/plots/comprehensive_analysis.png", dpi=150)
         plt.show()
         print(" Comprehensive plot saved to plots/comprehensive_analysis.png")
 
@@ -132,13 +132,13 @@ class ResultAnalyzer:
         axes[1].legend(loc="upper right"); axes[1].grid(True, alpha=0.3)
 
         plt.tight_layout()
-        plt.savefig("plots/cpmg_analysis.png")
+        plt.savefig("python/nvgw/analysis/plots/cpmg_analysis.png")
         plt.show()
         print("CPMG plot saved to plots/cpmg_analysis.png")
 
-class InteractiveAnalyzer:
-    def create_interactive_dashboard(self):
-        fig = make_subplots(rows=2, cols=2)
-        # Add interactive traces
-        fig.update_layout(template="plotly_dark")
-        fig.show()
+# class InteractiveAnalyzer:
+#     def create_interactive_dashboard(self):
+#         fig = make_subplots(rows=2, cols=2)
+#         # Add interactive traces
+#         fig.update_layout(template="plotly_dark")
+#         fig.show()

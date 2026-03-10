@@ -1,8 +1,8 @@
-from python.nvgw.config import SimulationConfig
-from python.scripts.nv_quantum_setup  import NVCenter
-from python.scripts.Solver import SimulationEngine
-from python.nvgw.analysis.visualization_simulate.plotter import ResultAnalyzer
-from python.scripts.run_cpmg import SensingEngine
+from nvgw.config import SimulationConfig
+from scripts.nv_quantum_setup  import NVCenter
+from scripts.Solver import SimulationEngine
+from nvgw.analysis.visualization_simulate.plotter import ResultAnalyzer
+from scripts.run_cpmg import SensingEngine
 import numpy as np
 import numpy as np
 import logging
