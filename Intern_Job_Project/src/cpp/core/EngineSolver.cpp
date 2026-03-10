@@ -5,14 +5,14 @@
 
 using complexMatrix = Eigen::MatrixXcd;
 using complexVector = Eigen::VectorXcd;
-typedef complex<double> cd; 
+typedef std::complex<double> cd; 
 
 
 // A simple Struct to hold ur 2-level quantum state (qubit) needed?
 struct QuantumState{
     cd c0; // Amplitude for |0>
     cd c1; // Amplitude for |-1>
-}
+};
 
 class SimulationEngine 
 {
@@ -39,7 +39,7 @@ public:
     void run(double t){
         // 1. Evaluate the time-dependent Hamiltonian for this specific time 't'
         // In C++ (with Eigen), we can multiply a matrix by a double directly!
-        ComplexMatrix H_current = H0 + (H_int*_strain_func(t));
+        complexMatrix H_current = H0 + (H_int*_strain_func(t));
 
         // Alternative We cannot simply have H = H0 + H_int(t), we must loop
         // for (double val: H_int_t){
@@ -67,7 +67,8 @@ public:
 };
 
 
-int main{
+int main()
+{
 
 
 

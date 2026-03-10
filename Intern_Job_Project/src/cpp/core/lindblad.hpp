@@ -1,3 +1,5 @@
+// Your RK4 / Math logic
+
 // Code for Decoherence solver (NEW KILLER FEATURE). UNDERSTAND AND RECONSTRUCT
 
 // src/numerics/lindblad.hpp

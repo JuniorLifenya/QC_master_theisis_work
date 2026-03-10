@@ -7,7 +7,7 @@ import os
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # 2. Define the subfolder and filename
-subfolder = "CuttingEdge2024-2025/GWTC-4.0"  # <-- Python will look inside here now!
+subfolder = "Gw_Strain_Data/CuttingEdge2024-2025/GWTC-4.0"  # <-- Python will look inside here now!
 filename = "H-H1_GWOSC_O4a_4KHZ_R1-1376088064-4096.hdf5" 
 
 # 3. Create the bulletproof absolute path

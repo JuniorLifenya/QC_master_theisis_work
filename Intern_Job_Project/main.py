@@ -1,5 +1,5 @@
-from src.io_input_output.config import SimulationConfig
-from src.libenvgw.nv_quantum_setup  import NVCenter
+from python.config import SimulationConfig
+from python.nv_quantum_setup  import NVCenter
 from src.Numerical.solvers.LinbadSolver.QutipSolver import SimulationEngine
 from Plot_Analyze.visualization_simulate.visualize import ResultAnalyzer
 from Plot_Analyze.analysis.cmpg_sensing import SensingEngine
