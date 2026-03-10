@@ -1,7 +1,7 @@
 import qutip as qt
 import numpy as np
 import logging
-from scripts.nv_quantum_setup import NVCenter
+from python.scripts.nv_quantum_setup import NVCenter
 
 # Configure logger
 logger = logging.getLogger(__name__)
