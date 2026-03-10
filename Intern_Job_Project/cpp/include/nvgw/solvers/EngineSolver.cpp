@@ -66,6 +66,56 @@ public:
     
 };
 
+// Your RK4 / Math logic
+
+// Code for Decoherence solver (NEW KILLER FEATURE). UNDERSTAND AND RECONSTRUCT
+
+// src/numerics/lindblad.hpp
+#pragma once
+#include <Eigen/Sparse>
+
+void add_decoherence(Eigen::SparseMatrix<std::complex<double>> &rho,
+                     double T1, double T2, double dt)
+{
+    // Amplitude damping
+    const double gamma1 = 1.0 / T1;
+    // Phase damping
+    const double gamma2 = 1.0 / T2 - 1.0 / (2 * T1);
+
+    // Implement simple dissipation operator
+    // Actual physics simplified for time efficiency
+    rho = rho * exp(-gamma1 * dt);
+
+    // Add diagonal decay (simplified approach)
+    for (int i = 0; i < rho.rows(); ++i)
+    {
+        rho.coeffRef(i, i) *= exp(-gamma2 * dt);
+    }
+}
+
+class Qubit {
+  std::vector<Complex> state; // [alpha, beta] for α|0> + β|1>
+
+public:
+    Qubit() : state{{1.0, 0.0}, {0.0, 0.0}} {}
+
+    void applyXGate()
+    {
+        // Swap amplitudes: σ_x operation
+        std::swap(state[0], state[1]);
+    }
+
+    bool measure()
+    {
+        double prob0 = state[0].norm() * state[0].norm();
+        std::random_device rd;
+        return (std::generate_canonical<double, 10>(rd) > prob0) ? 1 : 0;
+    }
+
+    // Add Hadamard, Pauli gates...
+};
+
+
 
 int main()
 {
