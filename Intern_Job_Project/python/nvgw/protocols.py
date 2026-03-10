@@ -79,35 +79,4 @@ class SensingEngine(SimulationEngine):
                            [self.sx_eff, self.sy_eff, self.sz_eff], 
                            args=args)
         return result, tlist
-        """Executes the CPMG sequence simulation."""
-        # 1. Prepare initial state: Superposition (|0> + |-1>)/sqrt(2)
-        # Standard in sensing: pi/2 pulse creates coherence
-        psi_init = (qt.basis(2, 0) + qt.basis(2, 1)).unit()
-
-        # 2. Hamiltonians
-        # H_gw: effective coupling is Sz (detuning) in rotating frame
-        H_gw_op = [self.cfg.h_max * self.sz_eff, lambda t, args: np.cos(args['omega_gw'] * t)]
-        # H_control: Rabi drive around Sx axis
-        H_control_op = self.omega_rabi * self.sx_eff
-
-        # 3. Assemble Time-Dependent Hamiltonian
-        # Format for mesolve: [H0, [H1, func1], [H2, func2], ...]
-        H = [
-            [H_gw_op, lambda t, args: np.cos(args['omega_gw'] * t)], 
-            [H_control_op, self._control_func]
-        ]
-
-        args = {
-            'omega_gw': self.cfg.omega_gw,
-            'tau': self.tau,
-            'n_pulses': self.n_pulses,
-            'width': self.pulse_width
-        }
-
-        # 4. Simulation time list (Higher density for pulses)
-        tlist = np.linspace(0, self.total_time, self.cfg.n_steps)
         
-        result = qt.mesolve(H, psi_init, tlist, [], 
-                           [self.sx_eff, self.sy_eff, self.sz_eff], 
-                           args=args)
-        return result, tlist

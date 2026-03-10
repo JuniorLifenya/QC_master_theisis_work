@@ -1,5 +1,5 @@
-from python.config import SimulationConfig
-from python.nv_quantum_setup  import NVCenter
+from python.nvgw.config import SimulationConfig
+from python.scripts.nv_quantum_setup  import NVCenter
 from src.Numerical.solvers.LinbadSolver.QutipSolver import SimulationEngine
 from Plot_Analyze.visualization_simulate.visualize import ResultAnalyzer
 from Plot_Analyze.analysis.cmpg_sensing import SensingEngine

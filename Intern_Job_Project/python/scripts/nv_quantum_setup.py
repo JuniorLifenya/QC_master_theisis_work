@@ -1,6 +1,6 @@
 import qutip as qt
 import numpy as np
-from python.config import SimulationConfig
+from python.nvgw.config import SimulationConfig
 cfg = SimulationConfig()
 
 
