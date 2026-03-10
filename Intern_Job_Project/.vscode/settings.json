@@ -17,6 +17,7 @@
         "minkowski",
         "NVGW",
         "qeye",
+        "Qobj",
         "qubit",
         "qutip",
         "qzero",
