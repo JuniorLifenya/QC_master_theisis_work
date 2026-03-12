@@ -23,7 +23,7 @@ private:
     double omega_gw = 3.14;
 
     complexMatrix H0; // Set value before use later as well
-    complexMatrix H_int; // Set value before use later
+    complexMatrix H_int = ; // Set value before use later 
     complexMatrix Sz,Sx,Sy; 
 
     // State Vectors

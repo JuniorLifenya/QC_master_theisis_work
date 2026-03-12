@@ -1,8 +1,8 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <include/QuantumGrav/Hamiltonians/nv_hamiltonian.hpp>
 
-using real = double;
 using namespace std;
 
 // Derivative for solving like dy/dx = (sin x - 5 y^2)/3
