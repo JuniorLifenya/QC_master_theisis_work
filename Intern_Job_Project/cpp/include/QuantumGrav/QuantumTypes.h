@@ -1,11 +1,14 @@
+// include/QuantumGrav/QuantumTypes.h
 #pragma once
 #include <complex>
 #include <Eigen/Dense>
 
 
+namespace nvgw{
+
 using ComplexDouble = std::complex<double>;
-using ComplexMatrix = Eigen::MatrixXcd;
-using ComplexVector = Eigen::VectorxXcd;
+using ComplexMatrix = Eigen::MatrixX3cd; // Strictly 3x3 for NV Center
+using ComplexVector = Eigen::VectorxX3cd; // ---//---- 
 
 
 struct SimulationConfig{
@@ -15,6 +18,9 @@ struct SimulationConfig{
     int n_steps;
     double t_final;
 };
+
+};
+
 
 // A simple Struct to hold ur 2-level quantum state (qubit) needed?
 struct QuantumState{

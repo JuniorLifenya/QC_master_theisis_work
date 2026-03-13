@@ -1,3 +1,4 @@
+//SchrødingerSolver.h
 #pragma once 
 #include "QuantumTypes.h"
 #include <vector>

@@ -1,35 +1,13 @@
-// intern_project/src/physics/nv_center/nv_hamiltonian.cpp
+// /src/Hamiltonians/nv_hamiltonian.cpp
 #pragma once
 #include <Eigen/Dense>
 #include <Eigen/Core>
 #include <complex>
-#include "src/Physics/Dirac_Physics/Spinors/Tetrad.hpp"
-#include "src/Physics/Dirac_Physics/Spinors/dirac_spinor.hpp"
+#include "cpp/include/Spinor_Tetrad/Tetrad.hpp"
+#include "cpp/include/Spinor_Tetrad/dirac_spinor.hpp"
 
 using namespace Eigen;
-class NVHamiltonian
-{
-public:
-    NVHamiltonian(double Bz = 0.1, double strain) : Bz_(Bz), strain_(strain) {}
 
-    Matrix3d build()
-    {
-        Matrix3d H = Matrix3d::Zero();
-        // Zero-field splitting
-        H(2, 2) = 2.87e9; // GHz
-        // Zeeman term
-        H(0, 0) = gamma_e * Bz_;
-        H(1, 1) = -gamma_e * Bz_;
-        // Strain coupling
-        H(2, 2) += k_strain * strain_;
-        return H;
-    }
-
-private:
-    const double gamma_e = 28.0e9; // GHz/T
-    const double k_strain = 1e5;   // GHz/strain
-    double Bz_, strain_;
-};
 
 //------------------------------------------------------------------------------
 class NV2Hamiltonian
