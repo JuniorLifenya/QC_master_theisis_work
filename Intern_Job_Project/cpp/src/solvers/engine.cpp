@@ -1,7 +1,9 @@
 
 // src/solvers/EngineSolver.cpp
 #include <iostream>
-#include <solvers/engine.hpp>
+#include <cmath>
+#include "cpp/include/solvers/engine.hpp"
+
 
 namespace nvgw { 
 
@@ -15,7 +17,7 @@ SimulationEngine::simulationEngine(const SimulationConfig &config): cfg(config){
 void SimulationEngine::initialize_operators(){
     const ComplexDouble i(0.0, 1.0);
     const double inv_sqrt2 = 1.0/ std::sqrt(2.0);
-}
+
 
     // Initialize to zero 
     Sx = ComplexMatrix::Zero();
@@ -23,7 +25,8 @@ void SimulationEngine::initialize_operators(){
     Sz = ComplexMatrix::Zero();
 
     //Define the certain components (diagonal and anti diagonal)
-    Sz(0,0) = 1.0; Sz(2,2) = -1.0;
+    Sz(0,0) = 1.0; 
+    Sz(2,2) = -1.0;
 
 
     Sx(0,1) = inv_sqrt2; Sx(1,0) = inv_sqrt2;
@@ -34,15 +37,27 @@ void SimulationEngine::initialize_operators(){
     
     // We define the Static and Interaction Hamiltonian
 
+
+    // We define a coupling constant (kappa/4) mapped to the NV energy scale.
+    // (You may need to adjust this scale factor based on your exact config)
+    double gamma_gw = 1.0; 
     double D_zfs = 2.87e9;
     H0 = D_zfs*(Sz*Sz);
-    H_int_TT = kappa/(2* m) (p.adjoint() * h * p + std::inner_product(S,(curl(std::inner_product(h,p)))));
     
+    // We can either let Eigen do the matrix math:
+    // H_int = gamma_gw * ((Sx * Sx) - (Sy * Sy));
 
+    // OR, for maximum computational speed in the solver loop, 
+    // we hardcode the known analytical result directly:
+    H_int = ComplexMatrix::Zero();
+    H_int(0, 2) = gamma_gw; // Couples |+1> to |-1>
+    H_int(2, 0) = gamma_gw; // Couples |-1> to |+1>
+    
+}
     // Now we get Hamiltonian at time T
 ComplexMatrix SimulationEngine::get_hamiltonian_at_t(double t) const {
     double strain_t = cfg.h_max*std::sin(cfg.omega_gw * t);
-    return H0 + (H_int_TT * strain_t); // Not really a good logic here. This will fail !
+    return H0 + (H_int* strain_t); // Not really a good logic here. This will fail !
 }
 
     // Schrødinger Derivative
