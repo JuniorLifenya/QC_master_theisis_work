@@ -1,5 +1,4 @@
 // cpp/include/solvers/engine.hpp
-
 #pragma once
 #include <vector>
 #include "QuantumTypes.hpp"
@@ -11,17 +10,25 @@ class SimulationEngine{
 private:
     SimulationConfig cfg;
 
-    ComplexMatrix H0;
-    ComplexMatrix H_int;
+    Matrix3cd Sx,Sy,Sz; 
+    Matrix3cd Sx2,Sy2,Sz2;
 
-    //Observables 
-    COmplexMatrix Sz,Sx,Sy;
+
+
+    Matrix3cd H0;
+    Matrix3cd H_int;
+
+    // Basis states now 
+    Vector3cd psi_p1, psi_p0, psi_m1;
 
     //Internal helper functions
     void initialize_operators();
-    ComplexMatrix get_hamiltonian_at_t(double t) const;
-    ComplexVector get_derivative(const ComplexVector &psi, double t) const;
-    ComplexVector rk4_step(const ComplexVector &psi_current, double t, double dt);
+    void initialize_states();
+
+
+    Matrix3cd hamiltonian(double t) const;  // H(t) = H0 + strain(t) * H_int
+    Matrix3cd rhs(const Vector3cd &psi, double t) const;  // -i H(t) ψ
+    Matrix3cd rk4_step(const Vector3cd &psi, double t, double dt) const;
 public:
     //Constructor
     explicit SimulationEngine(const SimulationConfig &config);

@@ -11,6 +11,7 @@ namespace nvgw {
 
 SimulationEngine::simulationEngine(const SimulationConfig &config): cfg(config){
     initialize_operators();
+    initialize_states();
 }
 
 //2. Setup Matrices
@@ -20,9 +21,9 @@ void SimulationEngine::initialize_operators(){
 
 
     // Initialize to zero 
-    Sx = ComplexMatrix::Zero();
-    Sy = ComplexMatrix::Zero();
-    Sz = ComplexMatrix::Zero();
+    Sx = Matrix3cd::Zero();
+    Sy = Matrix3cd::Zero();
+    Sz = Matrix3cd::Zero();
 
     //Define the certain components (diagonal and anti diagonal)
     Sz(0,0) = 1.0; 
@@ -37,72 +38,96 @@ void SimulationEngine::initialize_operators(){
     
     // We define the Static and Interaction Hamiltonian
 
+    Sx2 = Sx*Sx;
+    Sy2 = Sy*Sy;
+    Sz2 = Sz*Sz;
+
 
     // We define a coupling constant (kappa/4) mapped to the NV energy scale.
     // (You may need to adjust this scale factor based on your exact config)
-    double gamma_gw = 1.0; 
-    double D_zfs = 2.87e9;
-    H0 = D_zfs*(Sz*Sz);
+
+    H0 = cfg.D*(Sz2);
+    if (cfg.Bz != 0.0)
+        H0 +=cfg.gamma_e * cfg.Bz *Sz;
     
     // We can either let Eigen do the matrix math:
-    // H_int = gamma_gw * ((Sx * Sx) - (Sy * Sy));
+    // Interaction operator – choose the simplest coupling from your thesis.
+    // For example, from Eq. (5.2): H_NV-GW(t) = - (κ ħ²/(2 m_e)) h_ij(t) ⟨∂^i ∂^j⟩_orb.
+    // In the NV ground state, the orbital tensor is proportional to the identity in xy-plane.
+    // A phenomenological model: H_int = κ * (Sx^2 - Sy^2)  (strain-like)
+    // or H_int = κ * (Sx^2 + Sy^2 - 2 Sz^2) depending on polarization.
+
 
     // OR, for maximum computational speed in the solver loop, 
     // we hardcode the known analytical result directly:
-    H_int = ComplexMatrix::Zero();
+    H_int = Matrix3cd::Zero();
     H_int(0, 2) = gamma_gw; // Couples |+1> to |-1>
     H_int(2, 0) = gamma_gw; // Couples |-1> to |+1>
     
 }
+void SimulationEngine::initialize_states(){
+    psi_p1 = Vector3cd::Zero(); psi_p1(0) = 1.0;
+    psi_0  = Vector3cd::Zero(); psi_0(1)  = 1.0;
+    psi_m1 = Vector3cd::Zero(); psi_m1(2) = 1.0;
+
+}
+
     // Now we get Hamiltonian at time T
-ComplexMatrix SimulationEngine::get_hamiltonian_at_t(double t) const {
-    double strain_t = cfg.h_max*std::sin(cfg.omega_gw * t);
-    return H0 + (H_int* strain_t); // Not really a good logic here. This will fail !
+Matrix3cd SimulationEngine::hamiltonian(double t) const {
+    double strain = cfg.h_max*std::sin(cfg.omega_gw * t); // This is h(t) and needs the Ligo-Data
+    return H0 + (H_int* strain); // Not really a good logic here. This will fail !
 }
 
     // Schrødinger Derivative
-ComplexVector SimulationEngine::get_derivative(const complexVector &psi, double t) const{
+Vector3cd SimulationEngine::rhs(const Vector3cd &psi, double t) const{
     const ComplexDouble i(0.0, 1.0);
-    ComplexMatrix H = get_hamiltonian_at_t(t);
+    Matrix3cd H = hamiltonian(t);
     return -i*(H*psi);
 }
 
 // 5. THE RK4 MATH
-ComplexVector SimulationEngine::rk4_step(const ComplexVector& psi, double t, double dt) const {
-    ComplexVector k1 = dt * get_derivative(psi, t);
-    ComplexVector k2 = dt * get_derivative(psi + 0.5 * k1, t + 0.5 * dt);
-    ComplexVector k3 = dt * get_derivative(psi + 0.5 * k2, t + 0.5 * dt);
-    ComplexVector k4 = dt * get_derivative(psi + k3, t + dt);
+Vector3cd SimulationEngine::rk4_step(const Vector3cd &psi, double t, double dt) const {
+    Vector3cd k1 = dt * rhs(psi, t);
+    Vector3cd k2 = dt * rhs(psi + 0.5 * k1, t + 0.5 * dt);
+    Vector3cd k3 = dt * rhs(psi + 0.5 * k2, t + 0.5 * dt);
+    Vector3cd k4 = dt * rhs(psi + k3, t + dt);
     
-    ComplexVector psi_next = psi + (1.0 / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
+    Vector3cd psi_next = psi + (1.0 / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
     psi_next.normalize(); // Keep quantum probabilities = 1
     return psi_next;
 }
 
 // 6. THE MAIN LOOP (Replaces Python's qt.mesolve)
 std::vector<double> SimulationEngine::run_dynamics() {
-    std::cout << "🚀 Running C++ Quantum Engine..." << std::endl;
+    std::cout << "Running C++ Quantum Engine..." << std::endl;
     
     double dt = cfg.t_final / cfg.n_steps;
     
     // Start in |0> state
-    ComplexVector psi_current(0.0, 1.0, 0.0); 
+    Vector3cd psi = psi_0; // start in |0>
+    std::vector<double> p0,pp1,pm1;  // populations at each step
     
-    std::vector<double> sx_expectations;
-    sx_expectations.reserve(cfg.n_steps);
+
+    p0.reserve(cfg.n_steps +1);
+    pp1.reserve(cfg.n_steps + 1);
+    pm1.reserve(cfg.n_steps + 1);
+
+    // Now we store the Initial Populations
+    p0.push_back(std::norm(psi_0.dot(psi)));
+    pp1.push_back(std::norm(psi_p1.dot(psi)));
+    pm1.push_back(std::norm(psi_m1.dot(psi)));
 
     for (int step = 0; step < cfg.n_steps; ++step) {
         double t = step * dt;
+        psi = rk4_step(psi, t, dt);// Push state forward in time
         
-        // Push state forward in time
-        psi_current = rk4_step(psi_current, t, dt);
-        
-        // Calculate <Sx>
-        ComplexDouble exp_val = psi_current.adjoint() * Sx * psi_current;
-        sx_expectations.push_back(exp_val.real());
+        p0.push_back( std::norm(psi_0.dot(psi)) );
+        pp1.push_back( std::norm(psi_p1.dot(psi)) );
+        pm1.push_back( std::norm(psi_m1.dot(psi)) );
     }
     
-    return sx_expectations;
+    // For simplicity, return just P(|+1>) – you can modify to return all or write to file
+    return pp1;
 }
 
 } // namespace nvgw

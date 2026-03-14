@@ -68,7 +68,7 @@ class NVCenter(QuantumSystem):
             H0 += self.cfg.gamma_e * self.cfg.Bz * self.Sz
         return H0
 
-    def get_interaction_operator(self) -> qt.Qobj:
+    def get_interaction_operator    (self) -> qt.Qobj:
         """Returns the operator part of the GW Hamiltonian."""
         return self.cfg.kappa * self.Op_plus
 

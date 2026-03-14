@@ -7,24 +7,22 @@
 namespace nvgw{
 
 using ComplexDouble = std::complex<double>;
-using ComplexMatrix = Eigen::MatrixX3cd; // Strictly 3x3 for NV Center
-using ComplexVector = Eigen::VectorxX3cd; // ---//---- 
+using Matrix3cd = Eigen::Matrix3cd; // Strictly 3x3 for NV Center
+using Vector3cd = Eigen::Vectorx3cd; // ---//---- 
 
 
 struct SimulationConfig{
-    double f_gw;
-    double omega_gw;
-    double h_Max;
-    int n_steps;
-    double t_final;
+    double f_gw;          // GW frequency (Hz)
+    double omega_gw;      // = 2π f_gw
+    double h_max;         // strain amplitude
+    double kappa;         // coupling constant (from thesis)
+    double m_e;           // electron mass (in natural units? careful)
+    double D;             // zero-field splitting (2.87e9 Hz)
+    double gamma_e;       // gyromagnetic ratio (28e9 Hz/T)
+    double Bz;            // static magnetic field (T)
+    double t_final;       // total simulation time (s)
+    int n_steps;          // number of time steps
 };
 
 };
-
-
-// A simple Struct to hold ur 2-level quantum state (qubit) needed?
-struct QuantumState{
-    cd c1; // Amplitude for |1>
-    cd c0; // Amplitude for |0>
-    cd c_1; // Amplitude for |-1>
-};
+// The struct is a simple and clean way to connect different types of date
