@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include "cpp/include/solvers/engine.hpp"
+#include "src/solvers/integratorRK4.cpp"
 
 
 namespace nvgw { 
@@ -86,16 +87,7 @@ Vector3cd SimulationEngine::rhs(const Vector3cd &psi, double t) const{
 }
 
 // 5. THE RK4 MATH
-Vector3cd SimulationEngine::rk4_step(const Vector3cd &psi, double t, double dt) const {
-    Vector3cd k1 = dt * rhs(psi, t);
-    Vector3cd k2 = dt * rhs(psi + 0.5 * k1, t + 0.5 * dt);
-    Vector3cd k3 = dt * rhs(psi + 0.5 * k2, t + 0.5 * dt);
-    Vector3cd k4 = dt * rhs(psi + k3, t + dt);
-    
-    Vector3cd psi_next = psi + (1.0 / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
-    psi_next.normalize(); // Keep quantum probabilities = 1
-    return psi_next;
-}
+psi = rk4_step([this](double t, const Vector3cd& psi) { return rhs(t, psi); }, t, psi, dt);
 
 // 6. THE MAIN LOOP (Replaces Python's qt.mesolve)
 std::vector<double> SimulationEngine::run_dynamics() {
