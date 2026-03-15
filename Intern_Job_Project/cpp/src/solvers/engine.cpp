@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include "cpp/include/solvers/engine.hpp"
-#include "src/solvers/integratorRK4.cpp"
+#include "integratorRK4.cpp"
 
 
 namespace nvgw { 
@@ -17,7 +17,7 @@ SimulationEngine::simulationEngine(const SimulationConfig &config): cfg(config){
 
 //2. Setup Matrices
 void SimulationEngine::initialize_operators(){
-    const ComplexDouble i(0.0, 1.0);
+const ComplexDouble i(0.0, 1.0);
     const double inv_sqrt2 = 1.0/ std::sqrt(2.0);
 
 

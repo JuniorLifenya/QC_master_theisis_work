@@ -1,7 +1,7 @@
 // cpp/include/solvers/engine.hpp
 #pragma once
 #include <vector>
-#include "QuantumTypes.hpp"
+#include "cpp/include/QuantumGrav/QuantumTypes.hpp"
 
 namespace nvgw{
 
