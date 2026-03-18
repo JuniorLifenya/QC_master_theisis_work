@@ -15,7 +15,7 @@ struct SimulationConfig{
     double f_gw;          // GW frequency (Hz)
     double omega_gw;      // = 2π f_gw
     double h_max;         // strain amplitude
-    double kappa;         // coupling constant (from thesis)
+    double kappa = 1.0;   // coupling constant (from thesis), For now we use a simple version
     double m_e;           // electron mass (in natural units? careful)
     double D;             // zero-field splitting (2.87e9 Hz)
     double gamma_e;       // gyromagnetic ratio (28e9 Hz/T)

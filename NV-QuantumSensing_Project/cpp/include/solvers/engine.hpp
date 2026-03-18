@@ -16,7 +16,8 @@ private:
 
 
     Matrix3cd H0;
-    Matrix3cd H_int;
+    // gamma_gw * ((Sx * Sx) - (Sy * Sy))
+    Matrix3cd H_int_TT = cfg.kappa*(Sx2-Sy2); // Here we use our results in simplyfied version(so no variables)
 
     // Basis states now 
     Vector3cd psi_p1, psi_p0, psi_m1;
@@ -27,7 +28,7 @@ private:
 
 
     Matrix3cd hamiltonian(double t) const;  // H(t) = H0 + strain(t) * H_int
-    Matrix3cd rhs(const Vector3cd &psi, double t) const;  // -i H(t) ψ
+    Vector3cd rhs(const Vector3cd &psi, double t) const;  // -i H(t) ψ
     Matrix3cd rk4_step(const Vector3cd &psi, double t, double dt) const;
 public:
     //Constructor

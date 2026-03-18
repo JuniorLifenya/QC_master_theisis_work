@@ -10,14 +10,14 @@ namespace nvgw {
 
 // 1. CONSTRUCTOR: We set up the initial matrices
 
-SimulationEngine::simulationEngine(const SimulationConfig &config): cfg(config){
+SimulationEngine::SimulationEngine(const SimulationConfig &config): cfg(config){
     initialize_operators();
     initialize_states();
 }
 
 //2. Setup Matrices
 void SimulationEngine::initialize_operators(){
-const ComplexDouble i(0.0, 1.0);
+    const ComplexDouble i(0.0, 1.0);
     const double inv_sqrt2 = 1.0/ std::sqrt(2.0);
 
 
@@ -57,18 +57,21 @@ const ComplexDouble i(0.0, 1.0);
     // In the NV ground state, the orbital tensor is proportional to the identity in xy-plane.
     // A phenomenological model: H_int = κ * (Sx^2 - Sy^2)  (strain-like)
     // or H_int = κ * (Sx^2 + Sy^2 - 2 Sz^2) depending on polarization.
+    double gamma_gw = 1.0; // Simplyfied version of kappa really here. 
 
 
     // OR, for maximum computational speed in the solver loop, 
     // we hardcode the known analytical result directly:
-    H_int = Matrix3cd::Zero();
-    H_int(0, 2) = gamma_gw; // Couples |+1> to |-1>
-    H_int(2, 0) = gamma_gw; // Couples |-1> to |+1>
+    H_int_TT = Matrix3cd::Zero();
+    H_int_TT(0, 2) = gamma_gw; // Couples |+1> to |-1>
+    H_int_TT(2, 0) = gamma_gw; // Couples |-1> to |+1>
     
 }
+
+// 3. Initialize States
 void SimulationEngine::initialize_states(){
     psi_p1 = Vector3cd::Zero(); psi_p1(0) = 1.0;
-    psi_p0  = Vector3cd::Zero(); psi_p0(1)  = 1.0;
+    psi_p0 = Vector3cd::Zero(); psi_p0(1) = 1.0;
     psi_m1 = Vector3cd::Zero(); psi_m1(2) = 1.0;
 
 }
@@ -76,7 +79,7 @@ void SimulationEngine::initialize_states(){
     // Now we get Hamiltonian at time T
 Matrix3cd SimulationEngine::hamiltonian(double t) const {
     double strain = cfg.h_max*std::sin(cfg.omega_gw * t); // This is h(t) and needs the Ligo-Data
-    return H0 + (H_int* strain); // Not really a good logic here. This will fail !
+    return H0 + (H_int_TT* strain); // Not really a good logic here. This will fail !
 }
 
     // Schrødinger Derivative
@@ -85,41 +88,50 @@ Vector3cd SimulationEngine::rhs(const Vector3cd &psi, double t) const{
     Matrix3cd H = hamiltonian(t);
     return -i*(H*psi);
 }
-
-// 5. THE RK4 MATH
-psi = rk4_step([this](double t, const Vector3cd& psi) { return rhs(t, psi); }, t, psi, dt);
-
-// 6. THE MAIN LOOP (Replaces Python's qt.mesolve)
-std::vector<double> SimulationEngine::run_dynamics() {
-    std::cout << "Running C++ Quantum Engine..." << std::endl;
+// 6. The standard RK4 Math (Removed the lambda version, kept it clean)
+Vector3cd SimulationEngine::rk4_step(const Vector3cd& psi, double t, double dt) const {
+    Vector3cd k1 = dt * rhs(psi, t);
+    Vector3cd k2 = dt * rhs(psi + 0.5 * k1, t + 0.5 * dt);
+    Vector3cd k3 = dt * rhs(psi + 0.5 * k2, t + 0.5 * dt);
+    Vector3cd k4 = dt * rhs(psi + k3, t + dt);
     
-    double dt = cfg.t_final / cfg.n_steps;
-    
-    // Start in |0> state
-    Vector3cd psi = psi_p0; // start in |0>
-    std::vector<double> p0,pp1,pm1;  // populations at each step
-    
+    Vector3cd psi_next = psi + (1.0 / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
+    psi_next.normalize(); // Keep quantum probabilities = 1
+    return psi_next;
+}
 
-    p0.reserve(cfg.n_steps +1);
+// Now the Main loop that replaces th Qutip.Solver stuff with mesolve and Sesolve.
+std::vector<double> SimulationEngine::run_dynamics(){
+    std::cout << "Running the C++Quantum Engine..." << std::endl;
+
+    double dt =cfg.t_final/cfg.n_steps;
+
+    Vector3cd psi = psi_p0; // Start in |0> state;
+
+    std::vector<double> p0, pp1, pm1 ;
+
+    p0.reserve(cfg.n_steps + 1);
     pp1.reserve(cfg.n_steps + 1);
     pm1.reserve(cfg.n_steps + 1);
 
-    // Now we store the Initial Populations
+    // Initial Populations (Eigen dot product returns complex, we want the squared norm of the overlap)
+    // Note: in Eigen, vector.dot() does complex conjugation automatically. 
     p0.push_back(std::norm(psi_p0.dot(psi)));
     pp1.push_back(std::norm(psi_p1.dot(psi)));
     pm1.push_back(std::norm(psi_m1.dot(psi)));
 
-    for (int step = 0; step < cfg.n_steps; ++step) {
-        double t = step * dt;
-        psi = rk4_step(psi, t, dt);// Push state forward in time
-        
-        p0.push_back( std::norm(psi_p0.dot(psi)) );
-        pp1.push_back( std::norm(psi_p1.dot(psi)) );
-        pm1.push_back( std::norm(psi_m1.dot(psi)) );
+    for (int step = 0; stp< cfg.n_steps ; ++step){
+        double t = step*dt ;
+
+        // We push states forward in time
+        psi = rk4_step(psi,t,dt);
+
+        p0.push_back(std::norm(psi_p0.dot(psi)));
+        pp1.push_back(std::norm(psi_p1.dot(psi)));
+        pm1.push_back(std::norm(psi_m1.dot(psi)));
     }
-    
-    // For simplicity, return just P(|+1>) – you can modify to return all or write to file
-    return pp1;
+
+    return pp1; // This is for the first population P(|+1>)
 }
 
 } // namespace nvgw
