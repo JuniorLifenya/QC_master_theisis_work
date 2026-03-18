@@ -7,6 +7,10 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
+                "-I",
+                "${workspaceFolder}\\cpp\\include",
+                "-I",
+                "${workspaceFolder}\\external\\eigen-3.4.0",
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"

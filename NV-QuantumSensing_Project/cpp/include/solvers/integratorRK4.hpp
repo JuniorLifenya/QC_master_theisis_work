@@ -1,6 +1,6 @@
 // src/numerics/integratorRK4.hpp
 #pragma once
-#include "QuantumTypes.hpp"
+#include "QuantumGrav/QuantumTypes.hpp"
 #include <functional>
 
 namespace nvgw {

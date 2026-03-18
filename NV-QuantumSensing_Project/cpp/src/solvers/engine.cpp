@@ -2,7 +2,7 @@
 // src/solvers/EngineSolver.cpp
 #include <iostream>
 #include <cmath>
-#include "cpp/include/solvers/engine.hpp"
+#include "solvers/engine.hpp"
 #include "integratorRK4.cpp"
 
 
@@ -68,7 +68,7 @@ const ComplexDouble i(0.0, 1.0);
 }
 void SimulationEngine::initialize_states(){
     psi_p1 = Vector3cd::Zero(); psi_p1(0) = 1.0;
-    psi_0  = Vector3cd::Zero(); psi_0(1)  = 1.0;
+    psi_p0  = Vector3cd::Zero(); psi_p0(1)  = 1.0;
     psi_m1 = Vector3cd::Zero(); psi_m1(2) = 1.0;
 
 }
@@ -96,7 +96,7 @@ std::vector<double> SimulationEngine::run_dynamics() {
     double dt = cfg.t_final / cfg.n_steps;
     
     // Start in |0> state
-    Vector3cd psi = psi_0; // start in |0>
+    Vector3cd psi = psi_p0; // start in |0>
     std::vector<double> p0,pp1,pm1;  // populations at each step
     
 
@@ -105,7 +105,7 @@ std::vector<double> SimulationEngine::run_dynamics() {
     pm1.reserve(cfg.n_steps + 1);
 
     // Now we store the Initial Populations
-    p0.push_back(std::norm(psi_0.dot(psi)));
+    p0.push_back(std::norm(psi_p0.dot(psi)));
     pp1.push_back(std::norm(psi_p1.dot(psi)));
     pm1.push_back(std::norm(psi_m1.dot(psi)));
 
@@ -113,7 +113,7 @@ std::vector<double> SimulationEngine::run_dynamics() {
         double t = step * dt;
         psi = rk4_step(psi, t, dt);// Push state forward in time
         
-        p0.push_back( std::norm(psi_0.dot(psi)) );
+        p0.push_back( std::norm(psi_p0.dot(psi)) );
         pp1.push_back( std::norm(psi_p1.dot(psi)) );
         pm1.push_back( std::norm(psi_m1.dot(psi)) );
     }

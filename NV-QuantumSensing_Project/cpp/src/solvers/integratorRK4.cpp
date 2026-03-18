@@ -1,4 +1,5 @@
-#include "nvgw/rk4.hpp"
+#include "solvers/integratorRK4.hpp"
+
 
 namespace nvgw {
     Vector3cd rk4_step(const RHSFunction& rhs, double t, const Vector3cd& psi,double dt) {

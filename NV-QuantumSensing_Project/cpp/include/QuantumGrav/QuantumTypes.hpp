@@ -8,7 +8,7 @@ namespace nvgw{
 
 using ComplexDouble = std::complex<double>;
 using Matrix3cd = Eigen::Matrix3cd; // Strictly 3x3 for NV Center
-using Vector3cd = Eigen::Vectorx3cd; // ---//---- 
+using Vector3cd = Eigen::Vector3cd; // ---//---- 
 
 
 struct SimulationConfig{
