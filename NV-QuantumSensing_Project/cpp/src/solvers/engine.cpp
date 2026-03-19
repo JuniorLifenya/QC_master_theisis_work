@@ -120,8 +120,8 @@ std::vector<double> SimulationEngine::run_dynamics(){
     pp1.push_back(std::norm(psi_p1.dot(psi)));
     pm1.push_back(std::norm(psi_m1.dot(psi)));
 
-    for (int step = 0; stp< cfg.n_steps ; ++step){
-        double t = step*dt ;
+    for (int step = 0; step < cfg.n_steps ; ++step){
+        double t = step*dt;
 
         // We push states forward in time
         psi = rk4_step(psi,t,dt);
