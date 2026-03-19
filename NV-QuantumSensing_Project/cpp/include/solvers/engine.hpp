@@ -29,7 +29,7 @@ private:
 
     Matrix3cd hamiltonian(double t) const;  // H(t) = H0 + strain(t) * H_int
     Vector3cd rhs(const Vector3cd &psi, double t) const;  // -i H(t) ψ
-    Matrix3cd rk4_step(const Vector3cd &psi, double t, double dt) const;
+    Vector3cd rk4_step(const Vector3cd &psi, double t, double dt) const;
 public:
     //Constructor
     explicit SimulationEngine(const SimulationConfig &config);
