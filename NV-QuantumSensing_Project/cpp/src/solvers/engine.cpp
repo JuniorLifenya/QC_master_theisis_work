@@ -100,7 +100,7 @@ Vector3cd SimulationEngine::rk4_step(const Vector3cd& psi, double t, double dt) 
     return psi_next;
 }
 
-// Now the Main loop that replaces th Qutip.Solver stuff with mesolve and Sesolve.
+// Now the Main loop that replaces Qutip.Solvers.
 std::vector<double> SimulationEngine::run_dynamics(){
     std::cout << "Running the C++Quantum Engine..." << std::endl;
 
