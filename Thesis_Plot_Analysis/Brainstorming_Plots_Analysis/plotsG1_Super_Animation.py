@@ -15,6 +15,21 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import os
 
+plt.style.use('dark_background')
+# Optional: set custom colours for axes, labels, etc.
+plt.rcParams.update({
+    'axes.facecolor': '#111111',
+    'figure.facecolor': '#111111',
+    'text.color': '#e0e0e0',
+    'axes.labelcolor': '#e0e0e0',
+    'xtick.color': '#aaaaaa',
+    'ytick.color': '#aaaaaa',
+    'grid.color': '#333333',
+    'legend.facecolor': '#222222',
+    'legend.edgecolor': '#444444',
+    'lines.linewidth': 2,
+    'font.size': 11
+})
 # ----------------------------------------------------------------------
 # 1. Parameters
 # ----------------------------------------------------------------------
