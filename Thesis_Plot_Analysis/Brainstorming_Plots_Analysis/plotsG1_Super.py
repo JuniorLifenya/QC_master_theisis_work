@@ -1,6 +1,8 @@
 # Visualize the shearing of a global coordinate grid against a rigid local tetrad.
 # This script calculates the 3D deformation of a lattice under $h_+$ and $h_\times$ strains
 # to conceptually motivate the spin connection $\omega_\mu^{ab}$ in an NV center.
+# Place in Ch2 2.2
+
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -74,7 +76,7 @@ ax1 = fig.add_subplot(121, projection='3d')
 Xp, Yp, Zp = compute_3d_deformation(X0, Y0, Z0, phase, h_plus=h_amp, h_cross=0.0)
 
 # Plotting
-plot_3d_lattice(ax1, X0, Y0, Z0, color='gray', alpha=0.2, lw=1.0, label='Global $x^\mu$ (Unperturbed)')
+plot_3d_lattice(ax1, X0, Y0, Z0, color='gray', alpha=0.2, lw=1.0, label=r'Global. grid $x^\mu$ (Unperturbed)')
 plot_3d_lattice(ax1, Xp, Yp, Zp, color='#2171B5', alpha=0.8, lw=1.5, label=r'Sheared grid ($h_+$)')
 plot_rigid_tetrad(ax1)
 
@@ -93,7 +95,7 @@ ax2 = fig.add_subplot(122, projection='3d')
 Xc, Yc, Zc = compute_3d_deformation(X0, Y0, Z0, phase, h_plus=0.0, h_cross=h_amp)
 
 # Plotting
-plot_3d_lattice(ax2, X0, Y0, Z0, color='gray', alpha=0.2, lw=1.0, label='Global $x^\mu$ (Unperturbed)')
+plot_3d_lattice(ax2, X0, Y0, Z0, color='gray', alpha=0.2, lw=1.0, label=r'Global. grid $x^\mu$ (Unperturbed)')
 plot_3d_lattice(ax2, Xc, Yc, Zc, color='#E31A1C', alpha=0.8, lw=1.5, label=r'Sheared grid ($h_\times$)')
 plot_rigid_tetrad(ax2)
 
@@ -109,4 +111,5 @@ plt.subplots_adjust(top=0.88)
 plt.savefig("figures/GW_Tetrad_Deformation_Thesis.png", dpi=300, bbox_inches='tight')
 plt.show()
 print("Saved: figures/GW_Tetrad_Deformation_Thesis.png")
+
 

@@ -1,69 +1,211 @@
 """
-lense_thirring_qutip_bulletproof.py
-Final, stable QuTiP 5.x script for Lense-Thirring precession.
-Explicitly maps colors to every data point to bypass the IndexError.
+lense_thirring_bloch_static.py
+
+Visualizes Lense-Thirring frame-dragging on an NV-center Bloch sphere.
+Pure Scipy/Matplotlib implementation. Zero QuTiP dependencies.
+Generates a static high-quality PDF for the thesis.
 """
 
 import numpy as np
-from qutip import sigmax, sigmay, sigmaz, basis, sesolve, Bloch, expect
 import matplotlib.pyplot as plt
+from scipy.integrate import odeint
 import os
 
+# Ensure output directory exists
 os.makedirs("figures", exist_ok=True)
 
+# ----------------------------------------------------------------------
 # 1. Physics Parameters
-omega_L  = 2 * np.pi * 1.0  
-omega_LT = 0.25 * omega_L   
+# ----------------------------------------------------------------------
+omega_L = 2 * np.pi * 1.0   # Primary Larmor frequency (Z-axis)
+omega_LT = 0.2 * omega_L    # Lense-Thirring frame-dragging (X-axis)
 
-H_mag = (omega_L / 2.0) * sigmaz()
-H_lt  = (omega_LT / 2.0) * sigmax()
-H_total = H_mag + H_lt
+# Initial State: |+> state (pointing along X-axis)
+S0 = [1.0, 0.0, 0.0]
+t = np.linspace(0, 5, 500)  # Smooth time array
 
-# 2. Evolution
-psi0 = (basis(2, 0) + basis(2, 1)).unit()
-t = np.linspace(0, 10, 400) # Reduced points slightly for stability
+# ----------------------------------------------------------------------
+# 2. Bloch Equation Solvers (dS/dt = Omega x S)
+# ----------------------------------------------------------------------
+def bloch_larmor(S, t):
+    """Pure magnetic precession strictly around Z-axis."""
+    Omega = np.array([0, 0, omega_L])
+    return np.cross(Omega, S)
 
-res_mag = sesolve(H_mag, psi0, t)
-res_total = sesolve(H_total, psi0, t)
+def bloch_total(S, t):
+    """Magnetic (Z) + Gravitomagnetic Lense-Thirring (X) precession."""
+    Omega = np.array([omega_LT, 0, omega_L])
+    return np.cross(Omega, S)
 
-def get_coords(result):
-    x = expect(sigmax(), result.states)
-    y = expect(sigmay(), result.states)
-    z = expect(sigmaz(), result.states)
-    return [x, y, z]
+# Solve the ODEs
+sol_larmor = odeint(bloch_larmor, S0, t)
+sol_total = odeint(bloch_total, S0, t)
 
-coords_mag = get_coords(res_mag)
-coords_total = get_coords(res_total)
+# ----------------------------------------------------------------------
+# 3. 3D Plotting Setup
+# ----------------------------------------------------------------------
+fig = plt.figure(figsize=(10, 10))
+ax = fig.add_subplot(111, projection='3d')
 
-# 3. Build the Bloch Sphere
-b = Bloch()
+# Draw a subtle wireframe sphere to represent the Bloch Sphere
+u, v = np.mgrid[0:2*np.pi:30j, 0:np.pi:20j]
+x_sphere = np.cos(u)*np.sin(v)
+y_sphere = np.sin(u)*np.sin(v)
+z_sphere = np.cos(v)
+ax.plot_wireframe(x_sphere, y_sphere, z_sphere, color='gray', alpha=0.1, linewidth=0.5)
 
-# Colors
-c_mag = '#2171B5'   # Blue
-c_total = '#E31A1C' # Red
+# Plot the Precession Trails
+ax.plot(sol_larmor[:,0], sol_larmor[:,1], sol_larmor[:,2], 
+        color='#2171B5', lw=2.5, label='Pure Larmor Precession (Flat)', zorder=3)
 
-# THE ULTIMATE FIX: 
-# Instead of 2 colors, we give it a list for every single point in the arrays.
-# This prevents the internal 'indperm' logic from ever going out of range.
-b.point_color = [c_mag] * len(t) + [c_total] * len(t)
-b.vector_color = [c_mag, c_total]
+ax.plot(sol_total[:,0], sol_total[:,1], sol_total[:,2], 
+        color='#E31A1C', lw=3.0, label='Lense-Thirring Precession (Wobble)', zorder=4)
 
-# Add points as a single massive batch or individual sets
-b.add_points(coords_mag, meth='l') 
-b.add_points(coords_total, meth='l') 
+# Draw Final State Vectors (Arrows)
+# Pure Larmor Final
+ax.quiver(0, 0, 0, sol_larmor[-1,0], sol_larmor[-1,1], sol_larmor[-1,2], 
+          color='#2171B5', arrow_length_ratio=0.15, lw=2)
+# Total Final
+ax.quiver(0, 0, 0, sol_total[-1,0], sol_total[-1,1], sol_total[-1,2], 
+          color='#E31A1C', arrow_length_ratio=0.15, lw=2.5)
 
-# Add the final state vectors (arrows)
-b.add_states(res_mag.states[-1])
-b.add_states(res_total.states[-1])
+# Draw XYZ Axes for reference
+ax.quiver(0,0,0, 1.2,0,0, color='black', alpha=0.5, arrow_length_ratio=0.1)
+ax.quiver(0,0,0, 0,1.2,0, color='black', alpha=0.5, arrow_length_ratio=0.1)
+ax.quiver(0,0,0, 0,0,1.2, color='black', alpha=0.5, arrow_length_ratio=0.1)
+ax.text(1.3, 0, 0, 'x', fontsize=12)
+ax.text(0, 1.3, 0, 'y', fontsize=12)
+ax.text(0, 0, 1.3, 'z ($B_0$)', fontsize=12)
 
-# Final Styling
-b.font_size = 14
-b.zlabel = ['$|0\\rangle$', '$|1\\rangle$']
-b.title = "Lense-Thirring Precession: Unitary Evolution"
+# Formatting
+ax.set_title("Lense-Thirring Frame-Dragging on the Bloch Sphere", fontsize=16, pad=20)
+ax.view_init(elev=20, azim=45)
+ax.set_axis_off()
+ax.legend(loc='lower center', fontsize=12, bbox_to_anchor=(0.5, 0.05))
 
-# Render
-b.show()
-plt.savefig("figures/lense_thirring_qutip_final.pdf", bbox_inches='tight')
+# ----------------------------------------------------------------------
+# 4. Save and Show
+# ----------------------------------------------------------------------
+pdf_path = "figures/lense_thirring_bloch_static.pdf"
+plt.tight_layout()
+plt.savefig(pdf_path, dpi=300, bbox_inches='tight')
+print(f"Saved highly-optimized static plot to: {pdf_path}")
+
 plt.show()
 
-print("Saved: figures/lense_thirring_qutip_final.pdf")
+
+# Second version --------------------------------------------------------
+# -----------------------------------------------------------------------
+
+"""
+lense_thirring_animation_pure.py
+
+Pure Scipy/Matplotlib animation of Lense-Thirring frame-dragging.
+Zero QuTiP dependencies to avoid color-mapping bugs.
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+from scipy.integrate import odeint
+import os
+
+# Ensure output directory exists
+os.makedirs("figures", exist_ok=True)
+
+# ----------------------------------------------------------------------
+# 1. Physics Parameters & Solvers
+# ----------------------------------------------------------------------
+omega_L = 2 * np.pi * 1.0   # Primary Larmor frequency (Z-axis)
+omega_LT = 0.2 * omega_L    # Lense-Thirring frame-dragging (X-axis)
+
+S0 = [1.0, 0.0, 0.0]        # Initial State: |+> (pointing along X)
+frames = 150                # Number of frames
+t = np.linspace(0, 5, frames)
+
+def bloch_larmor(S, t):
+    """Pure magnetic precession strictly around Z-axis."""
+    Omega = np.array([0, 0, omega_L])
+    return np.cross(Omega, S)
+
+def bloch_total(S, t):
+    """Magnetic (Z) + Gravitomagnetic Lense-Thirring (X) precession."""
+    Omega = np.array([omega_LT, 0, omega_L])
+    return np.cross(Omega, S)
+
+# Calculate the exact coordinates for the whole timeline
+sol_larmor = odeint(bloch_larmor, S0, t)
+sol_total = odeint(bloch_total, S0, t)
+
+# ----------------------------------------------------------------------
+# 2. 3D Plotting Setup
+# ----------------------------------------------------------------------
+fig = plt.figure(figsize=(8, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# Draw the wireframe Bloch Sphere
+u, v = np.mgrid[0:2*np.pi:30j, 0:np.pi:20j]
+x_sphere = np.cos(u)*np.sin(v)
+y_sphere = np.sin(u)*np.sin(v)
+z_sphere = np.cos(v)
+ax.plot_wireframe(x_sphere, y_sphere, z_sphere, color='gray', alpha=0.1, linewidth=0.5)
+
+# Draw XYZ Axes
+ax.plot([-1.2, 1.2], [0, 0], [0, 0], color='black', alpha=0.3, lw=1)
+ax.plot([0, 0], [-1.2, 1.2], [0, 0], color='black', alpha=0.3, lw=1)
+ax.plot([0, 0], [0, 0], [-1.2, 1.2], color='black', alpha=0.3, lw=1)
+ax.text(1.3, 0, 0, 'x')
+ax.text(0, 1.3, 0, 'y')
+ax.text(0, 0, 1.3, 'z ($B_0$)')
+
+# Initialize empty line objects for Trails
+trail_larmor, = ax.plot([], [], [], color='#2171B5', lw=2, label='Pure Larmor (Flat)')
+trail_total, = ax.plot([], [], [], color='#E31A1C', lw=2.5, label='Lense-Thirring (Wobble)')
+
+# Initialize line objects for Current Vectors (from origin to tip)
+vec_larmor, = ax.plot([], [], [], color='#2171B5', lw=3, marker='o', markersize=6)
+vec_total, = ax.plot([], [], [], color='#E31A1C', lw=3.5, marker='o', markersize=6)
+
+ax.set_xlim([-1.1, 1.1])
+ax.set_ylim([-1.1, 1.1])
+ax.set_zlim([-1.1, 1.1])
+ax.set_axis_off()
+ax.legend(loc='lower center', bbox_to_anchor=(0.5, 0.0))
+ax.set_title("Lense-Thirring Precession Animation", fontsize=14, pad=10)
+
+# ----------------------------------------------------------------------
+# 3. Animation Update Function
+# ----------------------------------------------------------------------
+def update(num):
+    # Update Larmor Trail
+    trail_larmor.set_data(sol_larmor[:num, 0], sol_larmor[:num, 1])
+    trail_larmor.set_3d_properties(sol_larmor[:num, 2])
+    
+    # Update Total (LT) Trail
+    trail_total.set_data(sol_total[:num, 0], sol_total[:num, 1])
+    trail_total.set_3d_properties(sol_total[:num, 2])
+    
+    # Update Current Vectors (Line from origin to current point)
+    vec_larmor.set_data([0, sol_larmor[num, 0]], [0, sol_larmor[num, 1]])
+    vec_larmor.set_3d_properties([0, sol_larmor[num, 2]])
+    
+    vec_total.set_data([0, sol_total[num, 0]], [0, sol_total[num, 1]])
+    vec_total.set_3d_properties([0, sol_total[num, 2]])
+    
+    # Slowly rotate the camera view automatically (optional)
+    ax.view_init(elev=20, azim=45 + (num * 0.2))
+    
+    return trail_larmor, trail_total, vec_larmor, vec_total
+
+# ----------------------------------------------------------------------
+# 4. Run and Save
+# ----------------------------------------------------------------------
+print("Generating pure Matplotlib animation...")
+ani = FuncAnimation(fig, update, frames=frames, interval=30, blit=False)
+
+gif_path = 'figures/lense_thirring_pure.gif'
+ani.save(gif_path, fps=20)
+print(f"Saved animation to {gif_path}")
+
+# This will open the interactive pop-up window
+plt.show()

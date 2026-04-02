@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravitomagnetic Field (B_g) Flow</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #111111; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; }
+        #canvas-container { width: 100vw; height: 100vh; }
+        #ui-container {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(30, 30, 30, 0.85); padding: 15px 30px;
+            border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            display: flex; gap: 25px; align-items: center; border: 1px solid #333;
+            backdrop-filter: blur(10px);
+        }
+        .control-group { display: flex; flex-direction: column; gap: 6px; }
+        label { font-size: 13px; font-weight: 600; color: #ddd; letter-spacing: 0.5px; }
+        input[type="range"] { cursor: pointer; accent-color: #bb86fc; }
+        button {
+            padding: 10px 20px; border: none; border-radius: 6px;
+            background: #bb86fc; color: #000; cursor: pointer; font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover { background: #9965f4; }
+        #title-card {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(30, 30, 30, 0.85); padding: 20px; border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); border: 1px solid #333;
+            backdrop-filter: blur(10px); pointer-events: none;
+        }
+        h1 { margin: 0 0 5px 0; font-size: 18px; color: #bb86fc; }
+        p { margin: 0; font-size: 13px; color: #aaa; line-height: 1.4; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+    <div id="title-card">
+        <h1>Gravitomagnetic Vector Field (B_g)</h1>
+        <p>Visualizing alternating shear and vortex layers<br>driven by a propagating Gaussian GW.</p>
+    </div>
+
+    <div id="ui-container">
+        <button id="play-pause">Pause Wave</button>
+        <div class="control-group">
+            <label>GW Propagation Speed: <span id="speed-val">1.0</span>x</label>
+            <input type="range" id="speed" min="0.1" max="5" step="0.1" value="1.0">
+        </div>
+        <div class="control-group">
+            <label>Electron Momentum (Px, Py): <span id="mom-val">1.0</span></label>
+            <input type="range" id="momentum" min="0.1" max="3" step="0.1" value="1.0">
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        // --- 1. Scene Setup ---
+        const scene = new THREE.Scene();
+        // Plotly dark background equivalent
+        scene.background = new THREE.Color(0x111111); 
+        
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // Position camera similarly to eye=(1.8, 1.8, 0.8) but scaled for our grid
+        camera.position.set(6, 6, 12);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, 0, 5); // Look at the center of the z-axis
+        controls.enableDamping = true;
+
+        // --- 2. Grid & Axes Setup ---
+        // Center line along Z (Propagation Direction)
+        const zAxisGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,11)]);
+        const zAxisMat = new THREE.LineBasicMaterial({ color: 0x555555, linewidth: 2 });
+        scene.add(new THREE.Line(zAxisGeo, zAxisMat));
+
+        // --- 3. Physics Parameters ---
+        const h0 = 1.0;          // GW Strain
+        const w = 2.0;           // Beam waist
+        const k = (2 * Math.PI) / 5.0; // Wavenumber
+        
+        let px = 1.0;
+        let py = 1.0;
+        let pz = 0.0;
+
+        // Grid resolution
+        const gridResXY = 12;
+        const gridResZ = 18;
+        const xMin = -3, xMax = 3;
+        const yMin = -3, yMax = 3;
+        const zMin = 0, zMax = 10;
+
+        // --- 4. Plasma Colormap Function ---
+        function getPlasmaColor(t) {
+            // Approximation of the Plasma colormap (Blue -> Purple -> Red -> Yellow)
+            const r = Math.min(1.0, Math.max(0.0, 3.0 * t - 0.5));
+            const g = Math.min(1.0, Math.max(0.0, 2.0 * t - 1.0));
+            const b = Math.min(1.0, Math.max(0.0, 1.5 - 2.0 * t));
+            return new THREE.Color(r, g, b);
+        }
+
+        // --- 5. Initialize Vector Arrows ---
+        const arrows = [];
+        const baseArrowLength = 0.6; // Max visual length of the arrows
+        
+        for (let i = 0; i < gridResXY; i++) {
+            let x = xMin + (xMax - xMin) * (i / (gridResXY - 1));
+            for (let j = 0; j < gridResXY; j++) {
+                let y = yMin + (yMax - yMin) * (j / (gridResXY - 1));
+                for (let l = 0; l < gridResZ; l++) {
+                    let z = zMin + (zMax - zMin) * (l / (gridResZ - 1));
+                    
+                    // Create an ArrowHelper for each grid point
+                    const origin = new THREE.Vector3(x, y, z);
+                    const dir = new THREE.Vector3(0, 1, 0); // Placeholder
+                    const arrow = new THREE.ArrowHelper(dir, origin, 0.1, 0xffffff, 0.15, 0.1);
+                    
+                    // Store the mathematical coordinates with the arrow object
+                    arrow.userData = { cx: x, cy: y, cz: z };
+                    scene.add(arrow);
+                    arrows.push(arrow);
+                }
+            }
+        }
+
+        // --- 6. Physics Update Engine ---
+        let time = 0;
+        let isPlaying = true;
+        let animSpeed = 1.0;
+
+        function updateField() {
+            if (isPlaying) {
+                time += 0.05 * animSpeed; // Advance the wave phase
+            }
+
+            let maxMag = 0;
+            const thresholdRatio = 0.15; // Hide vectors weaker than 15% of max
+            const fieldData = [];
+
+            // Step 1: Calculate raw physics
+            for (let arrow of arrows) {
+                let x = arrow.userData.cx;
+                let y = arrow.userData.cy;
+                let z = arrow.userData.cz;
+
+                let R2 = x*x + y*y;
+                let envelope = Math.exp(-R2 / (w*w));
+                let phase = (k * z) - time; // Propagating wave phase!
+
+                let Bx = -k * h0 * py * envelope * Math.sin(phase);
+                let By = -k * h0 * px * envelope * Math.sin(phase);
+                let Bz = ((2 * h0) / (w*w)) * envelope * Math.cos(phase) * (x * py + y * px);
+
+                let mag = Math.sqrt(Bx*Bx + By*By + Bz*Bz);
+                if (mag > maxMag) maxMag = mag;
+
+                fieldData.push({ arrow: arrow, vec: new THREE.Vector3(Bx, By, Bz), mag: mag });
+            }
+
+            const threshold = maxMag * thresholdRatio;
+
+            // Step 2: Apply rendering logic (Colors, Sizes, Masking)
+            for (let data of fieldData) {
+                if (data.mag < threshold) {
+                    data.arrow.visible = false;
+                } else {
+                    data.arrow.visible = true;
+                    
+                    // Normalize the direction vector
+                    let dir = data.vec.clone().normalize();
+                    data.arrow.setDirection(dir);
+                    
+                    // Scale length relative to max magnitude
+                    let normalizedMag = data.mag / maxMag;
+                    let displayLength = baseArrowLength * normalizedMag;
+                    
+                    // Three.js ArrowHelper sizing parameters
+                    data.arrow.setLength(displayLength, displayLength * 0.3, displayLength * 0.2);
+                    
+                    // Color mapping
+                    data.arrow.setColor(getPlasmaColor(normalizedMag));
+                }
+            }
+        }
+
+        // --- 7. UI Controls ---
+        document.getElementById('play-pause').addEventListener('click', (e) => {
+            isPlaying = !isPlaying;
+            e.target.innerText = isPlaying ? "Pause Wave" : "Play Wave";
+        });
+
+        document.getElementById('speed').addEventListener('input', (e) => {
+            animSpeed = parseFloat(e.target.value);
+            document.getElementById('speed-val').innerText = animSpeed.toFixed(1);
+        });
+
+        document.getElementById('momentum').addEventListener('input', (e) => {
+            let val = parseFloat(e.target.value);
+            px = val;
+            py = val;
+            document.getElementById('mom-val').innerText = val.toFixed(1);
+            if (!isPlaying) updateField(); // Force update if paused
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- 8. Render Loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+            updateField();
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
