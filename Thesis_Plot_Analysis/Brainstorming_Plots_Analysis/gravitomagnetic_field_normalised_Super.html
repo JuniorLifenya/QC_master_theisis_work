@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gravitomagnetic Field B̂_g — FW Coupling</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Crimson+Pro:ital,wght@0,300;0,600;1,300&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#07080f;color:#ddd9d3;font-family:'JetBrains Mono',monospace;overflow:hidden}
+
+#info{
+  position:absolute;top:20px;left:20px;
+  background:rgba(7,8,15,0.92);
+  border:1px solid rgba(185,90,255,0.28);border-radius:4px;
+  padding:18px 22px;max-width:400px;backdrop-filter:blur(14px);z-index:10
+}
+#info h1{font-family:'Crimson Pro',serif;font-size:17px;font-weight:600;
+  color:#c060ff;margin-bottom:5px}
+#info p{font-size:10px;color:#8878a8;line-height:1.75;margin-bottom:8px}
+.eq{
+  font-size:11px;color:#d0a0ff;
+  background:rgba(185,90,255,0.07);
+  padding:7px 11px;border-radius:3px;
+  border-left:2px solid rgba(185,90,255,0.45);
+  margin-top:5px;font-family:'Times New Roman',serif;font-style:italic
+}
+#hint{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);
+  font-size:9px;color:#554;letter-spacing:0.04em}
+
+#controls{
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  background:rgba(7,8,15,0.93);
+  border:1px solid rgba(185,90,255,0.22);
+  border-radius:4px;padding:12px 24px;backdrop-filter:blur(12px);
+  display:flex;gap:20px;align-items:center;z-index:10;flex-wrap:wrap
+}
+.ctrl{display:flex;flex-direction:column;gap:4px;align-items:center}
+.ctrl label{font-size:9.5px;color:#6858a0;text-transform:uppercase;letter-spacing:.05em}
+.val{font-size:10.5px;color:#c060ff;font-weight:600;min-width:36px;text-align:center}
+input[type=range]{
+  -webkit-appearance:none;width:100px;height:2px;
+  background:rgba(185,90,255,0.22);border-radius:2px;cursor:pointer;outline:none
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:11px;height:11px;
+  background:#c060ff;border-radius:50%;cursor:pointer
+}
+button{
+  background:rgba(185,90,255,0.10);
+  border:1px solid rgba(185,90,255,0.30);
+  color:#c060ff;padding:7px 13px;border-radius:3px;cursor:pointer;
+  font-family:inherit;font-size:9.5px;text-transform:uppercase;transition:all .18s
+}
+button:hover{background:rgba(185,90,255,0.22)}
+button.active{background:rgba(185,90,255,0.32);border-color:#c060ff}
+
+#clegend{
+  position:absolute;top:20px;right:20px;
+  background:rgba(7,8,15,0.88);
+  border:1px solid rgba(185,90,255,0.20);
+  border-radius:4px;padding:13px 16px;z-index:10;text-align:center
+}
+#grad{
+  width:14px;height:110px;border-radius:2px;margin:0 auto 5px;
+  background:linear-gradient(to bottom,#ffee00,#ff6020,#bb30ff,#1050ff)
+}
+.clt{font-size:9px;color:#7868a0;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div id="info">
+  <h1>Gravitomagnetic Field <b>B̂</b><sub>g</sub></h1>
+  <p>GW propagates along <b>x̂</b>. In the Foldy-Wouthuysen frame, the spin
+  couples via a Zeeman-like term. The visualised field is:</p>
+  <div class="eq">Ĥ<sub>FW</sub> ⊃ −(κ/4m) ĥ<sub>+/×</sub>(t,x) (p̂<sub>y</sub>² − p̂<sub>z</sub>²) σ̂<sub>x</sub></div>
+  <div class="eq">B̂<sub>g</sub> = ∇ × [ĥ · p̂] &nbsp;≡&nbsp; curl of GW–momentum coupling</div>
+  <p style="margin-top:8px;font-size:9.5px">
+    <b style="color:#c060ff">h<sub>+</sub></b>: yy/zz sector (quadrupolar, <em>opposite</em> transverse signs)<br>
+    <b style="color:#c060ff">h<sub>×</sub></b>: yz sector (quadrupolar, <em>equal</em> transverse signs)
+  </p>
+</div>
+
+<div id="clegend">
+  <div id="grad"></div>
+  <div class="clt">|B̂<sub>g</sub>|</div>
+  <div class="clt">High</div>
+  <div style="height:82px"></div>
+  <div class="clt">Low</div>
+</div>
+
+<div id="controls">
+  <div class="ctrl">
+    <label>Speed</label>
+    <input type="range" id="speed" min="0" max="4" step="0.1" value="1.0">
+    <div class="val" id="sv">1.0×</div>
+  </div>
+  <div class="ctrl">
+    <label>Momentum |p|</label>
+    <input type="range" id="mom" min="0.1" max="6" step="0.1" value="2.5">
+    <div class="val" id="mv">2.5</div>
+  </div>
+  <div class="ctrl">
+    <label>Strain h₀</label>
+    <input type="range" id="strain" min="0" max="2" step="0.05" value="1.0">
+    <div class="val" id="stv">1.0</div>
+  </div>
+  <div class="ctrl">
+    <label>Polarisation</label>
+    <div style="display:flex;gap:6px">
+      <button id="bp" class="active">h<sub>+</sub></button>
+      <button id="bx">h<sub>×</sub></button>
+    </div>
+  </div>
+  <button id="pausebtn">Pause</button>
+</div>
+
+<div id="hint">Drag to orbit · Scroll to zoom</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── Scene setup ─────────────────────────────────────────────────────────────
+const scene    = new THREE.Scene();
+scene.background = new THREE.Color(0x07080f);
+
+const W = window.innerWidth, H = window.innerHeight;
+const camera = new THREE.PerspectiveCamera(44, W/H, 0.05, 500);
+camera.position.set(18, 12, 18);
+camera.lookAt(6, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(W, H);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+document.body.appendChild(renderer.domElement);
+
+// ─── Minimal orbit controls (no external dep) ────────────────────────────────
+let isDragging=false, prevX=0, prevY=0;
+let theta=0.785, phi=0.55, radius=26;
+const target=new THREE.Vector3(6,0,0);
+
+function updateCamera(){
+  camera.position.set(
+    target.x + radius*Math.sin(phi)*Math.sin(theta),
+    target.y + radius*Math.cos(phi),
+    target.z + radius*Math.sin(phi)*Math.cos(theta)
+  );
+  camera.lookAt(target);
+}
+updateCamera();
+
+renderer.domElement.addEventListener('mousedown', e=>{isDragging=true; prevX=e.clientX; prevY=e.clientY;});
+window.addEventListener('mouseup', ()=>{isDragging=false;});
+window.addEventListener('mousemove', e=>{
+  if(!isDragging) return;
+  theta -= (e.clientX-prevX)*0.008;
+  phi   = Math.max(0.05, Math.min(Math.PI-0.05, phi-(e.clientY-prevY)*0.008));
+  prevX=e.clientX; prevY=e.clientY;
+  updateCamera();
+});
+renderer.domElement.addEventListener('wheel', e=>{
+  radius = Math.max(5, Math.min(80, radius + e.deltaY*0.04));
+  updateCamera(); e.preventDefault();
+}, {passive:false});
+
+// Touch support
+let lastTouchDist=0, lastTouchX=0, lastTouchY=0;
+renderer.domElement.addEventListener('touchstart', e=>{
+  if(e.touches.length===1){isDragging=true; prevX=e.touches[0].clientX; prevY=e.touches[0].clientY;}
+  if(e.touches.length===2){
+    const dx=e.touches[0].clientX-e.touches[1].clientX;
+    const dy=e.touches[0].clientY-e.touches[1].clientY;
+    lastTouchDist=Math.hypot(dx,dy);
+  }
+  e.preventDefault();
+},{passive:false});
+renderer.domElement.addEventListener('touchmove', e=>{
+  if(e.touches.length===1 && isDragging){
+    theta -= (e.touches[0].clientX-prevX)*0.008;
+    phi    = Math.max(0.05, Math.min(Math.PI-0.05, phi-(e.touches[0].clientY-prevY)*0.008));
+    prevX=e.touches[0].clientX; prevY=e.touches[0].clientY;
+    updateCamera();
+  }
+  if(e.touches.length===2){
+    const dx=e.touches[0].clientX-e.touches[1].clientX;
+    const dy=e.touches[0].clientY-e.touches[1].clientY;
+    const dist=Math.hypot(dx,dy);
+    radius=Math.max(5,Math.min(80,radius+(lastTouchDist-dist)*0.08));
+    lastTouchDist=dist; updateCamera();
+  }
+  e.preventDefault();
+},{passive:false});
+renderer.domElement.addEventListener('touchend',()=>{isDragging=false;},{passive:true});
+
+// ─── Axis indicator ───────────────────────────────────────────────────────────
+const addAxis=(dir,col,lbl)=>{
+  const mat=new THREE.LineBasicMaterial({color:col,linewidth:2});
+  const pts=[new THREE.Vector3(0,0,0), dir.clone().multiplyScalar(1.8)];
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),mat));
+  // Arrowhead
+  const geo=new THREE.ConeGeometry(0.08,0.35,8);
+  const mesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:col}));
+  const axDir=dir.clone().normalize();
+  const up=new THREE.Vector3(0,1,0);
+  mesh.quaternion.setFromUnitVectors(up,axDir);
+  mesh.position.copy(axDir.multiplyScalar(2.0));
+  scene.add(mesh);
+};
+addAxis(new THREE.Vector3(1,0,0),0x4488ff);  // x — propagation
+addAxis(new THREE.Vector3(0,1,0),0x44cc66);  // y
+addAxis(new THREE.Vector3(0,0,1),0xff6644);  // z
+
+// Light grid on x-axis to show propagation direction
+const gridMat=new THREE.LineBasicMaterial({color:0x223344,transparent:true,opacity:0.35});
+for(let i=0;i<=14;i+=2){
+  const pts=[new THREE.Vector3(i,-5,0),new THREE.Vector3(i,5,0)];
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),gridMat));
+}
+
+// ─── Arrow field ──────────────────────────────────────────────────────────────
+const RES_X  = 16;
+const RES_YZ = 9;
+const X_SPAN = 13;
+const YZ_RANGE= 4.5;
+const W_BEAM  = 2.2;  // Gaussian beam waist
+const k_wave  = (2*Math.PI)/7.0;
+
+const arrows=[];
+for(let i=0;i<RES_X;i++){
+  for(let j=0;j<RES_YZ;j++){
+    for(let l=0;l<RES_YZ;l++){
+      const x = (i/(RES_X-1))*X_SPAN;
+      const y = ((j/(RES_YZ-1))*2-1)*YZ_RANGE;
+      const z = ((l/(RES_YZ-1))*2-1)*YZ_RANGE;
+      const arr=new THREE.ArrowHelper(
+        new THREE.Vector3(0,1,0),
+        new THREE.Vector3(x,y,z),
+        0.5, 0xffffff, 0.14, 0.07
+      );
+      scene.add(arr);
+      arrows.push({obj:arr, x, y, z});
+    }
+  }
+}
+
+// ─── Colour map (plasma) ──────────────────────────────────────────────────────
+// Maps t∈[0,1] → plasma colour
+function plasma(t){
+  // piecewise approximation of matplotlib plasma
+  return new THREE.Color().setHSL(0.73-t*0.73, 1.0, 0.45+t*0.10);
+}
+
+// ─── Physics: gravitomagnetic field B_g ──────────────────────────────────────
+//
+// For a GW propagating along x̂ in the linearised-GR / TT gauge, the
+// effective gravitomagnetic field that couples to spin in the FW frame is:
+//
+//   B_g = ∇ × (h · p̂)
+//
+// where h · p̂ means the contraction of the metric perturbation tensor h_ij
+// with the momentum direction.  For a Gaussian-beamed plane wave:
+//
+//   h(x,y,z,t) = h₀ · E(y,z) · cos(kx − ωt)
+//   E = exp(−(y²+z²)/w²)
+//
+// ∂_x h = −k h₀ E sin(kx−ωt)
+// ∂_y h =  h₀ cos(kx−ωt) · (−2y/w²) E
+// ∂_z h =  h₀ cos(kx−ωt) · (−2z/w²) E
+//
+// h_+ polarisation: e_+ = ŷ⊗ŷ − ẑ⊗ẑ
+//   A_y = +h · p_z  (because e_{+,yz}=0, e_{+,yy}=+1 acts on p_y → y-comp)
+//   A_z = −h · p_z  (e_{+,zy}=0, e_{+,zz}=−1 acts on p_z → z-comp)
+//
+// Taking curl  B = ∇×A  with A_y=(h₀E cos φ)·p and A_z=−(h₀E cos φ)·p:
+//
+//   B_x = ∂_y A_z − ∂_z A_y
+//       = [−∂_y(h·p)] − [∂_z(h·p)]
+//       = −(−2y/w²)hE·p − (−2z/w²)hE·p
+//       = 2h₀ cos(φ) E (y+z) p / w²     … wait, need sign care:
+//
+//   For h_+:  A_y = h·p,  A_z = −h·p
+//   B_x = ∂_y A_z − ∂_z A_y
+//       = ∂_y(−h·p) − ∂_z(h·p)
+//       = −(−2y/w²)(h·p) − (−2z/w²)(h·p)
+//       = h·p·(2y/w²) + h·p·(2z/w²)    → (2/w²)(y+z)·h·p·cos(φ)  ← wrong sign
+//
+//   Actually, ∂_y(−hE cosφ · p) = −p cosφ · (−2y/w²)E = +2yp/(w²) hE cosφ
+//              ∂_z(hE cosφ · p)  = p cosφ · (−2z/w²)E = −2zp/(w²) hE cosφ
+//   So  B_x = +2yp/(w²)hE cosφ − (−2zp/(w²)hE cosφ) = (2p/w²)hE cosφ (y+z)
+//
+//   B_y = ∂_z A_x − ∂_x A_z = −∂_x(−h·p) = ∂_x(h·p) = (−k h₀E sin(φ))·p
+//                                                       = −kh₀pE sin(φ)
+//
+//   B_z = ∂_x A_y − ∂_y A_x = ∂_x(h·p) = −kh₀pE sin(φ)   ← same as B_y
+//
+// Note: for h_+, B_y = B_z (both from the k·sin term). The DIFFERENCE is in A_y vs A_z
+// (opposite sign), so the quadrupolar character is in B_x (y+z) vs h_× (y−z).
+//
+// For h_× polarisation: e_× = ŷ⊗ẑ + ẑ⊗ŷ
+//   A_y = −h·p  (cross-coupling: e_{×,yz}=1 → A_z acts on p_y, A_y acts on p_z)
+//   A_z = +h·p
+//   B_y = ∂_x A_z =  k h₀ p E sin(φ)    (opposite sign to h_+)
+//   B_z = ∂_x A_y = −k h₀ p E sin(φ)    (opposite sign to h_+)
+//   B_x = ∂_y A_z − ∂_z A_y = (2p/w²) h E cosφ (y − z)  ← y−z instead of y+z
+//
+
+function calcBg(x, y, z, time, h0, pv, isPlus){
+  const r2  = y*y + z*z;
+  const env = Math.exp(-r2/(W_BEAM*W_BEAM));
+  const phi = k_wave*x - time;
+  const Hc  = h0 * env * Math.cos(phi);  // h cos(kx-ωt) · E
+  const Hs  = h0 * env * Math.sin(phi);  // h sin(kx-ωt) · E
+
+  let Bx, By, Bz;
+  if(isPlus){
+    By = -k_wave * Hs * pv;
+    Bz = -k_wave * Hs * pv;
+    Bx =  (2.0/(W_BEAM*W_BEAM)) * Hc * (y + z) * pv;
+  } else {
+    By =  k_wave * Hs * pv;
+    Bz = -k_wave * Hs * pv;
+    Bx =  (2.0/(W_BEAM*W_BEAM)) * Hc * (y - z) * pv;
+  }
+  return new THREE.Vector3(Bx, By, Bz);
+}
+
+// ─── State & UI ───────────────────────────────────────────────────────────────
+let time=0, paused=false, speed=1.0, pv=2.5, h0=1.0, isPlus=true;
+
+document.getElementById('speed').oninput=e=>{
+  speed=parseFloat(e.target.value);
+  document.getElementById('sv').textContent=speed.toFixed(1)+'×';
+};
+document.getElementById('mom').oninput=e=>{
+  pv=parseFloat(e.target.value);
+  document.getElementById('mv').textContent=pv.toFixed(1);
+};
+document.getElementById('strain').oninput=e=>{
+  h0=parseFloat(e.target.value);
+  document.getElementById('stv').textContent=h0.toFixed(2);
+};
+document.getElementById('pausebtn').onclick=function(){
+  paused=!paused; this.textContent=paused?'Resume':'Pause';
+};
+document.getElementById('bp').onclick=function(){
+  isPlus=true;
+  this.classList.add('active');
+  document.getElementById('bx').classList.remove('active');
+};
+document.getElementById('bx').onclick=function(){
+  isPlus=false;
+  this.classList.add('active');
+  document.getElementById('bp').classList.remove('active');
+};
+
+// ─── Render loop ──────────────────────────────────────────────────────────────
+const THRESH      = 0.02;
+const VIS_GAIN    = 0.28;
+const MAG_REF     = 3.0;  // normalisation for colour map
+
+function update(){
+  if(!paused) time += 0.030 * speed;
+
+  for(const a of arrows){
+    const Bg  = calcBg(a.x, a.y, a.z, time, h0, pv, isPlus);
+    const mag = Bg.length();
+
+    if(mag < THRESH || !isFinite(mag)){
+      a.obj.visible=false; continue;
+    }
+    a.obj.visible=true;
+    a.obj.setDirection(Bg.clone().normalize());
+
+    const len = Math.min(mag * VIS_GAIN, 3.5);
+    a.obj.setLength(len, len*0.28, 0.06);
+    a.obj.setColor(plasma(Math.min(mag/MAG_REF, 1.0)));
+  }
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  update();
+  renderer.render(scene,camera);
+}
+animate();
+
+window.addEventListener('resize',()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+</script>
+</body>
+</html>
