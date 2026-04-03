@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravitomagnetic Field B̂_g — Horizontal Prop.</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Crimson+Pro:ital,wght@0,300;0,600;1,300&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#080810;color:#e0dcd6;font-family:'JetBrains Mono',monospace;overflow:hidden}
+  #title-panel{position:absolute;top:24px;left:24px;background:rgba(8,8,16,0.9);
+    border:1px solid rgba(200,100,255,0.25);border-radius:3px;padding:20px 24px;
+    max-width:330px;backdrop-filter:blur(14px);z-index:10}
+  #title-panel h1{font-family:'Crimson Pro',serif;font-size:17px;font-weight:600;
+    color:#c864ff;margin-bottom:6px}
+  #title-panel p{font-size:10.5px;color:#8880a0;line-height:1.7;margin-bottom:10px}
+  .eq{font-size:10px;color:#d0a0ff;background:rgba(200,100,255,0.06);
+    padding:6px 10px;border-radius:2px;border-left:2px solid rgba(200,100,255,0.4);margin-top:6px}
+  #controls{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+    background:rgba(8,8,16,0.92);border:1px solid rgba(200,100,255,0.2);
+    border-radius:3px;padding:14px 28px;backdrop-filter:blur(12px);
+    display:flex;gap:24px;align-items:center;z-index:10}
+  .ctrl{display:flex;flex-direction:column;gap:5px;align-items:center}
+  .ctrl label{font-size:10px;color:#7060a0;letter-spacing:0.05em;text-transform:uppercase}
+  .val{font-size:11px;color:#c864ff;font-weight:600}
+  input[type=range]{-webkit-appearance:none;width:110px;height:3px;
+    background:rgba(200,100,255,0.2);border-radius:2px;cursor:pointer;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;
+    background:#c864ff;border-radius:50%;cursor:pointer}
+  button{background:rgba(200,100,255,0.1);border:1px solid rgba(200,100,255,0.3);
+    color:#c864ff;padding:8px 16px;border-radius:2px;cursor:pointer;
+    font-family:inherit;font-size:10px;letter-spacing:0.07em;text-transform:uppercase;transition:all 0.2s}
+  button:hover{background:rgba(200,100,255,0.2)}
+  #pol-toggle{display:flex;gap:6px}
+  .pol-btn{padding:6px 14px;font-size:10px}
+  .pol-btn.selected{background:rgba(200,100,255,0.28);border-color:#c864ff}
+  #corner{position:absolute;bottom:24px;right:24px;font-size:10px;
+    color:rgba(100,80,150,0.5);pointer-events:none;text-align:right}
+  #clegend{position:absolute;top:24px;right:24px;background:rgba(8,8,16,0.88);
+    border:1px solid rgba(200,100,255,0.2);border-radius:3px;padding:14px 18px;z-index:10}
+  #clegend .label{font-size:10px;color:#7060a0;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+  #grad{width:16px;height:120px;border-radius:2px;
+    background:linear-gradient(to bottom, #ffee00, #ff6020, #aa20ff, #2060ff);margin:0 auto 6px}
+  .cleg-row{display:flex;justify-content:space-between;gap:12px;font-size:9.5px;color:#8880a0}
+</style>
+</head>
+<body>
+
+<div id="title-panel">
+  <h1>Gravitomagnetic Field B̂<sub>g</sub></h1>
+  <p>The GW propagates in the <b>x-direction</b> (sideways). For a test electron with momentum p, the field B̂<sub>g</sub> forms rotating vortex sheets. Propagation: horizontal.</p>
+  <div class="eq">B<sub>y</sub> = −k h₀ p<sub>z</sub> e<sup>−R²/w²</sup> sin(kx−ωt)</div>
+  <div class="eq">B<sub>z</sub> = −k h₀ p<sub>y</sub> e<sup>−R²/w²</sup> sin(kx−ωt)</div>
+  <div class="eq">B<sub>x</sub> = (2h₀/w²) e<sup>−R²/w²</sup> cos(kx−ωt)(yp<sub>z</sub>+zp<sub>y</sub>)</div>
+</div>
+
+<div id="clegend">
+    <div id="grad"></div>
+    <div class="cleg-txt">High</div>
+    <div class="cleg-txt">Low</div>
+</div>
+
+<div id="controls">
+    <div class="ctrl">
+        <label>Wave Speed</label>
+        <input type="range" id="speed" min="0.1" max="4.0" step="0.1" value="1.0">
+        <div class="val" id="speed-val">1.0x</div>
+    </div>
+    <div class="ctrl">
+        <label>Momentum (p)</label>
+        <input type="range" id="momentum" min="0.2" max="3.0" step="0.1" value="1.0">
+        <div class="val" id="mom-val">1.0</div>
+    </div>
+    <div class="ctrl">
+        <label>Polarization</label>
+        <div style="display:flex; gap:5px;">
+            <button id="btn-plus" class="active">h₊</button>
+            <button id="btn-cross">h×</button>
+        </div>
+    </div>
+    <button id="pause-btn">Pause</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+    // --- Scene Setup ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x080810);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(15, 10, 15);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target.set(6, 0, 0); 
+    controls.enableDamping = true;
+
+    // --- Grid / Axis Helpers ---
+    const propLine = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(12,0,0)]);
+    scene.add(new THREE.Line(propLine, new THREE.LineBasicMaterial({color: 0x6666ff, transparent: true, opacity: 0.5})));
+
+    // --- Physics Parameters ---
+    let time = 0, paused = false, speed = 1.0, p_val = 1.0, isPlus = true;
+    const h0 = 1.0, w = 2.2, k = (2 * Math.PI) / 6.0;
+
+    // Arrows Grid (X-axis propagation)
+    const arrows = [];
+    const RES_X = 16, RES_YZ = 10;
+    const X_RANGE = 12, YZ_RANGE = 3.5;
+
+    for (let i = 0; i < RES_X; i++) {
+        for (let j = 0; j < RES_YZ; j++) {
+            for (let l = 0; l < RES_YZ; l++) {
+                const x = (i / (RES_X - 1)) * X_RANGE;
+                const y = ((j / (RES_YZ - 1)) * 2 - 1) * YZ_RANGE;
+                const z = ((l / (RES_YZ - 1)) * 2 - 1) * YZ_RANGE;
+                
+                const arrow = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(x,y,z), 0.5, 0xffffff, 0.2, 0.1);
+                scene.add(arrow);
+                arrows.push({ obj: arrow, x, y, z });
+            }
+        }
+    }
+
+    function getPlasma(t) {
+        return new THREE.Color().setHSL(0.7 - (t * 0.7), 1.0, 0.5);
+    }
+
+    function updateField() {
+        if (!paused) time += 0.02 * speed;
+        let maxMag = 0;
+        const results = [];
+
+        // In + polarization, stress is on axes. In x, it's 45 degrees.
+        // For X-prop, Y and Z are the transverse plane.
+        for (let a of arrows) {
+            const r2 = a.y*a.y + a.z*a.z;
+            const env = Math.exp(-r2 / (w*w));
+            const phase = (k * a.x) - time;
+            
+            let Bx, By, Bz;
+            let px = p_val, py = p_val, pz = p_val;
+
+            if (isPlus) {
+                // h+ polarization logic
+                By = -k * h0 * pz * env * Math.sin(phase);
+                Bz = -k * h0 * py * env * Math.sin(phase);
+                Bx = (2 * h0 / (w*w)) * env * Math.cos(phase) * (a.y * pz + a.z * py);
+            } else {
+                // hx polarization logic (Note the sign/axis swap for rotation effect)
+                By = -k * h0 * py * env * Math.sin(phase);
+                Bz =  k * h0 * pz * env * Math.sin(phase);
+                Bx = (2 * h0 / (w*w)) * env * Math.cos(phase) * (a.y * py - a.z * pz);
+            }
+
+            const mag = Math.sqrt(Bx*Bx + By*By + Bz*Bz);
+            if (mag > maxMag) maxMag = mag;
+            results.push({ obj: a.obj, vec: new THREE.Vector3(Bx, By, Bz), mag });
+        }
+
+        const thresh = maxMag * 0.15;
+        for (let r of results) {
+            if (r.mag < thresh) {
+                r.obj.visible = false;
+            } else {
+                r.obj.visible = true;
+                r.obj.setDirection(r.vec.normalize());
+                const nMag = r.mag / maxMag;
+                const len = 0.7 * nMag;
+                r.obj.setLength(len, len * 0.3, len * 0.2);
+                r.obj.setColor(getPlasma(nMag));
+            }
+        }
+    }
+
+    // --- UI Listeners ---
+    document.getElementById('speed').oninput = e => {
+        speed = parseFloat(e.target.value);
+        document.getElementById('speed-val').innerText = speed.toFixed(1) + 'x';
+    };
+    document.getElementById('momentum').oninput = e => {
+        p_val = parseFloat(e.target.value);
+        document.getElementById('mom-val').innerText = p_val.toFixed(1);
+    };
+    document.getElementById('pause-btn').onclick = function() {
+        paused = !paused;
+        this.innerText = paused ? "Resume" : "Pause";
+    };
+    document.getElementById('btn-plus').onclick = function() {
+        isPlus = true;
+        this.classList.add('active');
+        document.getElementById('btn-cross').classList.remove('active');
+    };
+    document.getElementById('btn-cross').onclick = function() {
+        isPlus = false;
+        this.classList.add('active');
+        document.getElementById('btn-plus').classList.remove('active');
+    };
+
+    function animate() {
+        requestAnimationFrame(animate);
+        updateField();
+        controls.update();
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
+</body>
+</html>

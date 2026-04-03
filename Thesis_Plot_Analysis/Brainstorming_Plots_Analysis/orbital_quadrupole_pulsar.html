@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>3d Orbital Quadrupole Coupling</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; background: #050505; color: #bb86fc; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        #info { 
+            position: absolute; top: 20px; left: 20px; 
+            background: rgba(20, 20, 20, 0.85); padding: 20px; 
+            border-radius: 12px; border: 1px solid #333; 
+            backdrop-filter: blur(10px); pointer-events: none;
+            max-width: 350px;
+        }
+        h1 { margin: 0; font-size: 18px; color: #03dac6; }
+        p { font-size: 13px; color: #aaa; line-height: 1.5; }
+        .stats { color: #bb86fc; font-family: monospace; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h1>Quadrupole Transition: $3d_{x^2-y^2}$</h1>
+        <p>This orbital "breathes" due to the kinetic strain operator $\hat{H}_{int} = \frac{\kappa}{2m} h_{ij} \hat{p}^i \hat{p}^j$.</p>
+        <div class="stats">Strain: <span id="strain-val">0.00</span></div>
+    </div>
+
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 1. Rigorous Orbital Generation (Rejection Sampling)
+        const count = 30000;
+        const positions = [];
+        const colors = [];
+        const colorObj = new THREE.Color();
+
+        let i = 0;
+        while (i < count) {
+            // Random point in a sphere
+            let x = (Math.random() - 0.5) * 10;
+            let y = (Math.random() - 0.5) * 10;
+            let z = (Math.random() - 0.5) * 10;
+            let r = Math.sqrt(x*x + y*y + z*z);
+            
+            if (r < 5 && r > 0.1) {
+                // Spherical harmonics for d_{x^2-y^2}
+                // Probability density is proportional to (x^2 - y^2)^2 / r^4 * exp(-r)
+                let theta = Math.acos(z / r);
+                let phi = Math.atan2(y, x);
+                let prob = Math.pow(Math.sin(theta), 2) * Math.abs(Math.cos(2 * phi));
+                
+                // Rejection sampling
+                if (Math.random() < prob * Math.exp(-r*0.5)) {
+                    positions.push(x, y, z);
+                    
+                    // Color based on lobe sign (Phase of the wavefunction)
+                    let sign = Math.cos(2 * phi) > 0 ? 0.1 : 0.6; 
+                    colorObj.setHSL(sign, 0.8, 0.5);
+                    colors.push(colorObj.r, colorObj.g, colorObj.b);
+                    i++;
+                }
+            }
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 0.04,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.7,
+            blending: THREE.AdditiveBlending
+        });
+
+        const orbitalCloud = new THREE.Points(geometry, material);
+        scene.add(orbitalCloud);
+
+        // Add coordinate axes for orientation
+        const axesHelper = new THREE.GridHelper(10, 10, 0x333333, 0x222222);
+        axesHelper.rotation.x = Math.PI / 2;
+        scene.add(axesHelper);
+
+        camera.position.set(5, 5, 8);
+        camera.lookAt(0, 0, 0);
+
+        let time = 0;
+        const strainVal = document.getElementById('strain-val');
+
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.04;
+
+            // The GW Strain (h_plus)
+            let h = 0.4 * Math.sin(time);
+            strainVal.innerText = h.toFixed(2);
+
+            const posAttr = orbitalCloud.geometry.attributes.position;
+            const posArray = posAttr.array;
+
+            for (let j = 0; j < count; j++) {
+                let x0 = positions[j * 3];
+                let y0 = positions[j * 3 + 1];
+                let z0 = positions[j * 3 + 2];
+
+                // Linearized GW deformation (Tensor action)
+                // x-axis stretches while y-axis squeezes
+                posArray[j * 3] = x0 * (1 + 0.5 * h);
+                posArray[j * 3 + 1] = y0 * (1 - 0.5 * h);
+                posArray[j * 3 + 2] = z0; // Transverse wave: z is unaffected
+            }
+
+            posAttr.needsUpdate = true;
+            orbitalCloud.rotation.z += 0.002; // Slow spin for 3D depth
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
