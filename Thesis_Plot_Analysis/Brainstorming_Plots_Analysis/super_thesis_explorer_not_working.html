@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quantum GW Thesis Explorer — All Chapters</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,500;0,700;1,300&family=Playfair+Display:ital,wght@0,700;1,500&display=swap');
+:root{
+  --bg:#07080c; --card:#0e0f14; --border:#1e1f2a;
+  --gold:#f5c84a; --blue:#4a9eff; --red:#ff5a3c; --green:#3ecf7a;
+  --purple:#c86eff; --cyan:#3ecfcf; --warm:#e8e0d0; --orange:#ff8c3a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--warm);font-family:'JetBrains Mono',monospace;
+  display:flex;height:100vh;overflow:hidden}
+#nav{width:220px;flex-shrink:0;background:#09090f;border-right:1px solid var(--border);
+  overflow-y:auto;padding:14px 12px}
+#nav h1{font-family:'Playfair Display',serif;font-size:13px;color:var(--gold);
+  margin-bottom:12px;line-height:1.4;border-bottom:1px solid var(--border);padding-bottom:8px}
+.ch-section{margin-bottom:8px}
+.ch-title{font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:0.09em;
+  padding:4px 6px;margin-bottom:3px;font-weight:700}
+.ch-item{padding:6px 9px;border-radius:2px;cursor:pointer;font-size:8.5px;
+  color:#888890;border:1px solid transparent;transition:all 0.15s;line-height:1.4;
+  margin-bottom:2px}
+.ch-item:hover{color:var(--warm);background:rgba(255,255,255,0.04);border-color:var(--border)}
+.ch-item.active{color:var(--gold);background:rgba(245,200,74,0.08);border-color:rgba(245,200,74,0.3)}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#toolbar{background:#09090f;border-bottom:1px solid var(--border);padding:10px 20px;
+  display:flex;gap:20px;align-items:center;flex-shrink:0}
+#toolbar span{font-size:9px;color:#606878;text-transform:uppercase;letter-spacing:0.07em}
+#canvas-area{flex:1;position:relative;overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+#info-panel{position:absolute;top:16px;right:16px;width:260px;
+  background:rgba(9,9,15,0.92);border:1px solid var(--border);border-radius:3px;
+  padding:15px 17px;backdrop-filter:blur(10px)}
+#info-panel h2{font-family:'Playfair Display',serif;font-size:14px;color:var(--gold);
+  margin-bottom:7px;line-height:1.3}
+#info-panel p{font-size:9px;color:#7a7880;line-height:1.75;margin-bottom:8px}
+.eq-inline{font-size:9px;color:var(--cyan);background:rgba(62,207,207,0.07);
+  padding:5px 9px;border-radius:2px;border-left:2px solid rgba(62,207,207,0.4);margin:5px 0}
+.badge{display:inline-block;padding:2px 7px;border-radius:2px;font-size:8px;
+  letter-spacing:0.05em;font-weight:700;text-transform:uppercase;margin:2px}
+#bottom-bar{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  background:rgba(9,9,15,0.9);border:1px solid var(--border);border-radius:3px;
+  padding:10px 20px;display:flex;gap:18px;align-items:center;backdrop-filter:blur(8px)}
+.ctrl{display:flex;flex-direction:column;gap:4px;align-items:center}
+.ctrl label{font-size:8.5px;color:#606878;text-transform:uppercase;letter-spacing:0.06em}
+input[type=range]{-webkit-appearance:none;width:90px;height:2.5px;
+  background:rgba(245,200,74,0.2);border-radius:2px;cursor:pointer;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;
+  background:var(--gold);border-radius:50%}
+.val-lbl{font-size:9.5px;color:var(--gold);font-weight:600}
+button{background:rgba(245,200,74,0.08);border:1px solid rgba(245,200,74,0.25);
+  color:var(--gold);padding:6px 13px;border-radius:2px;cursor:pointer;
+  font-family:inherit;font-size:8.5px;letter-spacing:0.06em;text-transform:uppercase;
+  transition:all 0.15s}
+button:hover{background:rgba(245,200,74,0.18);border-color:var(--gold)}
+button.on{background:rgba(245,200,74,0.2);border-color:var(--gold)}
+</style>
+</head>
+<body>
+<div id="nav">
+  <h1>Quantum Effects of Gravitational Waves<br>Thesis Explorer</h1>
+
+  <div class="ch-section">
+    <div class="ch-title">Ch 2: GW Theory</div>
+    <div class="ch-item" data-view="gw_wave">§2.1 TT-gauge wave propagation</div>
+    <div class="ch-item" data-view="tidal_ring">§2.1.2 Tidal ring deformation</div>
+    <div class="ch-item" data-view="lense_thirring">§2.1.3 Lense-Thirring drag</div>
+    <div class="ch-item" data-view="tetrad">§2.2 Tetrad vs coordinates</div>
+  </div>
+
+  <div class="ch-section">
+    <div class="ch-title">Ch 3: Coupling Framework</div>
+    <div class="ch-item" data-view="spin_conn">§3.1.3 Spin connection ω<sup>ab</sup><sub>μ</sub></div>
+    <div class="ch-item" data-view="belinfante">§3.3 Belinfante vanishing</div>
+    <div class="ch-item" data-view="lagrangian">§3.4 h<sub>μν</sub>T<sup>μν</sup> coupling</div>
+  </div>
+
+  <div class="ch-section">
+    <div class="ch-title">Ch 4: FW Transformation</div>
+    <div class="ch-item" data-view="fw_diag">§4 Block diagonalization</div>
+    <div class="ch-item active" data-view="kinetic_strain">§4.2 Kinetic strain (PRIMARY)</div>
+    <div class="ch-item" data-view="gravitomagnetic">§4.2 Gravitomagnetic B̂<sub>g</sub></div>
+    <div class="ch-item" data-view="all9">§4.2 All 9 terms hierarchy</div>
+  </div>
+
+  <div class="ch-section">
+    <div class="ch-title">Ch 5: Applications</div>
+    <div class="ch-item" data-view="sel_rules">§5.1.1 Selection rules matrix</div>
+    <div class="ch-item" data-view="hydrogen">§5.2.1 Hydrogen (CORRECTED)</div>
+    <div class="ch-item" data-view="harmonic">§5.2.2 Harmonic oscillator</div>
+  </div>
+
+  <div class="ch-section">
+    <div class="ch-title">Ch 6: Discussion</div>
+    <div class="ch-item" data-view="br_rate">§6.2 B&R rate Γ∝ω⁵</div>
+    <div class="ch-item" data-view="sql">§6.3 SQL/QFI detection</div>
+    <div class="ch-item" data-view="literature">§6.4 Literature landscape</div>
+  </div>
+</div>
+
+<div id="main">
+  <div id="toolbar">
+    <span id="chapter-label">Chapter 4 §4.2 — Kinetic Strain (Primary Sensing Term)</span>
+    <span id="status-badge" style="color:var(--green)">■ Verified</span>
+  </div>
+  <div id="canvas-area">
+    <canvas id="c"></canvas>
+    <div id="info-panel">
+      <h2 id="ip-title">Kinetic Strain</h2>
+      <p id="ip-desc">The primary sensing term. h<sub>ij</sub>p̂ⁱp̂ʲ deforms the momentum-space kinetic energy anisotropically. For h₊: stretches KE along x, compresses along y. Drives quadrupole transitions Δm=±2.</p>
+      <div class="eq-inline" id="ip-eq">Ĥ_strain = κβ/(2m) h_ij p̂ⁱp̂ʲ</div>
+      <div>
+        <span class="badge" id="b1" style="background:rgba(231,26,20,0.2);color:#ff5a3c">PRIMARY</span>
+        <span class="badge" id="b2" style="background:rgba(74,158,255,0.15);color:#4a9eff">TT ACTIVE</span>
+        <span class="badge" id="b3" style="background:rgba(62,207,122,0.15);color:#3ecf7a">VERIFIED</span>
+      </div>
+      <div class="eq-inline" id="ip-val" style="margin-top:8px">ΔE ~ 7.86×10⁻⁴⁸ eV  (h=10⁻²¹)</div>
+    </div>
+    <div id="bottom-bar">
+      <div class="ctrl"><label>Strain h</label>
+        <input type="range" id="sl-h" min="0.05" max="0.95" step="0.01" value="0.6">
+        <span class="val-lbl" id="vl-h">0.60</span></div>
+      <div class="ctrl"><label>Speed</label>
+        <input type="range" id="sl-sp" min="0.1" max="3.0" step="0.1" value="0.8">
+        <span class="val-lbl" id="vl-sp">0.8×</span></div>
+      <div class="ctrl"><label>Pol.</label>
+        <button id="btn-pol" class="on">h₊</button></div>
+      <div class="ctrl"><label>Anim.</label>
+        <button id="btn-pause">Pause</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let currentView='kinetic_strain', t=0, paused=false, h_amp=0.6, speed=0.8, isPlusPol=true;
+
+const canvas=document.getElementById('c');
+const ctx2d=canvas.getContext('2d');
+
+// ── Three.js scene (shared) ────────────────────────────────────────────────
+const scene3=new THREE.Scene(); scene3.background=new THREE.Color(0x07080c);
+const W0=canvas.offsetWidth, H0=canvas.offsetHeight;
+const camera3=new THREE.PerspectiveCamera(42,W0/H0,0.1,200);
+const renderer3=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer3.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer3.setSize(canvas.offsetWidth,canvas.offsetHeight);
+
+let isDrag=false,pm={x:0,y:0},sph={theta:0.7,phi:1.0,r:12};
+function setCam(){
+  camera3.position.set(sph.r*Math.sin(sph.phi)*Math.sin(sph.theta),
+    sph.r*Math.cos(sph.phi),sph.r*Math.sin(sph.phi)*Math.cos(sph.theta));
+  camera3.lookAt(0,0,0);
+}
+setCam();
+canvas.addEventListener('mousedown',e=>{isDrag=true;pm={x:e.clientX,y:e.clientY}});
+canvas.addEventListener('mouseup',()=>isDrag=false);
+canvas.addEventListener('mousemove',e=>{if(!isDrag)return;
+  sph.theta-=(e.clientX-pm.x)*0.006;
+  sph.phi=Math.max(0.15,Math.min(Math.PI-0.15,sph.phi+(e.clientY-pm.y)*0.006));
+  pm={x:e.clientX,y:e.clientY};setCam();});
+canvas.addEventListener('wheel',e=>{sph.r=Math.max(3,Math.min(30,sph.r+e.deltaY*0.01));setCam();},{passive:true});
+
+// ── 3D Object pool ─────────────────────────────────────────────────────────
+const pool3D={objs:[]};
+function clearScene(){pool3D.objs.forEach(o=>scene3.remove(o));pool3D.objs=[];}
+function add3(o){scene3.add(o);pool3D.objs.push(o);}
+
+function mkLine(pts,color,opacity=1){
+  const g=new THREE.BufferGeometry().setFromPoints(pts);
+  return new THREE.Line(g,new THREE.LineBasicMaterial({color,transparent:opacity<1,opacity}));
+}
+function plasma(t){
+  return new THREE.Color(Math.min(1,Math.max(0,3*t-0.5)),
+    Math.min(1,Math.max(0,2*t-1)),Math.min(1,Math.max(0,1.5-2*t)));
+}
+
+// ── View definitions ────────────────────────────────────────────────────────
+const VIEWS = {
+
+  kinetic_strain:{
+    title:'Kinetic Strain — Primary Sensing Term',
+    chap:'Chapter 4 §4.2 — Kinetic Strain (Primary Signal)',
+    eq:'Ĥ_strain = κβ/(2m) h_ij p̂ⁱp̂ʲ',
+    val:'ΔE ~ 7.86×10⁻⁴⁸ eV  (h=10⁻²¹, H 2p, 100 Hz)',
+    desc:'For h₊: the kinetic energy is stretched along x and compressed along y. This rank-2 quadrupole operator drives Δm=±2 transitions. The zero contour (white line) separates gain/loss regions.',
+    badges:['PRIMARY','TT ACTIVE','VERIFIED'],
+    use3D:false,
+    draw2D:(ctx,W,H)=>{
+      const N=80, pR=3.0, ph=h_amp*Math.cos(t);
+      const cx=W/2, cy=H/2, pw=Math.min(W,H)*0.42, half=pw/N;
+      ctx.clearRect(0,0,W,H); ctx.fillStyle='#07080c'; ctx.fillRect(0,0,W,H);
+      for(let i=0;i<N;i++){for(let j=0;j<N;j++){
+        const px=-pR+(i+0.5)*2*pR/N; const py=-pR+(j+0.5)*2*pR/N;
+        const V=(isPlusPol?ph*(px*px-py*py):ph*px*py)/(pR**2*h_amp||1);
+        const vn=Math.max(-1,Math.min(1,V));
+        const r=Math.round(255*(0.05+0.6*(vn+1)/2+0.35*((vn+1)/2)**2));
+        const g=Math.round(255*(0.05+0.4*(vn+1)/2));
+        const b=Math.round(255*(0.8-0.7*(vn+1)/2));
+        ctx.fillStyle=`rgb(${r},${g},${b})`;
+        ctx.fillRect(cx-pw+(i)*2*pw/N,cy-pw+j*2*pw/N,2*pw/N+0.5,2*pw/N+0.5);
+      }}
+      // Zero contour
+      ctx.strokeStyle='rgba(255,255,255,0.65)'; ctx.lineWidth=2;
+      ctx.beginPath();
+      for(let i=0;i<N-1;i++){for(let j=0;j<N-1;j++){
+        const px=-pR+(i+0.5)*2*pR/N; const py=-pR+(j+0.5)*2*pR/N;
+        const px2=-pR+(i+1.5)*2*pR/N;
+        const v0=isPlusPol?h_amp*Math.cos(t)*(px*px-py*py):h_amp*Math.cos(t)*px*py;
+        const v1=isPlusPol?h_amp*Math.cos(t)*(px2*px2-py*py):h_amp*Math.cos(t)*px2*py;
+        if(v0*v1<0){const x=cx-pw+(i+v0/(v0-v1))*2*pw/N; const y=cy-pw+j*2*pw/N+pw/N;
+          ctx.lineTo(x,y);}
+      }}
+      ctx.stroke();
+      // Momentum circles
+      for(const r2 of [1,2,3]){
+        ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=0.8;
+        ctx.beginPath(); ctx.arc(cx,cy,r2/pR*pw,0,2*Math.PI); ctx.stroke();
+        ctx.fillStyle='rgba(180,170,200,0.5)'; ctx.font='10px JetBrains Mono,monospace';
+        ctx.textAlign='center';
+        ctx.fillText(`|p|=${r2}p₀`,cx,cy-r2/pR*pw-5);
+      }
+      // Axes
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(cx-pw,cy); ctx.lineTo(cx+pw,cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx,cy-pw); ctx.lineTo(cx,cy+pw); ctx.stroke();
+      ctx.fillStyle='rgba(245,200,74,0.8)'; ctx.font='11px JetBrains Mono,monospace';
+      ctx.textAlign='left';
+      ctx.fillText(isPlusPol?`h(t)·(px²−py²)  ωt=${(t%(2*Math.PI)).toFixed(2)}`:`h(t)·px·py  ωt=${(t%(2*Math.PI)).toFixed(2)}`, cx-pw+5, cy+pw-10);
+      ctx.fillStyle='rgba(200,180,255,0.6)'; ctx.textAlign='right';
+      ctx.fillText('p_x →',cx+pw-4,cy-6);
+      ctx.save(); ctx.translate(cx+6,cy-pw+15); ctx.rotate(Math.PI/2);
+      ctx.fillText('p_y',0,0); ctx.restore();
+    }
+  },
+
+  gw_wave:{
+    title:'TT-Gauge GW Propagation',
+    chap:'Chapter 2 §2.1.2 — TT Gauge Wave',
+    eq:'h^TT_{ij}(t,z) = diag(h₊,−h₊,0)cos(ωt−kz)',
+    val:'h_+ = 10⁻²¹ (typical LIGO event)',
+    desc:'Gravitational wave propagating in z-direction with plus polarization. Test particle ring deforms as h_{ij} evolves. The TT gauge conditions: h_{0μ}=0, Tr(h)=0, ∂^j h_{ij}=0 are all satisfied.',
+    badges:['TT ACTIVE','VERIFIED'],
+    use3D:true,
+    init3D:()=>{
+      clearScene();
+      // GW propagation axis
+      add3(mkLine([new THREE.Vector3(0,-5,0),new THREE.Vector3(0,5,0)],0x333344,0.5));
+      // Ring at multiple z-slices
+      const N=64;
+      for(let slice=0;slice<6;slice++){
+        const pts=[]; const y_pos=-3+slice*1.2;
+        for(let i=0;i<=N;i++){
+          const a=2*Math.PI*i/N;
+          pts.push(new THREE.Vector3(Math.cos(a),y_pos,Math.sin(a)));
+        }
+        const col=new THREE.Color().setHSL(0.58+slice*0.04,0.7,0.55);
+        add3(mkLine(pts,col,0.4+slice*0.1));
+      }
+      // Particle ring (animated)
+      const ring_pts=[]; for(let i=0;i<=N;i++){const a=2*Math.PI*i/N;ring_pts.push(new THREE.Vector3(Math.cos(a),0,Math.sin(a)));}
+      const ringGeo=new THREE.BufferGeometry().setFromPoints(ring_pts);
+      const ringLine=new THREE.Line(ringGeo,new THREE.LineBasicMaterial({color:0x3ecf7a,linewidth:2}));
+      add3(ringLine); pool3D.ring=ringLine; pool3D.ring_N=N;
+    },
+    update3D:()=>{
+      if(!pool3D.ring)return;
+      const pos=pool3D.ring.geometry.attributes.position;
+      const N=pool3D.ring_N;
+      const h=h_amp*Math.cos(t);
+      for(let i=0;i<=N;i++){
+        const a=2*Math.PI*i/N;
+        const x0=Math.cos(a), z0=Math.sin(a);
+        if(isPlusPol){pos.setXYZ(i,x0*(1+0.5*h),0,z0*(1-0.5*h));}
+        else{pos.setXYZ(i,x0+h*0.5*z0,0,z0+h*0.5*x0);}
+      }
+      pos.needsUpdate=true;
+    }
+  },
+
+  tetrad:{
+    title:'Tetrad vs. Global Coordinates',
+    chap:'Chapter 2 §2.2 — Tetrad Formalism',
+    eq:'g_{μν}(x) = e^a_μ e^b_ν η_{ab}  (tetrad identity)',
+    val:'e^a_μ = δ^a_μ + κ/2 h^a_μ  (Eq 3.6)',
+    desc:'Blue grid: global coordinates shear under δx^i = ½ h^i_j x^j. Yellow arrows: local tetrads remain orthonormal. This mismatch necessitates the spin connection ω^ab_μ — the core motivation for Ch 3.',
+    badges:['VERIFIED','KEY RESULT'],
+    use3D:true,
+    init3D:()=>{
+      clearScene();
+      const G=5,S=0.55;
+      for(let i=-G;i<=G;i++){
+        const p1=[],p2=[];
+        for(let j=-G;j<=G;j++){p1.push(new THREE.Vector3(j*S,0,i*S));p2.push(new THREE.Vector3(i*S,0,j*S));}
+        add3(mkLine(p1,0x1a3060,0.3)); add3(mkLine(p2,0x1a3060,0.3));
+      }
+      // Shear grid (animated)
+      pool3D.shear_lines_h=[]; pool3D.shear_lines_v=[];
+      for(let i=-G;i<=G;i++){
+        const N2G=2*G+1;
+        const geo=new THREE.BufferGeometry();
+        const pos=new Float32Array(N2G*3);
+        geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+        geo.setDrawRange(0,N2G);
+        const l=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xe05028,opacity:0.85,transparent:true}));
+        add3(l); pool3D.shear_lines_h.push({l,idx:i,S,G});
+      }
+      for(let j=-G;j<=G;j++){
+        const N2G=2*G+1;
+        const geo=new THREE.BufferGeometry();
+        const pos=new Float32Array(N2G*3);
+        geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+        const l=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xe05028,opacity:0.85,transparent:true}));
+        add3(l); pool3D.shear_lines_v.push({l,idx:j,S,G});
+      }
+      // Tetrad arrows
+      pool3D.tetrads=[];
+      for(let i=-G+1;i<=G-1;i+=2){for(let j=-G+1;j<=G-1;j+=2){
+        const ox=i*S, oz=j*S;
+        const a1=new THREE.ArrowHelper(new THREE.Vector3(1,0,0),new THREE.Vector3(ox,0.02,oz),0.4,0xf5c84a,0.12,0.07);
+        const a2=new THREE.ArrowHelper(new THREE.Vector3(0,0,1),new THREE.Vector3(ox,0.02,oz),0.4,0xf5c84a,0.12,0.07);
+        add3(a1); add3(a2); pool3D.tetrads.push({a1,a2,ox,oz});
+      }}
+    },
+    update3D:()=>{
+      const h=h_amp*Math.cos(t);
+      const G=5,S=0.55;
+      const shear=(x0,z0)=>isPlusPol?[x0*(1+0.5*h),z0*(1-0.5*h)]:[x0+h*0.5*z0,z0+h*0.5*x0];
+      if(pool3D.shear_lines_h){
+        pool3D.shear_lines_h.forEach(({l,idx})=>{
+          const pos=l.geometry.attributes.position;
+          for(let j=-G;j<=G;j++){const [xp,zp]=shear(j*S,idx*S);pos.setXYZ(j+G,xp,0.005,zp);}
+          pos.needsUpdate=true;
+        });
+        pool3D.shear_lines_v.forEach(({l,idx})=>{
+          const pos=l.geometry.attributes.position;
+          for(let j=-G;j<=G;j++){const [xp,zp]=shear(idx*S,j*S);pos.setXYZ(j+G,xp,0.005,zp);}
+          pos.needsUpdate=true;
+        });
+        pool3D.tetrads.forEach(({a1,a2,ox,oz})=>{
+          const [xp,zp]=shear(ox,oz);
+          a1.position.set(xp,0.02,zp); a2.position.set(xp,0.02,zp);
+          a1.setDirection(new THREE.Vector3(1,0,0));
+          a2.setDirection(new THREE.Vector3(0,0,1));
+        });
+      }
+    }
+  },
+
+  gravitomagnetic:{
+    title:'Gravitomagnetic Field B̂_g',
+    chap:'Chapter 4 §4.2 — Gravitomagnetic Zeeman Term',
+    eq:'B̂_g = ∇×(h·p̂) = ε^{lki}(∂_k h^i_j)p̂^j',
+    val:'Ĥ_Zeeman = κβ/(4m) Σ·B̂_g  (Term 7, Eq 4.77)',
+    desc:'The curl of the kinetic strain potential h·p̂ gives the gravitomagnetic field. Spin couples to this field. Requires spatial gradient ∂_k h ≠ 0 — uniform GW cannot flip spin.',
+    badges:['ZEEMAN-LIKE','SPIN-1/2','TT ACTIVE'],
+    use3D:true,
+    init3D:()=>{
+      clearScene();
+      const RES_XZ=9,RES_Y=14,RANGE=3.0,YMIN=0,YMAX=9;
+      pool3D.arrows=[]; const BASE_LEN=0.5;
+      add3(mkLine([new THREE.Vector3(0,0,0),new THREE.Vector3(0,10.5,0)],0x333344,0.6));
+      for(let i=0;i<RES_XZ;i++){for(let k=0;k<RES_XZ;k++){for(let j=0;j<RES_Y;j++){
+        const x=RANGE*(i/(RES_XZ-1)*2-1), z=RANGE*(k/(RES_XZ-1)*2-1);
+        const y=YMIN+(YMAX-YMIN)*j/(RES_Y-1);
+        const a=new THREE.ArrowHelper(new THREE.Vector3(0,1,0),new THREE.Vector3(x,y,z),0.1,0xffffff,0.15,0.1);
+        add3(a); pool3D.arrows.push({a,x,y,z});
+      }}}
+    },
+    update3D:()=>{
+      if(!pool3D.arrows)return;
+      const h0=h_amp; const w=2.0; const k=2*Math.PI/5;
+      let maxM=0; const fd=[];
+      pool3D.arrows.forEach(({a,x,y,z})=>{
+        const R2=x*x+z*z; const env=Math.exp(-R2/(w*w));
+        const phase=k*y-t;
+        const Bx=-k*h0*(isPlusPol?1:0.7)*env*Math.sin(phase);
+        const Bz=-k*h0*(isPlusPol?1:0.7)*env*Math.sin(phase);
+        const By=(2*h0/(w*w))*env*Math.cos(phase)*(x+z);
+        const mag=Math.sqrt(Bx*Bx+By*By+Bz*Bz);
+        if(mag>maxM)maxM=mag;
+        fd.push({a,bx:Bx,by:By,bz:Bz,mag});
+      });
+      const thresh=maxM*0.1;
+      fd.forEach(d=>{
+        if(d.mag<thresh){d.a.visible=false;return;}
+        d.a.visible=true;
+        const nm=d.mag/maxM; const L=0.5*nm;
+        d.a.setDirection(new THREE.Vector3(d.bx,d.by,d.bz).normalize());
+        d.a.setLength(L,L*0.28,L*0.18);
+        const col=new THREE.Color(Math.min(1,3*nm-0.5),Math.min(1,2*nm-1),Math.max(0,1.5-2*nm));
+        d.a.setColor(col);
+      });
+    }
+  },
+
+  all9:{
+    title:'All 9 FW Terms — Eq 4.70',
+    chap:'Chapter 4 Eq 4.70 — Complete Ĥ_eff',
+    eq:'9 distinct physical terms, each with EM analogue',
+    val:'Range: 10⁻⁴⁸ eV (strain) to 10⁻⁸⁰ eV (Darwin)',
+    desc:'Complete non-relativistic effective Hamiltonian for spin-1/2 in linearized GW. Height = log₁₀|ΔE| in eV. Click a bar to highlight. The kinetic strain term (red) is 4 orders above all spin-dependent terms.',
+    badges:['COMPLETE','ALL GAUGES','VERIFIED'],
+    use3D:false,
+    draw2D:(ctx,W,H)=>{
+      ctx.clearRect(0,0,W,H); ctx.fillStyle='#07080c'; ctx.fillRect(0,0,W,H);
+      const terms=[
+        {name:'Grav.\nredshift',log:-52,col:'#ff8c3a'},
+        {name:'LT drag\n(=0 TT)',log:-200,col:'#c86eff'},
+        {name:'Free\nKE',log:1.1,col:'#888890'},
+        {name:'SR\ncorr.',log:-3.7,col:'#666680'},
+        {name:'Isotropic\nKE',log:-47,col:'#ffd700'},
+        {name:'Kinetic\nstrain',log:-47.1,col:'#ff5a3c',primary:true},
+        {name:'Grav.\nZeeman',log:-63.1,col:'#4a9eff'},
+        {name:'Mom.\ngrad.',log:-63.1,col:'#3ecfcf'},
+        {name:'Spin-\norbit',log:-65.2,col:'#3ecf7a'},
+        {name:'Darwin',log:-79.1,col:'#bae4b3'},
+      ];
+      const valid=terms.filter(t=>t.log>-150);
+      const minV=-80, maxV=2; const pad={l:55,r:20,t:40,b:90};
+      const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+      const bW=pw/valid.length;
+      // Draw
+      valid.forEach((term,i)=>{
+        const v=term.log; const barH=(v-minV)/(maxV-minV)*ph;
+        const x=pad.l+i*bW+bW*0.1; const w2=bW*0.8;
+        const y=pad.t+ph-barH;
+        // Glow for primary
+        if(term.primary){ctx.shadowColor=term.col;ctx.shadowBlur=20;}
+        ctx.fillStyle=term.col+(term.primary?'ff':'cc');
+        ctx.fillRect(x,y,w2,barH);
+        ctx.shadowBlur=0;
+        // Value
+        ctx.fillStyle=term.col; ctx.font='8.5px JetBrains Mono,monospace'; ctx.textAlign='center';
+        if(v>-150) ctx.fillText(`10^${Math.round(v)}`,x+w2/2,y-5);
+        // Name
+        ctx.save(); ctx.translate(x+w2/2,pad.t+ph+15); ctx.rotate(-0.52);
+        ctx.fillStyle='rgba(200,190,170,0.75)'; ctx.font='8px JetBrains Mono,monospace';
+        ctx.textAlign='right';
+        term.name.split('\n').forEach((line,li)=>ctx.fillText(line,0,li*12));
+        ctx.restore();
+        // Index
+        ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='bold 9px JetBrains Mono,monospace';
+        ctx.textAlign='center';
+        ctx.fillText(i+1,x+w2/2,pad.t+ph+8);
+      });
+      // Y axis
+      ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,pad.t+ph); ctx.stroke();
+      for(let v=-80;v<=2;v+=10){
+        const yy=pad.t+ph-(v-minV)/(maxV-minV)*ph;
+        ctx.fillStyle='rgba(140,130,110,0.55)'; ctx.font='8px JetBrains Mono,monospace';
+        ctx.textAlign='right'; ctx.fillText(`10^${v}`,pad.l-4,yy+3);
+        ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=0.5;
+        ctx.beginPath(); ctx.moveTo(pad.l,yy); ctx.lineTo(pad.l+pw,yy); ctx.stroke();
+      }
+      // Title
+      ctx.fillStyle='rgba(245,200,74,0.85)'; ctx.font='11px Playfair Display,serif';
+      ctx.textAlign='center';
+      ctx.fillText('|ΔE| (eV)  for h=10⁻²¹, f=100 Hz, H 2p state  (Eq 4.70)',W/2,22);
+    }
+  }
+};
+
+// ── View switching ─────────────────────────────────────────────────────────
+function setView(viewKey){
+  currentView=viewKey;
+  document.querySelectorAll('.ch-item').forEach(el=>el.classList.toggle('active',el.dataset.view===viewKey));
+  const V=VIEWS[viewKey];
+  if(!V) return;
+  document.getElementById('chapter-label').textContent=V.chap||viewKey;
+  document.getElementById('ip-title').textContent=V.title||viewKey;
+  document.getElementById('ip-desc').textContent=V.desc||'';
+  document.getElementById('ip-eq').textContent=V.eq||'';
+  document.getElementById('ip-val').textContent=V.val||'';
+  // Reset 3D scene if switching view type
+  if(V.use3D && V.init3D){clearScene();V.init3D();}
+}
+
+document.querySelectorAll('.ch-item').forEach(el=>{
+  el.addEventListener('click',()=>setView(el.dataset.view));
+});
+
+// ── Controls ───────────────────────────────────────────────────────────────
+document.getElementById('sl-h').oninput=e=>{h_amp=parseFloat(e.target.value);document.getElementById('vl-h').textContent=h_amp.toFixed(2);};
+document.getElementById('sl-sp').oninput=e=>{speed=parseFloat(e.target.value);document.getElementById('vl-sp').textContent=speed.toFixed(1)+'×';};
+document.getElementById('btn-pause').onclick=function(){paused=!paused;this.textContent=paused?'Resume':'Pause';this.classList.toggle('on',!paused);};
+document.getElementById('btn-pol').onclick=function(){isPlusPol=!isPlusPol;this.textContent=isPlusPol?'h₊':'h×';};
+
+// ── Render loop ────────────────────────────────────────────────────────────
+function animate(){
+  requestAnimationFrame(animate);
+  if(!paused) t+=0.016*speed;
+  const V=VIEWS[currentView];
+  if(!V)return;
+  if(V.use3D){
+    if(V.update3D)V.update3D();
+    renderer3.render(scene3,camera3);
+  } else {
+    // Use canvas 2D
+    const W=canvas.offsetWidth,H=canvas.offsetHeight;
+    if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}
+    // Temporarily use 2D (need to get context fresh each frame since renderer3 took the canvas)
+    // Switch: use a second canvas for 2D views
+    const c2=document.getElementById('c2d');
+    if(!c2){
+      // Create overlay canvas for 2D
+      const ov=document.createElement('canvas');
+      ov.id='c2d'; ov.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none';
+      document.getElementById('canvas-area').appendChild(ov);
+    }
+    const ov2=document.getElementById('c2d');
+    ov2.width=ov2.offsetWidth; ov2.height=ov2.offsetHeight;
+    const ctx=ov2.getContext('2d');
+    // Blank the WebGL canvas
+    renderer3.clear();
+    if(V.draw2D) V.draw2D(ctx,ov2.width,ov2.height);
+  }
+  // Hide/show overlay
+  const ov2=document.getElementById('c2d');
+  if(ov2) ov2.style.display=V.use3D?'none':'block';
+}
+
+// Init first view
+setView('kinetic_strain');
+VIEWS.kinetic_strain.init3D=null; // no 3D for this view
+animate();
+
+window.addEventListener('resize',()=>{
+  const w=canvas.offsetWidth,h=canvas.offsetHeight;
+  camera3.aspect=w/h; camera3.updateProjectionMatrix();
+  renderer3.setSize(w,h);
+});
+</script>
+</body>
+</html>
