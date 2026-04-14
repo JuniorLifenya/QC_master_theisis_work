@@ -48,7 +48,7 @@ for row, pol in enumerate(['plus', 'cross']):
 
 fig.suptitle(r'Kinetic strain $h_{ij}\hat{p}^i\hat{p}^j$ in Momentum Space' + \
              '\n' + r'(Comparison: Isotropic Background vs. Gravito-Magnetic Perturbations)', 
-             fontsize=16, y=1.02)
+             fontsize=16, y=0.97)
 
 plt.tight_layout()
 plt.savefig('figures/fig11_kinetic_strain.png', bbox_inches='tight')
