@@ -7,18 +7,26 @@ import os
 # ─── FIG 11: KINETIC STRAIN IN MOMENTUM SPACE ───────────
 
 px = np.linspace(-3.5,3.5,200)
+ps = np.linspace(-3.5,3.5,200)
 PX,PY = np.meshgrid(px,px)
+KX,KY = np.meshgrid(ps,ps)
 h = 0.5
 phases = [0,np.pi/4,np.pi/2,3*np.pi/4]
-fig,axes = plt.subplots(2,4,figsize=(14,7))
+fig,axes = plt.subplots(2,4,figsize=(25,10))
+
 for row,pol in enumerate(['plus','cross']):
     for col,phi in enumerate(phases):
             ax = axes[row,col]
             phi_eff = phi + 1e-9 if phi == np.pi/2 else phi
             V = h*np.cos(phi_eff)*(PX**2-PY**2 if pol=='plus' else PX*PY)
+            U = (KX**2 + KY**2 ) # We do not need any boolian statement here really! 
+            
             lim = max(abs(V).max(),1e-9)
             ax.contourf(PX,PY,V,levels=20,cmap='RdBu_r',vmin=-lim,vmax=lim)
             ax.contour(PX,PY,V,levels=[0],colors='k',linewidths=0.7)
+            ax.contourf(KX,KY,U, levels = 20, cmap = "turbo", vmin = -lim, vmax = lim)
+            ax.contour(KX,KY,U,levels=[0],colors='k',linewidths=0.7)
+
             ax.set_aspect('equal')
             ax.set_title(fr'${"h_+" if pol=="plus" else "h_\\times"}$, $\omega t={phi:.2f}$',fontsize=10)
             if col==0: ax.set_ylabel(r'$p_y/p_0$')
