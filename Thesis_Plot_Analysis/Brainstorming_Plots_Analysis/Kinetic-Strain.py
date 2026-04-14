@@ -14,7 +14,8 @@ fig,axes = plt.subplots(2,4,figsize=(14,7))
 for row,pol in enumerate(['plus','cross']):
     for col,phi in enumerate(phases):
             ax = axes[row,col]
-            V = h*np.cos(phi)*(PX**2-PY**2 if pol=='plus' else PX*PY)
+            phi_eff = phi + 1e-9 if phi == np.pi/2 else phi
+            V = h*np.cos(phi_eff)*(PX**2-PY**2 if pol=='plus' else PX*PY)
             lim = max(abs(V).max(),1e-9)
             ax.contourf(PX,PY,V,levels=20,cmap='RdBu_r',vmin=-lim,vmax=lim)
             ax.contour(PX,PY,V,levels=[0],colors='k',linewidths=0.7)
