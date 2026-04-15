@@ -1,5 +1,21 @@
 
 
+"""
+new_thesis_figures.py
+=====================
+Daniel Junior Lifenya Fondo — UiB 2026
+"Quantum Effects of Gravitational Waves"
+
+Generates 4 new publication-quality figures:
+  1. fig_hydrogen_radial_overlap   -> boughn_rothman_radial.png  (Ch. 6 §6.2)
+  2. fig_literature_landscape      -> literature_landscape.png   (Ch. 6 §6.4)
+  3. fig_decoherence_budget        -> decoherence_budget.png     (Ch. 6 §6.3)
+  4. fig_gw_strain_waterfall       -> gw_strain_waterfall.png    (Ch. 5 §5.4)
+
+Run: python new_thesis_figures.py
+All figures saved to ./figures/
+"""
+
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -7,6 +23,38 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.colors import LinearSegmentedColormap
 import os
+
+os.makedirs('figures', exist_ok=True)
+
+# Physical constants (SI)
+hbar  = 1.054571817e-34
+m_e   = 9.10938356e-31
+c     = 2.99792458e8
+G     = 6.67430e-11
+eV    = 1.60217663e-19
+alpha = 1/137.035999
+a_0   = hbar/(m_e*alpha*c)
+l_Pl  = np.sqrt(hbar*G/c**3)
+
+# ─── Shared style ──────────────────────────────────────────────────────────
+plt.rcParams.update({
+    'font.family':'serif',
+    'font.serif':['Palatino','Georgia','Times New Roman','DejaVu Serif'],
+    'font.size':11,
+    'axes.labelsize':12,
+    'axes.titlesize':11,
+    'legend.fontsize':9.5,
+    'axes.spines.top':False,
+    'axes.spines.right':False,
+    'axes.grid':True,
+    'grid.alpha':0.22,
+    'grid.linewidth':0.5,
+    'figure.dpi':150,
+    'lines.linewidth':2.0,
+    'xtick.direction':'in',
+    'ytick.direction':'in',
+})
+
 
 def fig_hydrogen_radial_overlap():
     """
