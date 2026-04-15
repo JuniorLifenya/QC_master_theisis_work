@@ -35,7 +35,7 @@ plt.rcParams.update({
 # ----------------------------------------------------------------------
 h_amp = 0.5          # GW amplitude (exaggerated for visibility)
 omega = 2.0 * np.pi  # angular frequency (cycles per unit time)
-pol = 'plus'         # choose 'plus' or 'cross'
+pol = 'cross'         # choose 'plus' or 'cross'
 
 # Grid: 5x5x5 points in a cube [-1,1]^3
 x = np.linspace(-1, 1, 5)
