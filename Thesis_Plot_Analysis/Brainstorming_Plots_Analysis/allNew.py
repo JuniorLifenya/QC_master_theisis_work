@@ -416,6 +416,7 @@ def fig_gw_strain_waterfall():
     plt.tight_layout()
     plt.savefig('figures/gw_strain_waterfall.png', dpi=300, bbox_inches='tight',
                 facecolor='#0a0a18')
+    plt.show()
     plt.close()
     print('saved: figures/gw_strain_waterfall.png')
 
