@@ -50,7 +50,7 @@ for col_idx, (title, kwargs) in enumerate([
 ]):
     ax = fig.add_subplot(1,2,col_idx+1, projection='3d')
     Xd,Yd = deform(X0,Y0,**kwargs)
-    draw_grid(ax, X0, Y0, Z0, 'gray', 0.20, 0.8, 'Unperturbed coords')
+    draw_grid(ax, X0, Y0, Z0, 'black', 0.80, 0.9, 'Unperturbed coords')
     draw_grid(ax, Xd, Yd, Z0, '#2171B5' if col_idx==0 else '#E31A1C',
               0.85, 1.6, 'Deformed coords')
     draw_tetrad(ax)
@@ -63,4 +63,5 @@ for col_idx, (title, kwargs) in enumerate([
 
 plt.tight_layout()
 plt.savefig('figures/fig_ch2_tetrad_shear.png', dpi=200, bbox_inches='tight')
+plt.show()
 print("Saved: figures/fig_ch2_tetrad_shear.png")
