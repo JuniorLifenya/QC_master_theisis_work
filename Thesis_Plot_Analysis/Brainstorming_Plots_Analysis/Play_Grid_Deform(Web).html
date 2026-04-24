@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tetrad Deformation by Gravitational Wave</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #info {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(0,0,0,0.7); color: white; padding: 15px 25px;
+            border-radius: 8px; pointer-events: none; z-index: 10;
+            backdrop-filter: blur(5px);
+            font-size: 14px;
+        }
+        #controls {
+            position: absolute; bottom: 20px; left: 20px;
+            background: rgba(0,0,0,0.7); color: white; padding: 12px 20px;
+            border-radius: 8px; display: flex; gap: 25px; z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+        input { cursor: pointer; width: 200px; }
+        label { font-size: 12px; margin-right: 8px; }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="info">
+        <h2>Tetrad Deformation by a Gravitational Wave</h2>
+        <p>Global coordinate grid (grey) shears; local orthonormal tetrads (RGB) remain rigid.<br>
+        This visualises the need for the spin connection ω<sub>μ</sub><sup>ab</sup>.</p>
+    </div>
+    <div id="controls">
+        <div>
+            <label>GW Phase (ωt):</label>
+            <input type="range" id="phase" min="0" max="6.283" step="0.05" value="0">
+            <span id="phase-val">0.00</span>
+        </div>
+        <div>
+            <label>Strain amplitude h:</label>
+            <input type="range" id="h-amp" min="0" max="0.8" step="0.01" value="0.4">
+            <span id="h-val">0.40</span>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- Setup scene ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x111111);
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(4, 3, 5);
+        camera.lookAt(0, 0, 0);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // --- Parameters ---
+        const size = 2.0;
+        const divisions = 5;
+        const step = size / divisions;
+        let h_amp = 0.4;
+        let phase = 0;
+
+        // --- Helper: create a line from two points ---
+        function createLine(p1, p2, color, linewidth = 1) {
+            const points = [p1, p2];
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({ color: color, linewidth: linewidth });
+            return new THREE.Line(geometry, material);
+        }
+
+        // --- Global grid (static grey lines) ---
+        const globalLines = [];
+        for (let i = -divisions/2; i <= divisions/2; i++) {
+            for (let j = -divisions/2; j <= divisions/2; j++) {
+                // lines along z
+                const p1 = new THREE.Vector3(i*step, j*step, -size/2);
+                const p2 = new THREE.Vector3(i*step, j*step,  size/2);
+                globalLines.push(createLine(p1, p2, 0x888888, 1));
+            }
+        }
+        for (let i = -divisions/2; i <= divisions/2; i++) {
+            for (let k = -divisions/2; k <= divisions/2; k++) {
+                // lines along y
+                const p1 = new THREE.Vector3(i*step, -size/2, k*step);
+                const p2 = new THREE.Vector3(i*step,  size/2, k*step);
+                globalLines.push(createLine(p1, p2, 0x888888, 1));
+            }
+        }
+        for (let j = -divisions/2; j <= divisions/2; j++) {
+            for (let k = -divisions/2; k <= divisions/2; k++) {
+                // lines along x
+                const p1 = new THREE.Vector3(-size/2, j*step, k*step);
+                const p2 = new THREE.Vector3( size/2, j*step, k*step);
+                globalLines.push(createLine(p1, p2, 0x888888, 1));
+            }
+        }
+        globalLines.forEach(line => scene.add(line));
+
+        // --- Deformed grid lines (will be updated) ---
+        const deformedLines = [];
+        // We'll store the line objects and their original endpoint indices
+        // For simplicity, we'll recreate the lines each frame (cheap enough).
+        function updateDeformedGrid() {
+            // Remove old deformed lines
+            deformedLines.forEach(line => scene.remove(line));
+            deformedLines.length = 0;
+
+            const cosPhase = Math.cos(phase);
+            const h = h_amp;
+            // Deformation function for a point
+            function deform(p) {
+                const x = p.x, y = p.y, z = p.z;
+                const dx = 0.5 * h * cosPhase * x;
+                const dy = -0.5 * h * cosPhase * y;
+                const dz = 0;
+                return new THREE.Vector3(x + dx, y + dy, z + dz);
+            }
+
+            // Lines along z (constant i,j)
+            for (let i = -divisions/2; i <= divisions/2; i++) {
+                for (let j = -divisions/2; j <= divisions/2; j++) {
+                    const p1 = new THREE.Vector3(i*step, j*step, -size/2);
+                    const p2 = new THREE.Vector3(i*step, j*step,  size/2);
+                    const d1 = deform(p1);
+                    const d2 = deform(p2);
+                    const line = createLine(d1, d2, 0x3a86ff, 2);
+                    scene.add(line);
+                    deformedLines.push(line);
+                }
+            }
+            // Lines along y (constant i,k)
+            for (let i = -divisions/2; i <= divisions/2; i++) {
+                for (let k = -divisions/2; k <= divisions/2; k++) {
+                    const p1 = new THREE.Vector3(i*step, -size/2, k*step);
+                    const p2 = new THREE.Vector3(i*step,  size/2, k*step);
+                    const d1 = deform(p1);
+                    const d2 = deform(p2);
+                    const line = createLine(d1, d2, 0x3a86ff, 2);
+                    scene.add(line);
+                    deformedLines.push(line);
+                }
+            }
+            // Lines along x (constant j,k)
+            for (let j = -divisions/2; j <= divisions/2; j++) {
+                for (let k = -divisions/2; k <= divisions/2; k++) {
+                    const p1 = new THREE.Vector3(-size/2, j*step, k*step);
+                    const p2 = new THREE.Vector3( size/2, j*step, k*step);
+                    const d1 = deform(p1);
+                    const d2 = deform(p2);
+                    const line = createLine(d1, d2, 0x3a86ff, 2);
+                    scene.add(line);
+                    deformedLines.push(line);
+                }
+            }
+
+            // Update tetrad arrows at selected points (e.g., at (step, step, step) and (-step, -step, step))
+            updateTetrads();
+        }
+
+        // --- Tetrad arrows (rigid, orthonormal) ---
+        const tetradPoints = [
+            new THREE.Vector3( step,  step,  step),
+            new THREE.Vector3(-step, -step,  step),
+            new THREE.Vector3( step, -step, -step)
+        ];
+        const tetradArrows = [];
+        const colors = [0xff3333, 0x33ff33, 0x3399ff];
+
+        function createTetradAt(pos) {
+            const group = new THREE.Group();
+            const origin = pos.clone();
+            // ArrowHelper(direction, origin, length, color, headLength, headWidth)
+            const arrowX = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), origin, 0.6, colors[0], 0.2, 0.1);
+            const arrowY = new THREE.ArrowHelper(new THREE.Vector3(0,1,0), origin, 0.6, colors[1], 0.2, 0.1);
+            const arrowZ = new THREE.ArrowHelper(new THREE.Vector3(0,0,1), origin, 0.6, colors[2], 0.2, 0.1);
+            group.add(arrowX, arrowY, arrowZ);
+            return group;
+        }
+
+        function updateTetrads() {
+            // Remove old
+            tetradArrows.forEach(arr => scene.remove(arr));
+            tetradArrows.length = 0;
+            const cosPhase = Math.cos(phase);
+            const h = h_amp;
+            function deform(p) {
+                const x = p.x, y = p.y, z = p.z;
+                const dx = 0.5 * h * cosPhase * x;
+                const dy = -0.5 * h * cosPhase * y;
+                const dz = 0;
+                return new THREE.Vector3(x + dx, y + dy, z + dz);
+            }
+            tetradPoints.forEach(pos => {
+                const defPos = deform(pos);
+                const group = new THREE.Group();
+                // Arrows remain orthonormal (rigid) – they point along global axes
+                const arrowX = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), defPos, 0.6, colors[0], 0.2, 0.1);
+                const arrowY = new THREE.ArrowHelper(new THREE.Vector3(0,1,0), defPos, 0.6, colors[1], 0.2, 0.1);
+                const arrowZ = new THREE.ArrowHelper(new THREE.Vector3(0,0,1), defPos, 0.6, colors[2], 0.2, 0.1);
+                group.add(arrowX, arrowY, arrowZ);
+                scene.add(group);
+                tetradArrows.push(group);
+            });
+        }
+
+        // Initial update
+        updateDeformedGrid();
+
+        // --- UI event listeners ---
+        const phaseSlider = document.getElementById('phase');
+        const phaseVal = document.getElementById('phase-val');
+        const hSlider = document.getElementById('h-amp');
+        const hVal = document.getElementById('h-val');
+
+        phaseSlider.addEventListener('input', (e) => {
+            phase = parseFloat(e.target.value);
+            phaseVal.innerText = phase.toFixed(2);
+            updateDeformedGrid();
+        });
+        hSlider.addEventListener('input', (e) => {
+            h_amp = parseFloat(e.target.value);
+            hVal.innerText = h_amp.toFixed(2);
+            updateDeformedGrid();
+        });
+
+        // --- Animation loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
+
