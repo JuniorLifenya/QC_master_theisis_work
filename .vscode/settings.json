@@ -14,13 +14,17 @@
         "linalg",
         "linestyle",
         "mesolve",
+        "mplot",
         "NVGW",
         "qiskit",
         "Qobj",
         "qodo",
+        "quiv",
         "qutip",
         "qzero",
-        "Spinor"
+        "Spinor",
+        "toolkits",
+        "ylim"
     ],
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
