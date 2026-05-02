@@ -12,50 +12,20 @@ def deform(X, Y, hp=0.0, hc=0.0):
     """
     Return (X', Y') — the coordinates of a flat grid after a linearised GW
     perturbation acts on it.
-
-    For a plus-polarised wave  (hp ≠ 0, hc = 0):
-        x' = x + ½ hp x      (stretches along x)
-        y' = y − ½ hp y      (compresses along y)
-
-    For a cross-polarised wave (hp = 0, hc ≠ 0):
-        x' = x + ½ hc y      (mixes x and y — eigendirections are at ±45°)
-        y' = y + ½ hc x
-
-    The combined formula handles both simultaneously.  The factor of ½ comes
-    directly from linearised GR: the coordinate displacement of a test mass is
-        δx^i = ½ h^i_j x^j
-    (see e.g. Maggiore, "Gravitational Waves" Vol.1, §1.4).
     """
-    Xd = X + 0.5 * (hp * X + hc * Y)
-    Yd = Y + 0.5 * (hc * X - hp * Y)
+    Xd = X + 0.6* (hp * X + hc * Y)
+    Yd = Y + 0.6 * (hc * X - hp * Y)
     return Xd, Yd
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 2.  Grid drawing helper
 # ─────────────────────────────────────────────────────────────────────────────
 def draw_grid(ax, X0, Y0, Z0, hp=0.0, hc=0.0,
-              color="dimgray",   # FIX 1: was "dimred" — not a valid colour
-              alpha=0.45, lw=0.85, label=None):
-    """
-    Draw a deformed 3-D grid on `ax`.
-
-    X0, Y0, Z0 are shape-(N, N, N) arrays from np.meshgrid(..., indexing='ij').
-    Only X and Y are deformed (GWs are transverse; z is the propagation axis).
-
-    Three families of lines are drawn:
-        Loop 1  — lines parallel to z, at each fixed (i, j) node.
-                  These are the "vertical poles" of the lattice.
-        Loop 2  — lines parallel to y, at each fixed (i, k) node.
-                  These are the "rungs" along the y direction.
-        Loop 3  — lines parallel to x, at each fixed (j, k) node.
-                  These are the "rungs" along the x direction.
-    """
+              color="dimgray", alpha=0.45, lw=0.85, label=None):
     Xd, Yd = deform(X0, Y0, hp=hp, hc=hc)
-
     first = True
 
-    # --- family 1: z-parallel lines (vary k, fix i and j) ---
+    # z-parallel lines
     for i in range(Xd.shape[0]):
         for j in range(Xd.shape[1]):
             ax.plot(Xd[i, j, :], Yd[i, j, :], Z0[i, j, :],
@@ -63,177 +33,115 @@ def draw_grid(ax, X0, Y0, Z0, hp=0.0, hc=0.0,
                     label=label if first else None)
             first = False
 
-    # --- family 2: y-parallel lines (vary j, fix i and k) ---
+    # y-parallel lines
     for i in range(Xd.shape[0]):
         for k in range(Xd.shape[2]):
             ax.plot(Xd[i, :, k], Yd[i, :, k], Z0[i, :, k],
                     color=color, alpha=alpha, lw=lw)
 
-    # --- family 3: x-parallel lines (vary i, fix j and k) ---
+    # x-parallel lines
     for j in range(Xd.shape[1]):
         for k in range(Xd.shape[2]):
-            # FIX 2: was Xd[:j, k] — that means "first j rows", NOT "all rows
-            # at column (j, k)".  The correct slice is Xd[:, j, k].
             ax.plot(Xd[:, j, k], Yd[:, j, k], Z0[:, j, k],
                     color=color, alpha=alpha, lw=lw)
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 3.  Tetrad arrow helper
 # ─────────────────────────────────────────────────────────────────────────────
 def quiv(ax, origin, vecs, cols, labs, lw=2.8, alpha=1.0, ls="-"):
-    """
-    Draw a set of arrows (tetrad legs) from `origin`.
-
-    Parameters
-    ----------
-    vecs  : list of 3-vectors — the tetrad basis legs \hat{e}_a.
-    cols  : matching list of colours.
-    labs  : matching list of legend labels.
-    ls    : linestyle ('-' for solid native frame, '--' for transported frame).
-    """
     O = np.asarray(origin, float)
     for v, c, lb in zip(vecs, cols, labs):
-        ax.quiver(*O, *v,
-                  color=c, lw=lw, alpha=alpha,
-                  arrow_length_ratio=0.18,
-                  linestyle=ls,
-                  label=lb)
-
+        ax.quiver(*O, *v, color=c, lw=lw, alpha=alpha,
+                  arrow_length_ratio=0.18, linestyle=ls, label=lb)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 4.  Physical parameters
+# 4.  Master Plotting Function
 # ─────────────────────────────────────────────────────────────────────────────
-h = 0.45   # GW strain — exaggerated ~10^20× for visual clarity
-L = 1.05   # Arrow (tetrad leg) length in plot units
+def plot_gw_polarization(pol_type="plus"):
+    h = 0.6   # GW strain
+    L = 1.2    # Arrow length
+    
+    pts = np.linspace(-1, 1, 4)
+    X0, Y0, Z0 = np.meshgrid(pts, pts, pts, indexing="ij")
+    
+    fig = plt.figure(figsize=(14, 6.4))
+    fig.patch.set_facecolor('#F7F7F7')
+    ELEV, AZIM = 24, 40
+    O = np.zeros(3)
+    SOLID = ("crimson", "forestgreen", "royalblue")
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 5.  Point A  — h₊ polarisation
-#     Spatial metric perturbation: δg = diag(h, −h, 0)
-#     Eigenvectors are the coordinate axes; vierbein legs aligned with x, y, z.
-# ─────────────────────────────────────────────────────────────────────────────
-e1A = np.array([1.0, 0.0, 0.0]) * L   # stretched along x
-e2A = np.array([0.0, 1.0, 0.0]) * L   # compressed along y
-e3A = np.array([0.0, 0.0, 1.0]) * L   # propagation axis — unaffected
+    if pol_type == "plus":
+        fig.suptitle(r"Gravitational Wave: $h_+$ Polarisation in 3D", 
+                     fontsize=14, fontweight="bold", y=0.95)
+        
+        # Vectors aligned with x and y axes
+        e1 = np.array([1.0, 0.0, 0.0]) * L
+        e2 = np.array([0.0, 1.0, 0.0]) * L
+        e3 = np.array([0.0, 0.0, 1.0]) * L
+        
+        # Left Panel: Phase 0 (Stretch X, Compress Y)
+        hp_left, hc_left = h, 0.0
+        title_left = r"Phase $0$: Stretched along $x$, Compressed along $y$"
+        
+        # Right Panel: Phase pi (Compress X, Stretch Y)
+        hp_right, hc_right = -h, 0.0
+        title_right = r"Phase $\pi$: Compressed along $x$, Stretched along $y$"
+        
+        labels = [r"$\hat{e}_{1}$ (x-axis)", r"$\hat{e}_{2}$ (y-axis)", r"$\hat{e}_{3}$ (z-axis)"]
+        filename = "fig_ch2_h_plus_polarisation.png"
 
-e1B = np.array([0.0, 1.0, 0.0]) * L   # stretched along y
-e2B = np.array([1.0, 0.0, 0.0]) * L   # compressed along x
-e3B = np.array([0.0, 0.0, 1.0]) * L   # propagation axis — unaffected
+    elif pol_type == "cross":
+        fig.suptitle(r"Gravitational Wave: $h_\times$ Polarisation in 3D", 
+                     fontsize=14, fontweight="bold", y=0.95)
+        
+        # Vectors aligned at +/- 45 degrees
+        e1 = np.array([1.0, 1.0, 0.0]) / np.sqrt(2) * L
+        e2 = np.array([1.0, -1.0, 0.0]) / np.sqrt(2) * L
+        e3 = np.array([0.0, 0.0, 1.0]) * L
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 6.  Point B  — h× polarisation
-#     Spatial metric perturbation: δg_xy = δg_yx = h.
-#     The 2×2 block [[1, h],[h, 1]] has eigenvalues 1±h and eigenvectors
-#     (1, ±1)/√2 — i.e. at ±45° in the xy-plane.
-# ─────────────────────────────────────────────────────────────────────────────
-e1C = np.array([ 1.0,  1.0, 0.0]) / np.sqrt(2) * L   # +45° direction
-e2C = np.array([ 1.0, -1.0, 0.0]) / np.sqrt(2) * L   # −45° direction
-e3C = np.array([ 0.0,  0.0, 1.0]) * L
+        # Left Panel: Phase 0 (Stretch +45°, Compress -45°)
+        hp_left, hc_left = 0.0, h
+        title_left = r"Phase $0$: Stretched along $+45^\circ$, Compressed along $-45^\circ$"
+        
+        # Right Panel: Phase pi (Compress +45°, Stretch -45°)
+        hp_right, hc_right = 0.0, -h
+        title_right = r"Phase $\pi$: Compressed along $+45^\circ$, Stretched along $-45^\circ$"
+        
+        labels = [r"$\hat{e}_{1}$ ($+45^\circ$)", r"$\hat{e}_{2}$ ($-45^\circ$)", r"$\hat{e}_{3}$ (z-axis)"]
+        filename = "fig_ch2_h_cross_polarisation.png"
 
-# Colour pairs: solid for native frame, dashed for transported frame
-SOLID  = ("crimson",  "forestgreen", "royalblue")
-DASHED = ("darkred",  "darkgreen",   "navy")
+    # --- Plot Left Panel ---
+    ax1 = fig.add_subplot(1, 2, 1, projection="3d")
+    draw_grid(ax1, X0, Y0, Z0, color="black", alpha=0.8, lw=0.80, label=r"Unperturbed Grid")
+    draw_grid(ax1, X0, Y0, Z0, hp=hp_left, hc=hc_left, color="#108273", alpha=0.9, lw=1.55, label=r"Deformed Grid")
+    quiv(ax1, O, [e1, e2, e3], SOLID, labels)
+    ax1.set_title(title_left, fontsize=11, pad=6)
+    
+    # --- Plot Right Panel ---
+    ax2 = fig.add_subplot(1, 2, 2, projection="3d")
+    draw_grid(ax2, X0, Y0, Z0, color="black", alpha=0.8, lw=0.80, label=r"Unperturbed Grid")
+    draw_grid(ax2, X0, Y0, Z0, hp=hp_right, hc=hc_right, color="#0A7660", alpha=0.9, lw=1.55, label=r"Deformed Grid")
+    quiv(ax2, O, [e1, e2, e3], SOLID, labels)
+    ax2.set_title(title_right, fontsize=11, pad=6)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 7.  Build the 3-D grid
-#     np.meshgrid with indexing='ij' returns arrays of shape (N, N, N) where
-#     X0[i,j,k] = pts[i], Y0[i,j,k] = pts[j], Z0[i,j,k] = pts[k].
-# ─────────────────────────────────────────────────────────────────────────────
-pts = np.linspace(-1, 1, 4)
-X0, Y0, Z0 = np.meshgrid(pts, pts, pts, indexing="ij")
+    # --- Apply formatting to both ---
+    for ax in [ax1, ax2]:
+        ax.scatter(*O, s=50, color="black", zorder=10)
+        ax.set_xlim(-1.5, 1.5); ax.set_ylim(-1.5, 1.5); ax.set_zlim(-1.5, 1.5)
+        ax.set_xlabel(r"$x$"); ax.set_ylabel(r"$y$"); ax.set_zlabel(r"$z$")
+        ax.view_init(elev=ELEV, azim=AZIM)
+        hl, ll = ax.get_legend_handles_labels()
+        ax.legend(hl, ll, loc="upper left", fontsize=8)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 8.  Figure layout
-# ─────────────────────────────────────────────────────────────────────────────
-fig = plt.figure(figsize=(14, 6.4))
-fig.patch.set_facecolor('#F7F7F7')
-fig.suptitle(
-    r"Spin Connection $\omega_\mu^{\ ab}$: Local Lorentz Frame Transport"
-    r" ($h_+ \to h_\times$, phase $\Delta\phi = \pi/2$)",
-    fontsize=13, fontweight="bold", y=0.975)
-
-ELEV, AZIM = 24, 40
-O = np.zeros(3)   # origin for all arrows
-
-# ─────────────────────────────────────────────────────────────────────────────
-# 9.  LEFT panel — Point A  (h₊ frame)
-# ─────────────────────────────────────────────────────────────────────────────
-ax1 = fig.add_subplot(1, 2, 1, projection="3d")
-
-draw_grid(ax1, X0, Y0, Z0,
-          color="orange", alpha=0.75, lw=0.80,
-          label=r"Unperturbed $g^{(0)}_{\mu\nu}$")
-
-draw_grid(ax1, X0, Y0, Z0, hp=h,
-          color="#108273", alpha=0.88, lw=1.55,
-          label=r"$h_+$ deformed metric")
-
-# FIX 3: original string r"$\hat{e}_{\hat 3 (A)$: along $\hat z$}" had an unclosed
-# brace and a stray } at the end.  Corrected to r"$\hat{e}_{3}(A)$: ...".
-quiv(ax1, O, [e1A, e2A, e3A], SOLID,
-     [r"$\hat{e}_{{1}}(A)$: along $\hat{x}$ (stretched)",
-      r"$\hat{e}_{{2}}(A)$: along $\hat{y}$ (compressed)",
-      r"$\hat{e}_{{3}}(A)$: along $\hat{z}$"])
-
-for v, c, lbl in zip([e1A, e2A, e3A], SOLID,
-                     [r"$\hat{e}_{1}$", r"$\hat{e}_{2}$", r"$\hat{e}_{3}$"]):
-    ax1.text(*(v * 1.13 + O), lbl, fontsize=10, color=c, fontweight="bold")
-
-ax1.scatter(*O, s=70, color="black", zorder=10)
-ax1.text(0.06, 0.06, 1.40, r"$A$", fontsize=14, fontweight="bold", color="#111")
-
-ax1.set_title(
-    r"Point $A$: $h_+$ polarisation ($h_{xx} = -h_{yy} = h$)" + "\n"
-    r"Native vierbein aligned with coordinate axes",
-    fontsize=10, pad=6)
-ax1.set_xlim(-1.5, 1.5); ax1.set_ylim(-1.5, 1.5); ax1.set_zlim(-1.5, 1.5)
-ax1.set_xlabel(r"$x$"); ax1.set_ylabel(r"$y$"); ax1.set_zlabel(r"$z$")
-ax1.view_init(elev=ELEV, azim=AZIM)
-hl, ll = ax1.get_legend_handles_labels()
-ax1.legend(hl, ll, loc="upper left", fontsize=7.5)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    filepath = os.path.join("Thesis_Ready_Plots", filename)
+    plt.savefig(filepath, dpi=420, bbox_inches="tight")
+    print(f"Saved: {filepath}")
+    plt.show()
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 10. RIGHT panel — Point B  (h× frame + transported A-frame)
+# 5.  Execute
 # ─────────────────────────────────────────────────────────────────────────────
-ax2 = fig.add_subplot(1, 2, 2, projection="3d")
-
-draw_grid(ax2, X0, Y0, Z0,
-          color="orange", alpha=0.75, lw=0.75,
-          label=r"Unperturbed $g^{(0)}_{\mu\nu}$")
-
-draw_grid(ax2, X0, Y0, Z0, hc=h,
-          color="#0A7660", alpha=0.90, lw=1.55,
-          label=r"$h_\times$ deformed metric")
-
-# Native tetrad at B  (solid lines)
-quiv(ax2, O, [e1B, e2B, e3B], SOLID,
-     [r"$\hat{e}_{1}(B)$: along $+45°$",
-      r"$\hat{e}_{2}(B)$: along $-45°$",
-      r"$\hat{e}_{3}(B)$"],
-     lw=2.8, alpha=1.0, ls="-")
-
-
-# ── Spin-connection arc in the xy-plane (0° → 45°) ───────────────────────────
-# This arc represents the SO(1,3) Lie-algebra element ω·dx that rotates the
-# naively-transported frame (dashed) onto the native frame at B (solid).
-
-ax2.set_title(
-    r"Point $B$: $h_\times$ polarisation ($h_{xy}=h_{yx}=h$)" + "\n"
-    r"Solid = native $\hat{e}_{a}(B)$;  Dashed = bare-transported $\tilde{e}_{a}$",
-    fontsize=10, pad=6)
-ax2.set_xlim(-1.5, 1.5); ax2.set_ylim(-1.5, 1.5); ax2.set_zlim(-1.5, 1.5)
-ax2.set_xlabel(r"$x$"); ax2.set_ylabel(r"$y$"); ax2.set_zlabel(r"$z$")
-ax2.view_init(elev=ELEV, azim=AZIM)
-hl2, ll2 = ax2.get_legend_handles_labels()
-ax2.legend(hl2, ll2, loc="upper left", fontsize=7.2)
-
-# ─────────────────────────────────────────────────────────────────────────────
-# 11. Footer caption
-# ─────────────────────────────────────────────────────────────────────────────
-
-plt.tight_layout(rect=[0, 0.045, 1, 0.965])
-
-plt.savefig("Thesis_Ready_Plots/3D_Box_Polarization.png",
-            dpi=420, bbox_inches="tight")
-plt.show()
-print("Saved to Thesis_Ready_Plots/fig_ch2_spin_connection_transport.png")
+if __name__ == "__main__":
+    plot_gw_polarization(pol_type="plus")
+    plot_gw_polarization(pol_type="cross")
