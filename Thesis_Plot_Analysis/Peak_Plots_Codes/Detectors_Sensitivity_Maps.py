@@ -127,6 +127,6 @@ ax.text(0.03, 0.05, param_text, transform=ax.transAxes, fontsize=10,
         verticalalignment='bottom', bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.9, edgecolor='gray'))
 
 plt.tight_layout()
-plt.savefig("figures/quantum_sensitivity_map.pdf", dpi=300, bbox_inches='tight')
+# plt.savefig("figures/quantum_sensitivity_map.pdf", dpi=300, bbox_inches='tight')
 plt.show()
 print("Saved: figures/quantum_sensitivity_map.pdf")

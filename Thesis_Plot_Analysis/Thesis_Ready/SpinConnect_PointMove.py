@@ -132,7 +132,7 @@ ax.scatter(*pos_A, color = "black", s = 50)
 ax.text(pos_A[0], pos_A[1], pos_A[2] + 0.2, "Point A\n (Native Tetrad) ", fontsize = 10, fontweight = 'bold', ha = 'center')
 
 ax.scatter(*pos_B, color = "black", s = 50)
-ax.text(pos_B[0], pos_B[1], pos_B[2] + 0.3, "Point B", fontsize = 10, fontweight = 'bold', ha = 'center')
+ax.text(pos_B[0], pos_B[1]+0.4, pos_B[2] + 0.8, "Point B", fontsize = 10, fontweight = 'bold', ha = 'center')
 
 # Draw Tetrads
 # 1. Native Tetrad at A

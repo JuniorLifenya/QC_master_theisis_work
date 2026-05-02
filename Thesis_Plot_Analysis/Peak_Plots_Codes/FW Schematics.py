@@ -22,12 +22,6 @@ plt.rcParams.update({'font.family':'serif','font.size':12,
     'axes.grid':True,'grid.alpha':0.3,'lines.linewidth':2.0,'figure.dpi':150})
 
 
-
-
-
-
-
-
 def fig_fw_schematic():
     fig,axes = plt.subplots(1,3,figsize=(13,4.5))
     def dm(ax,data,title):
