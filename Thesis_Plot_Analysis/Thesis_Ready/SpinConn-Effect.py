@@ -87,7 +87,7 @@ def quiv(ax, origin, vecs, cols, labs, lw=2.8, alpha=1.0, ls="-"):
 
     Parameters
     ----------
-    vecs  : list of 3-vectors — the tetrad basis legs e_a.
+    vecs  : list of 3-vectors — the tetrad basis legs \hat{e}_a.
     cols  : matching list of colours.
     labs  : matching list of legend labels.
     ls    : linestyle ('-' for solid native frame, '--' for transported frame).
@@ -157,22 +157,22 @@ O = np.zeros(3)   # origin for all arrows
 ax1 = fig.add_subplot(1, 2, 1, projection="3d")
 
 draw_grid(ax1, X0, Y0, Z0,
-          color="black", alpha=0.45, lw=0.80,
+          color="black", alpha=0.55, lw=0.80,
           label=r"Unperturbed $g^{(0)}_{\mu\nu}$")
 
 draw_grid(ax1, X0, Y0, Z0, hp=h,
-          color='#2171B5', alpha=0.88, lw=1.55,
+          color="#108273", alpha=0.88, lw=1.55,
           label=r"$h_+$ deformed metric")
 
-# FIX 3: original string r"$e_{\hat 3 (A)$: along $\hat z$}" had an unclosed
-# brace and a stray } at the end.  Corrected to r"$e_{\hat{3}}(A)$: ...".
+# FIX 3: original string r"$\hat{e}_{\hat 3 (A)$: along $\hat z$}" had an unclosed
+# brace and a stray } at the end.  Corrected to r"$\hat{e}_{3}(A)$: ...".
 quiv(ax1, O, [e1A, e2A, e3A], SOLID,
-     [r"$e_{\hat{1}}(A)$: along $\hat{x}$ (stretched)",
-      r"$e_{\hat{2}}(A)$: along $\hat{y}$ (compressed)",
-      r"$e_{\hat{3}}(A)$: along $\hat{z}$"])
+     [r"$\hat{e}_{{1}}(A)$: along $\hat{x}$ (stretched)",
+      r"$\hat{e}_{{2}}(A)$: along $\hat{y}$ (compressed)",
+      r"$\hat{e}_{{3}}(A)$: along $\hat{z}$"])
 
 for v, c, lbl in zip([e1A, e2A, e3A], SOLID,
-                     [r"$e_{\hat{1}}$", r"$e_{\hat{2}}$", r"$e_{\hat{3}}$"]):
+                     [r"$\hat{e}_{1}$", r"$\hat{e}_{2}$", r"$\hat{e}_{3}$"]):
     ax1.text(*(v * 1.13 + O), lbl, fontsize=10, color=c, fontweight="bold")
 
 ax1.scatter(*O, s=70, color="black", zorder=10)
@@ -194,30 +194,30 @@ ax1.legend(hl, ll, loc="upper left", fontsize=7.5)
 ax2 = fig.add_subplot(1, 2, 2, projection="3d")
 
 draw_grid(ax2, X0, Y0, Z0,
-          color="black", alpha=0.45, lw=0.75,
+          color="black", alpha=0.65, lw=0.75,
           label=r"Unperturbed $g^{(0)}_{\mu\nu}$")
 
 draw_grid(ax2, X0, Y0, Z0, hc=h,
-          color="#1EC4A3", alpha=0.90, lw=1.55,
+          color="#0A7660", alpha=0.90, lw=1.55,
           label=r"$h_\times$ deformed metric")
 
 # Native tetrad at B  (solid lines)
 quiv(ax2, O, [e1B, e2B, e3B], SOLID,
-     [r"$e_{\hat{1}}(B)$: along $+45°$",
-      r"$e_{\hat{2}}(B)$: along $-45°$",
-      r"$e_{\hat{3}}(B)$"],
+     [r"$\hat{e}_{1}(B)$: along $+45°$",
+      r"$\hat{e}_{2}(B)$: along $-45°$",
+      r"$\hat{e}_{3}(B)$"],
      lw=2.8, alpha=1.0, ls="-")
 
 for v, c, lbl in zip([e1B, e2B, e3B], SOLID,
-                     [r"$e_{\hat{1}}(B)$", r"$e_{\hat{2}}(B)$", r"$e_{\hat{3}}(B)$"]):
+                     [r"$\hat{e}_{1}(B)$", r"$\hat{e}_{2}(B)$", r"$\hat{e}_{3}(B)$"]):
     ax2.text(*(v * 1.15 + O), lbl, fontsize=9, color=c, fontweight="bold")
 
 # Transported frame from A, arriving without spin-connection correction (dashed)
 quiv(ax2, O, [e1A, e2A, e3A], DASHED,
-     [r"$\tilde{e}_{\hat{1}}$: transported from $A$ (no $\omega$)",
-      r"$\tilde{e}_{\hat{2}}$: transported from $A$",
-      r"$\tilde{e}_{\hat{3}}$: unchanged"],
-     lw=1.9, alpha=0.60, ls="--")
+     [r"$\tilde{e}_{1}$: transported from $A$ (no $\omega$)",
+      r"$\tilde{e}_{2}$: transported from $A$",
+      r"$\tilde{e}_{3}$: unchanged"],
+     lw=1.9, alpha=0.80, ls="--")
 
 # ── Spin-connection arc in the xy-plane (0° → 45°) ───────────────────────────
 # This arc represents the SO(1,3) Lie-algebra element ω·dx that rotates the
@@ -236,16 +236,16 @@ ax2.quiver(r_arc * np.cos(theta[-1] - dt),
             r_arc * np.cos(theta[-1]) * dt * 6, 0,
            color="darkorange", arrow_length_ratio=5.0, lw=3.2, zorder=21)
 
-ax2.text(r_arc * np.cos(np.pi / 8) * 1.25,
-         r_arc * np.sin(np.pi / 8) * 1.15, 0.25,
+ax2.text(r_arc * np.cos(np.pi / 8) * 1.85,
+         r_arc * np.sin(np.pi / 8) * 1.75, 0.25,
          r"$\omega\cdot dx$", fontsize=9.5, color="darkorange", fontweight="bold")
 
 ax2.scatter(*O, s=70, color="black", zorder=10)
-ax2.text(0.06, 0.06, 1.40, r"$B$", fontsize=14, fontweight="bold", color="#111")
+ax2.text(0.09, 0.06, 1.40, r"$B$", fontsize=14, fontweight="bold", color="#111")
 
 ax2.set_title(
     r"Point $B$: $h_\times$ polarisation ($h_{xy}=h_{yx}=h$)" + "\n"
-    r"Solid = native $e_{\hat{a}}(B)$;  Dashed = bare-transported $\tilde{e}_{\hat{a}}$",
+    r"Solid = native $\hat{e}_{a}(B)$;  Dashed = bare-transported $\tilde{e}_{a}$",
     fontsize=10, pad=6)
 ax2.set_xlim(-1.5, 1.5); ax2.set_ylim(-1.5, 1.5); ax2.set_zlim(-1.5, 1.5)
 ax2.set_xlabel(r"$x$"); ax2.set_ylabel(r"$y$"); ax2.set_zlabel(r"$z$")
@@ -256,19 +256,10 @@ ax2.legend(hl2, ll2, loc="upper left", fontsize=7.2)
 # ─────────────────────────────────────────────────────────────────────────────
 # 11. Footer caption
 # ─────────────────────────────────────────────────────────────────────────────
-fig.text(
-    0.5, 0.008,
-    r"As the GW propagates by $\Delta\phi=\pi/2$, the natural vierbein rotates "
-    r"$45°$ in the transverse plane.  The spin connection $\omega_\mu^{\ ab}$ is the "
-    r"$\mathrm{SO}(1,3)$ Lie-algebra element (orange arc) mapping "
-    r"$\tilde{e}_{\hat{a}}$ (dashed, naive transport) onto $e_{\hat{a}}(B)$ (solid). "
-    r"Its antisymmetry $\omega_{\mu ab}=-\omega_{\mu ba}$ reflects the Lorentz-rotation structure; "
-    r"looping $\omega$ encodes curvature via $R^{ab}=d\omega^{ab}+\omega^{ac}\wedge\omega_c{}^b$.",
-    ha="center", fontsize=8.5, color="#333", style="italic")
 
 plt.tight_layout(rect=[0, 0.045, 1, 0.965])
 
 plt.savefig("Thesis_Ready_Plots/fig_ch2_spin_connection_transport.png",
-            dpi=220, bbox_inches="tight")
+            dpi=420, bbox_inches="tight")
 plt.show()
 print("Saved to Thesis_Ready_Plots/fig_ch2_spin_connection_transport.png")
