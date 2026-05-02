@@ -76,6 +76,7 @@ ax.text(0.02, 0.06,
         bbox=dict(facecolor='white', alpha=0.85, edgecolor='gray'))
 
 plt.tight_layout()
+plt.show()
 plt.savefig('figures/fig_ch5_sensitivity_map.png', dpi=200, bbox_inches='tight')
 print("Saved: figures/fig_ch5_sensitivity_map.png")
 # Print key numbers for thesis text
