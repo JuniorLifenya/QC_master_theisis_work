@@ -4,9 +4,9 @@ from sympy import symbols, I, LeviCivita, KroneckerDelta, expand, Matrix, diag, 
 
 # We Define Basic Symbols and Constants
 m , kappa = symbols('m kappa', real=True,positive=True)
-p = IndexedBase('p', noncommutative=True) #Momentum operator
+p = [symbols(f'p_{i}', commutative=False) for i in range(3)]
 x = symbols('x0 x1 x2 x3', real=True)  # x0=t, x1,x2,x3=space
-alpha = IndexedBase('alpha', noncommutative=True) #Alpha matrices
+alpha = IndexedBase('alpha', commutative=False) #Alpha matrices
 h_bar = symbols('h_bar', real=True, positive=True) #Planck's constant
 
 
@@ -22,8 +22,8 @@ h_bar = symbols('h_bar', real=True, positive=True) #Planck's constant
 # print(alpha(2)) # Example of alpha_2 matrix
 
 beta = sp.diag(1,1,-1,-1) # Beta matrix # Alpha_0
-Sigma_n = symbols('Sigma_n', noncommutative=True)
-alpha_i,alpha_j = symbols('alpha_i alpha_j', noncommutative = True) # Alpha_i matrices (i=1,2,3)
+Sigma_n = symbols('Sigma_n', commutative= False)
+alpha_i,alpha_j = symbols('alpha_i alpha_j', commutative = False) # Alpha_i matrices (i=1,2,3)
 
 def alpha_alpha_prodcut(expr):
     # This function defines the product of two alpha matrices using the anticommutation relations
@@ -42,11 +42,22 @@ def apply_operator_product_rule(expr, op_p, field_h):
     # Replace the order: op_p * field_h -> field_h * op_p - I * dh
     return expr.replace(op_p * field_h, field_h * op_p - I * dh)
 
+def push_p_right(expr):
+    expr = sp.expand(expr)
+    for k in range(3):
+        p_k = p[k]
+        f = sp.Wild('f')
+        # Match p_k * any expression
+        expr = expr.replace(p_k * f, lambda f: -I * diff(f, x[k+1]) + f * p_k)
+    return expr
+
 #============================Now we construct Odd and even operators from the Thesis ==========================
 #Odd operators are those that anti-commute with beta, while even operators commute with beta.
 # For exampple, the mass term m*beta is an even operator, while the kinetic term alpha_i * p_i is an odd operator.
 
 hij = Matrix(4, 4, lambda i,j: Function(f'h_{{{i}{j}}}')(*x))
+hio = Matrix(4, 4, lambda i,j: Function(f'h_{{{i}0}}')(*x))
+hoj = Matrix(4, 4, lambda i,j: Function(f'h_{{0{j}}}')(*x))
 h = sum(hij[i,i] for i in range(3))   # spatial trace
 
 O = sum(alpha(i) * p[i] for i in range(3)) +  (kappa/2)* sum(hij*alpha(i)*p[j]-h*alpha(k)*p[k] for i,j,k in range (3)) # Odd operator (kinetic term)
@@ -68,7 +79,19 @@ H_eff_TT = beta*(m + O**2/(2*m) ) # In our case we Ignore the epsilon term and h
 #==============================================================================================================
 
 #========================== Now we can simplify the resulting Hamiltonian ==============================
-H_eff_simplified = simplify(H_eff)
-H_eff_TT_simplified = simplify(H_eff_TT)
-print("Effective Hamiltonian after FW transformation (general gauge):")
-print(H_eff_simplified)
+m, kappa = symbols('m kappa', real=True, positive=True)
+
+# Odd operator O = O1 + O2
+O1 = sum(alpha(i) * p[i] for i in range(3))
+term1 = sum(h[i,j] * alpha(i) * p[j] for i in range(3) for j in range(3))
+O2 = (kappa/2) * (term1 - h * sum(alpha(k)*p[k] for k in range(3)))
+O = O1 + O2
+
+# Even operator epsilon = epsilon1 + epsilon2
+epsilon1 = (kappa/2) * sum(h[i,0] * p[i] for i in range(3))
+epsilon2 = (kappa/2) * h * beta * m
+epsilon = epsilon1 + epsilon2
+
+# Compute [O, epsilon]
+comm_O_eps = ordered_comm(O, epsilon)
+sp.pprint(comm_O_eps)
