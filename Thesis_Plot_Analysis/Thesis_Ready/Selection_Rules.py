@@ -22,12 +22,6 @@ plt.rcParams.update({'font.family':'serif','font.size':12,
 
 
 
-
-
-
-
-
-
 def fig_selection_rules():
     fig,axes = plt.subplots(1,2,figsize=(13,8))
     E = {(1,0):-13.6,(2,0):-13.6/4,(2,1):-13.6/4,(3,0):-13.6/9,(3,1):-13.6/9,(3,2):-13.6/9}
