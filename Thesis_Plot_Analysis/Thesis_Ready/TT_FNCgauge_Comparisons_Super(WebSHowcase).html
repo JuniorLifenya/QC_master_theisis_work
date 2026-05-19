@@ -42,7 +42,7 @@
 
         // --- Helpers ---
         const createWireBox = (color) => {
-            const geo = new THREE.BoxGeometry(5, 5, 5, 5, 5, 5);
+            const geo = new THREE.BoxGeometry(6, 5, 5, 5, 5, 5);
             const mat = new THREE.MeshBasicMaterial({ color: color, wireframe: true, transparent: true, opacity: 0.2 });
             return new THREE.Mesh(geo, mat);
         };
@@ -89,7 +89,7 @@
             
             const h = parseFloat(document.getElementById('amp').value);
             const f = parseFloat(document.getElementById('freq').value);
-            time += 0.02 * f;
+            time += 0.018 * f;
             
             const sw = h * Math.cos(time); // The GW Strain
 
@@ -103,14 +103,14 @@
             // 2. FNC DYNAMICS: The Box is rigid, particles move independently
             // Proper Distance change: dx = 0.5 * h * x
             particlesFNC.forEach(p => {
-                p.position.x = p.userData.origX * (1 + sw);
-                p.position.y = p.userData.origY * (1 - sw);
+                p.position.x = p.userData.origX * (0.8 + sw);
+                p.position.y = p.userData.origY * (0.6 - sw);
                 p.position.z = p.userData.origZ; // Transverse wave: Z is unaffected
             });
 
             // Rotate both for better 3D perspective
-            groupTT.rotation.y += 0.005;
-            groupFNC.rotation.y += 0.005;
+            groupTT.rotation.y += 0.002;
+            groupFNC.rotation.y += 0.002;
 
             renderer.render(scene, camera);
         }
