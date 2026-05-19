@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <title>3D Gauge Dynamics: TT vs FNC</title>
     <style>
-        body { margin: 0; background: #050505; color: #03dac6; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        #ui { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; background: rgba(20,20,20,0.9); padding: 20px; border-radius: 15px; border: 1px solid #333; backdrop-filter: blur(10px); z-index: 100; }
-        .label-card { position: absolute; top: 20px; padding: 15px; background: rgba(20,20,20,0.8); border-radius: 10px; border-left: 4px solid #03dac6; width: 320px; pointer-events: none; }
+      /* Update this in your <style> block */
+        body { 
+            margin: 0; 
+            background: #F9F9F9; /* Match the scene background */
+            color: cyan;      /* Dark grey text for readability on light background */
+            font-family: 'Segoe UI', sans-serif; 
+            overflow: hidden; 
+        } 
+        
+        #ui { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; background: rgba(22, 55, 63, 0.9); padding: 20px; border-radius: 15px; border: 1px solid #ffffff; backdrop-filter: blur(10px); z-index: 100; }
+        .label-card { position: absolute; top: 20px; padding: 15px; background: rgba(30, 66, 77, 0.8); border-radius: 10px; border-left: 4px solid #03dac6; width: 320px; pointer-events: none; }
         input[type=range] { width: 150px; accent-color: #03dac6; vertical-align: middle; }
         label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
     </style>
@@ -16,12 +24,12 @@
 
     <div class="label-card" style="left: 20px;">
         <h3>Transverse-Traceless (TT)</h3>
-        <p style="color:#aaa; font-size:12px;">The <b>coordinate system</b> is physical. The box itself (the metric) deforms. Particles are "comoving"—their coordinate positions never change, but the distance between them does.</p>
+        <p style="color:#e2e2e2; font-size:12px;">The <b>coordinate system</b> is physical. The box itself (the metric) deforms. Particles are "comoving"—their coordinate positions never change, but the distance between them does.</p>
     </div>
 
     <div class="label-card" style="right: 20px; border-left-color: #bb86fc;">
         <h3 style="color:#bb86fc;">Fermi Normal (FNC)</h3>
-        <p style="color:#aaa; font-size:12px;">The <b>Laboratory Frame</b>. The box is a rigid ruler that does not move. GWs appear as a tidal force pushing particles back and forth within the static space.</p>
+        <p style="color:#ffffff; font-size:12px;">The <b>Laboratory Frame</b>. The box is a rigid ruler that does not move. GWs appear as a tidal force pushing particles back and forth within the static space.</p>
     </div>
 
     <div id="ui">
@@ -34,6 +42,8 @@
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({antialias: true});
+        // Add this in your initialization section
+        scene.background = new THREE.Color(0x1a1a1a); // Using Alabaster background for better contrast with the wireframes and particles
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
@@ -55,6 +65,9 @@
                 for(let y=-2; y<=2; y+=1) {
                     for(let z=-2; z<=2; z+=2) { // 3D Lattice
                         const m = new THREE.Mesh(geo, mat);
+
+                        m.position.set(x, y, z); // This adds the particle at its initial position
+
                         m.userData = {origX: x, origY: y, origZ: z};
                         parent.add(m);
                         pts.push(m);
@@ -89,7 +102,7 @@
             
             const h = parseFloat(document.getElementById('amp').value);
             const f = parseFloat(document.getElementById('freq').value);
-            time += 0.018 * f;
+            time += 0.0018 * f;
             
             const sw = h * Math.cos(time); // The GW Strain
 
@@ -103,8 +116,8 @@
             // 2. FNC DYNAMICS: The Box is rigid, particles move independently
             // Proper Distance change: dx = 0.5 * h * x
             particlesFNC.forEach(p => {
-                p.position.x = p.userData.origX * (0.8 + sw);
-                p.position.y = p.userData.origY * (0.6 - sw);
+                p.position.x = p.userData.origX * (1 + sw);
+                p.position.y = p.userData.origY * (1 - sw);
                 p.position.z = p.userData.origZ; // Transverse wave: Z is unaffected
             });
 
