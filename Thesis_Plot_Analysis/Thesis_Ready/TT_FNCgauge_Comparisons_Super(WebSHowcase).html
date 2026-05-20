@@ -15,7 +15,7 @@
         
         #ui { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; background: rgba(22, 55, 63, 0.9); padding: 20px; border-radius: 15px; border: 1px solid #ffffff; backdrop-filter: blur(10px); z-index: 100; }
         .label-card { position: absolute; top: 20px; padding: 15px; background: rgba(30, 66, 77, 0.8); border-radius: 10px; border-left: 4px solid #03dac6; width: 320px; pointer-events: none; }
-        input[type=range] { width: 150px; accent-color: #03dac6; vertical-align: middle; }
+        input[type=range] { width: 150px; accent-color: #2a4f4c; vertical-align: middle; }
         label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -27,7 +27,7 @@
         <p style="color:#e2e2e2; font-size:12px;">The <b>coordinate system</b> is physical. The box itself (the metric) deforms. Particles are "comoving"—their coordinate positions never change, but the distance between them does.</p>
     </div>
 
-    <div class="label-card" style="right: 20px; border-left-color: #bb86fc;">
+    <div class="label-card" style="right: 20px; border-left-color: #543c70;">
         <h3 style="color:#bb86fc;">Fermi Normal (FNC)</h3>
         <p style="color:#ffffff; font-size:12px;">The <b>Laboratory Frame</b>. The box is a rigid ruler that does not move. GWs appear as a tidal force pushing particles back and forth within the static space.</p>
     </div>
@@ -43,7 +43,7 @@
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({antialias: true});
         // Add this in your initialization section
-        scene.background = new THREE.Color(0x1a1a1a); // Using Alabaster background for better contrast with the wireframes and particles
+        scene.background = new THREE.Color(0xF1EEB3); // Using Alabaster background for better contrast with the wireframes and particles
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
@@ -60,7 +60,7 @@
         const addParticles = (parent) => {
             const pts = [];
             const geo = new THREE.SphereGeometry(0.08, 8, 8);
-            const mat = new THREE.MeshBasicMaterial({color: 0xffffff});
+            const mat = new THREE.MeshBasicMaterial({color: 0x000000});
             for(let x=-2; x<=2; x+=1) {
                 for(let y=-2; y<=2; y+=1) {
                     for(let z=-2; z<=2; z+=2) { // 3D Lattice
@@ -80,7 +80,7 @@
         // --- Initialize Objects ---
         // TT Group
         const groupTT = new THREE.Group();
-        const boxTT = createWireBox(0x03dac6);
+        const boxTT = createWireBox(0x00A896);
         const particlesTT = addParticles(boxTT); // Particles are children of the box in TT
         groupTT.add(boxTT);
         groupTT.position.x = -6;
@@ -88,7 +88,7 @@
 
         // FNC Group
         const groupFNC = new THREE.Group();
-        const boxFNC = createWireBox(0xbb86fc);
+        const boxFNC = createWireBox(0xAA00FF);
         const particlesFNC = addParticles(groupFNC); // Particles are children of the GROUP (box is static)
         groupFNC.add(boxFNC);
         groupFNC.position.x = 6;
