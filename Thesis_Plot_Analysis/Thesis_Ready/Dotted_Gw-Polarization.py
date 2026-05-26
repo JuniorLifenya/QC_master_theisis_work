@@ -56,13 +56,13 @@ for pol_idx, (pol_label,hxx,hxy) in enumerate(
         ax.set_aspect("equal")
         ax.set_xticks([]); ax.set_yticks([])
         ax.set_title(f"$\\omega t = {phase/np.pi:.2f}\\pi$",
-                     fontsize = 6)
+                     fontsize = 10)
         
         for spine in ax.spines.values():
             spine.set_linewidth(0.4)
 fig.suptitle("Tidal deformation of a ring of test particles \n"
              "by a propagating gravitational wave",
-             fontsize = 12, y = 0.99)
+             fontsize = 10, y = 0.99)
 
 plt.show()
 print("Finished and saved: dotted_blue_polarization.png")
