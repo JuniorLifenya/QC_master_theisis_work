@@ -19,6 +19,7 @@ C00 = '#1B4F72'
 C0I = '#1ABC9C'
 CI0 = '#8E44AD'
 CIJ = '#C0392B'
+CID = "#D66000"
 
 rows = [r'$\mu=0$', r'$\mu=1$', r'$\mu=2$', r'$\mu=3$']
 cols = [r'$\nu=0$', r'$\nu=1$', r'$\nu=2$', r'$\nu=3$']
@@ -48,9 +49,9 @@ cell_labels = [
 
 block_colors = [
     [C00, C0I, C0I, C0I],
-    [CI0, CIJ, CIJ, CIJ],
-    [CI0, CIJ, CIJ, CIJ],
-    [CI0, CIJ, CIJ, CIJ],
+    [CI0, CID, CIJ, CIJ],
+    [CI0, CIJ, CID, CIJ],
+    [CI0, CIJ, CIJ, CID],
 ]
 
 # Create a single plot with a more square aspect ratio
@@ -110,7 +111,7 @@ for j, lbl in enumerate(cols):
 ax.text(2.0, -0.50, r'$\nu$  (column index)', ha='center', va='bottom',
         fontsize=10, color='#222', style='italic')
 ax.text(-0.65, 2.5, r'$\mu$  (row index)', ha='center', va='center',
-        fontsize=5, color='#222', style='italic', rotation=90)
+        fontsize=10, color='#222', style='italic', rotation=90)
 
 ax.set_title(r'Energy–Momentum Tensor $T^{\mu\nu}$ — Complete Substructure',
              fontsize=14, fontweight='bold', color='#111', pad=18)

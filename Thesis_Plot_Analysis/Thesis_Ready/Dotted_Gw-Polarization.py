@@ -9,7 +9,7 @@ import matplotlib.gridspec as gridspec
 h_p = 1.0
 h_c = 1.0
 omega = 2* np.pi
-n_frames = 7
+n_frames = 5
 n_particles = 20
 
 theta = np.linspace(0, 2* np.pi, n_particles,endpoint=False )
@@ -24,11 +24,11 @@ gs = gridspec.GridSpec(2,n_frames +1, figure = fig, hspace = 0.35, wspace = 0.25
 cmap = plt.cm.Blues(np.linspace(0.3, 0.9,n_frames))
 
 for pol_idx, (pol_label,hxx,hxy) in enumerate(
-    [("$h_+$ polarization", h_p, 0),
-            ("$h_\\times$ polarization", 0, h_c)]):
+    [("$h_+$", h_p, 0),
+            ("$h_\\times$", 0, h_c)]):
     ax_label = fig.add_subplot(gs[pol_idx,0])
     ax_label.axis("off")
-    ax_label.text(0.5, 0.5, pol_label, fontsize = 15,
+    ax_label.text(1, 0.5, pol_label, fontsize = 15,
                  ha = "center", va= "center", fontweight= "bold"
                   )
     for fi, phase in enumerate(phases):
@@ -64,6 +64,5 @@ fig.suptitle("Tidal deformation of a ring of test particles \n"
              "by a propagating gravitational wave",
              fontsize = 12, y = 0.99)
 
-plt.savefig("Thesis_Ready_Plots/dotted_blue_polarization.png")
 plt.show()
 print("Finished and saved: dotted_blue_polarization.png")
