@@ -116,9 +116,7 @@ ax.text(-0.65, 2.5, r'$\mu$  (row index)', ha='center', va='center',
 ax.set_title(r'Energy–Momentum Tensor $T^{\mu\nu}$ — Complete Substructure',
              fontsize=14, fontweight='bold', color='#111', pad=18)
 
-import os
-os.makedirs('/home/claude/Thesis_Plots', exist_ok=True)
-out = '/home/claude/Thesis_Plots/Energy_Momentum_Tensor.png'
-plt.savefig(out, dpi=200, bbox_inches='tight', facecolor=BG)
-print("Saved:", out)
+
+plt.savefig('figures/Energy_Momentum_Tensor.png', format='pdf', bbox_inches='tight')
+print("Saved:")
 plt.show()
