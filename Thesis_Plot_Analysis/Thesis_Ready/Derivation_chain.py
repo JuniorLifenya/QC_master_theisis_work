@@ -10,12 +10,10 @@ ax.set_xlim(0, 14); ax.set_ylim(0, 4); ax.axis('off')
 
 labels = [
     "Linearized GR\n$g_{\\mu\\nu}=\\eta_{\\mu\\nu}+\\kappa h_{\\mu\\nu}$",
-    "Tetrads\n$e^a_{\\mu}=\\delta^a_{\\mu}$$+\\frac{\\kappa}{2}h^a_{\\mu}$",
-    "Spin conn.\n$\\omega^{ab}_{\\mu}=$$\kappa(\\partial^a h^b_{\\mu})\sigma_{ab}$",
+    "Tetrads\n$e^a_{\\mu}=\\delta^a_{\\mu}$$+\\frac{\\kappa}{2}h^a_{\\mu}$\n \nSpin conn.\n$\\omega^{ab}_{\\mu}=$$\kappa(\\partial^a h^b_{\\mu})\sigma_{ab}$",
     "Belinfante\n$\\mathcal{L}_{\\rm int}=$\n$-\\frac{\\kappa}{2}h_{\\mu\\nu}T^{\\mu\\nu}_{\\rm BR}$",
     "Legendre\n$\\hat{H}_{\\rm int}$\n$=f(h_{ij},\\alpha^i,\\hat{p})$",
-    "FW\n$\\times 3$ iters\n$\\mathcal{O}(1/m^3)$",
-    "$\\hat{H}_{\\rm eff}$\n9 terms",
+    "FW\n$\\times 3$ iters\n$\\mathcal{O}(1/m^3)$\n \n $\\hat{H}_{\\rm eff}$\n9 terms",
     "Quantum Sensing\nsel. rules\n$\\Delta m=\\pm2$",
 ]
 xs = [0.5, 2.3, 4.1, 5.9, 7.7, 9.5, 11.3, 13.1]
@@ -36,8 +34,8 @@ for i,(xc,txt,col) in enumerate(zip(xs, labels, colors)):
         ax.text(xc, 0.22, chapters[xc], ha='center', fontsize=8,
                 color="#212121ff", style='italic')
 
-ax.set_title('Logical derivation chain of the thesis', fontsize=12,fontweight= "bold",  color='black', y = 0.9)
-fig.patch.set_facecolor('#F5DEB3')
+ax.set_title('Logical derivation chain of the thesis', fontsize=12,fontweight= "bold",  color='black', y = 0.93, x=0.35)
+fig.patch.set_facecolor("#FFFFFF")
 ax.set_facecolor('#F5DEB3')
 plt.tight_layout()
 plt.show()

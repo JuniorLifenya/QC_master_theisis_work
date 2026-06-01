@@ -65,8 +65,7 @@ def parallel_transport(V_A, n_B):
 # ---------------------------------------------------------
 fig = plt.figure(figsize=(12, 8))
 ax = fig.add_subplot(111, projection ="3d")
-fig.suptitle("Spin Connection: Parallel Transport vs Local Frame", fontsize=14, fontweight="bold")
-ax.set_title(r"The mismatch angle at Point B represents $\omega_{\mu}^{ab} dx^\mu$", fontsize=12, pad=10)
+fig.suptitle("Parallel Transport of a spin-$1/2$ particle", fontsize=14, fontweight="bold")
 
 # Generate now the Curved Grid (Manifold)
 pts = np.linspace(-1.5, 1.5 ,15)
@@ -129,7 +128,7 @@ path_Z = 0.6 * path_X * path_Y
 ax.plot(path_X, path_Y, path_Z, color = "dimgray", linestyle = ':', lw = 2, label= 'Path $x^\mu(\lambda)$')
 
 ax.scatter(*pos_A, color = "black", s = 50)
-ax.text(pos_A[0], pos_A[1], pos_A[2] + 0.2, "Point A\n (Native Tetrad) ", fontsize = 10, fontweight = 'bold', ha = 'center')
+ax.text(pos_A[0], pos_A[1], pos_A[2] + 0.5, "Point A\n (Native Tetrad) ", fontsize = 10, fontweight = 'bold', ha = 'center')
 
 ax.scatter(*pos_B, color = "black", s = 50)
 ax.text(pos_B[0], pos_B[1]+0.4, pos_B[2] + 0.8, "Point B", fontsize = 10, fontweight = 'bold', ha = 'center')

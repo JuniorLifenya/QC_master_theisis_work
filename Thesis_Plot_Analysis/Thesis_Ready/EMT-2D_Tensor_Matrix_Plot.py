@@ -14,7 +14,7 @@ plt.rcParams.update({
     'figure.dpi': 180,
 })
 
-BG  = '#F9F8F4'
+BG  = "#FFFFFF"
 C00 = '#1B4F72'
 C0I = '#1ABC9C'
 CI0 = '#8E44AD'
@@ -79,7 +79,7 @@ for i in range(N):
         ax.add_patch(rect)
         ax.text(x + cw/2, y + ch/2, cell_labels[i][j],
                 ha='center', va='center', fontsize=8.6,
-                color='wheat', fontweight='bold',
+                color='white', fontweight='bold',
                 multialignment='center', zorder=3, linespacing=1.35)
 
 def bracket_box(ax, x0, y0, w, h, lbl, col, lblpos='top'):
