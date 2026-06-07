@@ -19,7 +19,8 @@ y0 = np. sin(theta)
 phases = np.linspace(0,np.pi,n_frames)
 
 fig = plt.figure(figsize= (20,5))
-gs = gridspec.GridSpec(2,n_frames +1, figure = fig, hspace = 0.35, wspace = 0.25)
+gs = gridspec.GridSpec(2,n_frames +1, figure = fig, hspace = 0.35, wspace = 0.25)¨
+
 
 cmap = plt.cm.Blues(np.linspace(0.3, 0.9,n_frames))
 

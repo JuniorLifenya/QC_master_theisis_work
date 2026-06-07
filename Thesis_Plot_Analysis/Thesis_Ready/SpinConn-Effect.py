@@ -157,11 +157,11 @@ O = np.zeros(3)   # origin for all arrows
 ax1 = fig.add_subplot(1, 2, 1, projection="3d")
 
 draw_grid(ax1, X0, Y0, Z0,
-          color="black", alpha=0.55, lw=0.80,
+          color="black", alpha=0.95, lw=0.80,
           label=r"Unperturbed $g^{(0)}_{\mu\nu}$")
 
 draw_grid(ax1, X0, Y0, Z0, hp=h,
-          color="#108273", alpha=0.88, lw=1.55,
+          color="#108273", alpha=0.78, lw=1.55,
           label=r"$h_+$ deformed metric")
 
 # FIX 3: original string r"$\hat{e}_{\hat 3 (A)$: along $\hat z$}" had an unclosed
@@ -173,10 +173,10 @@ quiv(ax1, O, [e1A, e2A, e3A], SOLID,
 
 for v, c, lbl in zip([e1A, e2A, e3A], SOLID,
                      [r"$\hat{e}_{1}$", r"$\hat{e}_{2}$", r"$\hat{e}_{3}$"]):
-    ax1.text(*(v * 1.13 + O), lbl, fontsize=10, color=c, fontweight="bold")
+    ax1.text(*(v * 1.13 + O), lbl, fontsize=25, color=c, fontweight="bold")
 
 ax1.scatter(*O, s=70, color="black", zorder=10)
-ax1.text(0.06, 0.06, 1.40, r"$A$", fontsize=14, fontweight="bold", color="#111")
+ax1.text(0.11, 0.09, 1.40, r"$A$", fontsize=14, fontweight="bold", color="#111")
 
 ax1.set_title(
     r"Point $A$: $h_+$ polarisation ($h_{xx} = -h_{yy} = h$)" + "\n"
@@ -194,7 +194,7 @@ ax1.legend(hl, ll, loc="upper left", fontsize=7.5)
 ax2 = fig.add_subplot(1, 2, 2, projection="3d")
 
 draw_grid(ax2, X0, Y0, Z0,
-          color="black", alpha=0.65, lw=0.75,
+          color="black", alpha=0.9, lw=0.75,
           label=r"Unperturbed $g^{(0)}_{\mu\nu}$")
 
 draw_grid(ax2, X0, Y0, Z0, hc=h,
