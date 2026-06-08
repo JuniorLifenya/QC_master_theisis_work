@@ -173,7 +173,7 @@ quiv(ax1, O, [e1A, e2A, e3A], SOLID,
 
 for v, c, lbl in zip([e1A, e2A, e3A], SOLID,
                      [r"$\hat{e}_{1}$", r"$\hat{e}_{2}$", r"$\hat{e}_{3}$"]):
-    ax1.text(*(v * 1.13 + O), lbl, fontsize=25, color=c, fontweight="bold")
+    ax1.text(*(v * 1.13 + O), lbl, fontsize=15, color=c, fontweight="bold")
 
 ax1.scatter(*O, s=70, color="black", zorder=10)
 ax1.text(0.11, 0.09, 1.40, r"$A$", fontsize=14, fontweight="bold", color="#111")
