@@ -125,7 +125,7 @@ ax.plot_wireframe(X, Y, Z, color="seagreen", alpha=0.18, linewidth=0.7)
 # --- the central body (the source) -------------------------------------------
 R_SPHERE = 0.50
 z_floor = surface_z(0.0, 0.0)                       # bottom of the dip
-cz = z_floor + R_SPHERE + 0.35                      # hover above the well bottom
+cz = z_floor + R_SPHERE + 0.95                      # hover above the well bottom
 xs, ys, zs = sphere_mesh(0.0, 0.0, cz, R_SPHERE)
 
 ls = LightSource(azdeg=315, altdeg=45)
@@ -169,7 +169,7 @@ ax.set_zlabel(r"$z$  (embedding height $\sim \Phi$)", fontsize=11)
 ax.legend(loc="upper left", bbox_to_anchor=(0.0, 0.92), fontsize=9)
 
 plt.tight_layout()
-out = "Thesis_Ready_Plots/fig_mass_curving_spacetime.png"
+out = "Thesis_Ready_Plots/fig_mass_curving_spacetime_Geodesic.png"
 plt.savefig(out, dpi=300, bbox_inches="tight")
 plt.show()
 print("Saved:", out)
