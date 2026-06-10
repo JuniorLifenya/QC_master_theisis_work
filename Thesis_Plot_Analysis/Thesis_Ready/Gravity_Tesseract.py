@@ -93,7 +93,7 @@ ax.set_xlim(-LIM, LIM); ax.set_ylim(-LIM, LIM); ax.set_zlim(-LIM, LIM)
 ax.set_box_aspect((1, 1, 1))
 ax.view_init(elev=22, azim=35)
 ax.set_xlabel(r"$x$"); ax.set_ylabel(r"$y$"); ax.set_zlabel(r"$z$")
-ax.grid(True)
+ax.grid(False)
 
 plt.tight_layout()
 out = "Thesis_Ready_Plots/fig_tesseract_nested.png"

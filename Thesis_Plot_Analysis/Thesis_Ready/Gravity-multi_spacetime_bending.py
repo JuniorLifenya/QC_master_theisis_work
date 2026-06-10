@@ -62,7 +62,7 @@ z_floor = surface_z(0.0, 0.0)
 ax.plot_surface(X, Y, Z, cmap=SURF_CMAP, alpha=0.55, linewidth=0,
                 antialiased=True, rstride=1, cstride=1, zorder=1)
 
-levels = np.linspace(z_floor + 0.15, -0.15, 7)
+levels = np.linspace(z_floor + 0.35, -0.15, 7)
 ax.contour(X, Y, Z, levels=levels, colors="white", linewidths=0.6, alpha=0.30, zorder=2)
 ax.contour(X, Y, Z, levels=levels, zdir="z", offset=z_floor - 0.35,
            cmap="turbo_r", linewidths=0.8, alpha=0.55, zorder=0)
