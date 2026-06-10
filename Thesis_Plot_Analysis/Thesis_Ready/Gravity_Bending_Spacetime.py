@@ -92,7 +92,7 @@ for P, i, name in [(A_pt, 0, "A"), (B_pt, len(traj) - 1, "B")]:
     ax.text(P[0], P[1] + 0.15, P[2] + 0.55, f"Point {name}",
             fontsize=10, fontweight="bold", ha="center", zorder=11)
 
-ax.view_init(elev=30, azim=-50)
+ax.view_init(elev=25, azim=-50)
 ax.set_xlim(-SPAN, SPAN); ax.set_ylim(-SPAN, SPAN); ax.set_zlim(z_floor - 0.3, 0.9)
 # (FIX 1) equal data-units on every axis -> round sphere
 ax.set_box_aspect((2*SPAN, 2*SPAN, 0.9 - (z_floor - 0.3)))
