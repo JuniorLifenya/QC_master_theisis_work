@@ -1,35 +1,25 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401  (registers 3-D projection)
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
 import os
+
+try:
+    import seaborn as sns
+    SURF_CMAP = sns.color_palette("mako", as_cmap=True)   # cool teal -> navy
+except Exception:
+    SURF_CMAP = "plasma"
 
 os.makedirs("Thesis_Ready_Plots", exist_ok=True)
 
 # ═════════════════════════════════════════════════════════════════════════════
-# 1.  The curved surface  =  an embedding diagram of the spatial metric
-# ─────────────────────────────────────────────────────────────────────────────
-# PHYSICS NOTE (the one rigour point worth flagging):
-#   A *single* mass does NOT dimple spacetime into a saddle.  A saddle has
-#   curvature of opposite sign along x and y (that is a *tidal / vacuum* picture,
-#   which is why the spin-connection figure used z = 0.6·x·y).  One localised
-#   source produces a monotone WELL — the classic rubber-sheet dimple — whose
-#   depth tracks the gravitational potential.
-#
-#   Default ("well"):  softened Newtonian-potential embedding
-#         z(r) = -2 G M / sqrt(r² + a²)
-#     The softening length a gives a finite-depth, smooth-bottomed dimple — i.e.
-#     an extended body (a star), not a point singularity.
-#
-#   "flamm":  Flamm's paraboloid, z(r) = -2·sqrt(r_s)·sqrt(r - r_s).  This is the
-#     *exact* isometric embedding of a t = const, θ = π/2 slice of Schwarzschild,
-#     and is the strictly-correct "curved space" surface (throat at r = r_s).
-#
-#   "saddle": z = 0.6·x·y  — kept so you can reproduce the Doc-1 aesthetic.
+# 0.  Physics knobs
 # ═════════════════════════════════════════════════════════════════════════════
-G_M    = 0.70   # mass parameter (geometrised units), sets the well depth
-A_SOFT = 0.70   # softening length  -> finite, smooth central depth
-MODE   = "well"  # "well" | "flamm" | "saddle"
+G_M    = 0.70          # mass parameter (geometrised units)
+A_SOFT = 0.70          # softening length -> finite, smooth central depth
+MODE   = "well"        # "well" | "flamm" | "saddle"
+SHOW_BEAM = True       # True -> also draw a fan of scattering fly-bys
 
 
 def surface_z(x, y, mode=MODE):
@@ -41,135 +31,118 @@ def surface_z(x, y, mode=MODE):
         return -2.0 * np.sqrt(r_s) * np.sqrt(np.clip(r - r_s, 0.0, None))
     if mode == "saddle":
         return 0.6 * x * y
-    raise ValueError(f"unknown surface mode: {mode}")
+    raise ValueError(mode)
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# 2.  The source:  one spherical body, floating just above the dip
-# ═════════════════════════════════════════════════════════════════════════════
-def sphere_mesh(cx, cy, cz, radius, n=90):
-    """Parametric (u,v) sphere mesh centred at (cx,cy,cz)."""
-    u = np.linspace(0, 2 * np.pi, n)
-    v = np.linspace(0, np.pi, n)
-    xs = cx + radius * np.outer(np.cos(u), np.sin(v))
-    ys = cy + radius * np.outer(np.sin(u), np.sin(v))
-    zs = cz + radius * np.outer(np.ones_like(u), np.cos(v))
-    return xs, ys, zs
-
-
-# ═════════════════════════════════════════════════════════════════════════════
-# 3.  A test particle's geodesic  =  numerically integrated scattering orbit
-# ─────────────────────────────────────────────────────────────────────────────
-#   We integrate a test mass in the (softened) field of the central body with a
-#   symplectic velocity-Verlet (leapfrog) scheme.  The acceleration is
-#         a = -∇Φ ,   Φ = -G M / sqrt(r² + a²)   ⇒   a = -G M r / (r² + a²)^{3/2}
-#   The particle enters from the left with an impact parameter b, bends toward
-#   the mass, and leaves deflected — the gravitational-deflection analogue of the
-#   spin-connection figure's "transport from A to B".
-# ═════════════════════════════════════════════════════════════════════════════
 def acceleration(p):
     denom = (p[0] ** 2 + p[1] ** 2 + A_SOFT ** 2) ** 1.5
     return -G_M * p / denom
 
 
-def integrate_geodesic(p0, v0, dt=0.006, x_stop=2.7, max_steps=4000):
-    p = np.array(p0, float)
-    v = np.array(v0, float)
-    path = [p.copy()]
+def integrate(p0, v0, dt, steps, stop_x=None):
+    """Velocity-Verlet (symplectic) integration of a test particle."""
+    p = np.array(p0, float); v = np.array(v0, float)
+    out = [p.copy()]
     a = acceleration(p)
-    for _ in range(max_steps):
-        v = v + 0.5 * dt * a            # half kick
-        p = p + dt * v                  # drift
+    for _ in range(steps):
+        v += 0.5 * dt * a
+        p += dt * v
         a = acceleration(p)
-        v = v + 0.5 * dt * a            # half kick
-        path.append(p.copy())
-        if p[0] > x_stop:               # exited on the far side
+        v += 0.5 * dt * a
+        out.append(p.copy())
+        if stop_x is not None and p[0] > stop_x:
             break
-    return np.array(path)
+    return np.array(out)
 
-
-b_impact = 0.95                          # impact parameter (offset in y)
-v_speed  = 1.35                          # asymptotic speed
-traj = integrate_geodesic(p0=[-2.7,  b_impact],
-                          v0=[v_speed, 0.0])
-
-# Lift the planar orbit onto the curved sheet (ride slightly above it).
-LIFT = 0.06
-tx, ty = traj[:, 0], traj[:, 1]
-tz = surface_z(tx, ty) + LIFT
-
-A_pt = np.array([tx[0],  ty[0],  tz[0]])
-B_pt = np.array([tx[-1], ty[-1], tz[-1]])
 
 # ═════════════════════════════════════════════════════════════════════════════
-# 4.  Figure
+# 1.  The bound, PRECESSING orbit  (the centrepiece)
+# ─────────────────────────────────────────────────────────────────────────────
+#   Started at apoapsis with a sub-circular tangential speed -> an eccentric
+#   bound orbit.  Because the softened potential is not ∝ 1/r, the ellipse does
+#   not close: its axis advances every revolution, tracing a rosette.  This is
+#   the Newtonian shadow of perihelion precession.
+# ═════════════════════════════════════════════════════════════════════════════
+orbit = integrate(p0=[2.2, 0.0], v0=[0.0, 0.40], dt=0.01, steps=4200)
+ox, oy = orbit[:, 0], orbit[:, 1]
+LIFT = 0.06
+oz = surface_z(ox, oy) + LIFT
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 2.  Figure
 # ═════════════════════════════════════════════════════════════════════════════
 fig = plt.figure(figsize=(11, 8.5))
 fig.patch.set_facecolor("white")
 ax = fig.add_subplot(111, projection="3d")
-fig.suptitle("A single mass curving spacetime",
-             fontsize=15, fontweight="bold")
-ax.set_title(r"geodesic of a test particle deflected from $A$ to $B$",
-             fontsize=10, pad=2)
+fig.suptitle("A single mass curving spacetime", fontsize=15, fontweight="bold")
+ax.set_title(r"a bound geodesic precessing into a rosette", fontsize=10, pad=2)
 
-# --- the curved sheet --------------------------------------------------------
-N, SPAN = 70, 3.0
+# --- the curved sheet, coloured by its own depth (the potential) -------------
+N, SPAN = 90, 3.0
 gx = np.linspace(-SPAN, SPAN, N)
 X, Y = np.meshgrid(gx, gx)
 Z = surface_z(X, Y)
+z_floor = surface_z(0.0, 0.0)
 
-ax.plot_surface(X, Y, Z, alpha=0.35, color="wheat",
-                edgecolor="none", rstride=1, cstride=1, antialiased=True, zorder=4)
+surf = ax.plot_surface(X, Y, Z, cmap=SURF_CMAP,
+                       alpha=0.55, linewidth=0, antialiased=True,
+                       rstride=1, cstride=1, zorder=1)
 
-wire = ax.plot_wireframe(X, Y, Z, color="darkcyan", alpha=0.28, linewidth=0.7)
-wire.set_zorder(2)   # forces the wireframe to the very back
+# faint equipotential rings hugging the well (structure without clutter)
+levels = np.linspace(z_floor + 0.15, -0.15, 7)
+ax.contour(X, Y, Z, levels=levels, colors="white", linewidths=0.6,
+           alpha=0.30, zorder=3)
+# their shadow on the floor -> a clean potential map
+ax.contour(X, Y, Z, levels=levels, zdir="z", offset=z_floor - 0.35,
+           cmap="turbo_r", linewidths=0.8, alpha=0.55)
 
-# --- the central body (the source) -------------------------------------------
-R_SPHERE = 0.50
-z_floor = surface_z(0.0, 0.0)                       # bottom of the dip
-cz = z_floor + R_SPHERE + 0.95                      # hover above the well bottom
+# --- the central body --------------------------------------------------------
+def sphere_mesh(cx, cy, cz, radius, n=80):
+    u = np.linspace(0, 2 * np.pi, n); v = np.linspace(0, np.pi, n)
+    return (cx + radius * np.outer(np.cos(u), np.sin(v)),
+            cy + radius * np.outer(np.sin(u), np.sin(v)),
+            cz + radius * np.outer(np.ones_like(u), np.cos(v)))
+
+R_SPHERE = 0.62
+cz = z_floor + R_SPHERE + 0.85
 xs, ys, zs = sphere_mesh(0.0, 0.0, cz, R_SPHERE)
-
-ls = LightSource(azdeg=315, altdeg=45)
-shaded = ls.shade(zs, cmap=plt.cm.cividis, vert_exag=1.0, blend_mode="soft")
+shaded = LightSource(315, 45).shade(zs, plt.cm.inferno, vert_exag=1.0, blend_mode="soft")
 ax.plot_surface(xs, ys, zs, facecolors=shaded, rstride=1, cstride=1,
-                linewidth=1, antialiased=True, shade=False, zorder=1)
-
-# thin plumb-line from the body down into the throat of the well
-ax.plot([0, 0], [0, 0], [cz - R_SPHERE, z_floor],
-        color="dimgray", ls=":", lw=1.2, alpha=0.8)
-ax.text(0, 0, cz + R_SPHERE + 0.18, "mass $M$", fontsize=10,
+                linewidth=0, antialiased=True, shade=False, zorder=1)
+ax.plot([0, 0], [0, 0], [cz - R_SPHERE, z_floor], color="dimgray",
+        ls=":", lw=1.1, alpha=0.8)
+ax.text(0, 0, cz + R_SPHERE + 0.15, "mass $M$", fontsize=10,
         fontweight="bold", ha="center")
 
-# --- the deflected geodesic A -> B -------------------------------------------
-ax.plot(tx, ty, tz, color="crimson", lw=2.6, zorder=4,
-        label=r"test-particle geodesic $x^\mu(\lambda)$")
+# --- the rosette orbit, colour-graded along its own arc length ---------------
+pts = np.column_stack([ox, oy, oz]).reshape(-1, 1, 3)
+segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
+lc = Line3DCollection(segs, cmap="plasma", linewidths=2.1, zorder=6)
+lc.set_array(np.linspace(0.0, 1.0, len(segs)))
+ax.add_collection3d(lc)
+ax.scatter(ox[-1], oy[-1], oz[-1], color="white", edgecolor="black",
+           s=42, lw=1.0, zorder=7)   # the orbiting particle, "now"
 
-# tangent (4-velocity direction) arrows at A and B, echoing the tetrad legs
-def tangent(i):
-    d = traj[min(i + 1, len(traj) - 1)] - traj[max(i - 1, 0)]
-    d = d / np.linalg.norm(d)
-    return d
-
-for P, i, name, dy in [(A_pt, 0, "A", 0.0), (B_pt, len(traj) - 1, "B", 0.0)]:
-    d2 = tangent(i)
-    dz = surface_z(P[0] + 0.25 * d2[0], P[1] + 0.25 * d2[1]) + LIFT - P[2]
-    ax.quiver(*P, 0.6 * d2[0], 0.6 * d2[1], dz,
-              color="black", arrow_length_ratio=0.3, lw=2.0, zorder=8)
-    ax.scatter(*P, color="black", s=45, zorder=9)
-    ax.text(P[0], P[1] + 0.15, P[2] + 0.55, f"Point {name}",
-            fontsize=10, fontweight="bold", ha="center")
+# --- optional: a fan of unbound scattering fly-bys ---------------------------
+if SHOW_BEAM:
+    for b in np.linspace(0.4, 1.8, 6):
+        fly = integrate(p0=[-2.8, b], v0=[1.5, 0.0], dt=0.006,
+                        steps=4000, stop_x=2.8)
+        fx, fy = fly[:, 0], fly[:, 1]
+        fz = surface_z(fx, fy) + LIFT
+        ax.plot(fx, fy, fz, color="crimson", lw=1.3, alpha=0.7, zorder=5)
 
 # ═════════════════════════════════════════════════════════════════════════════
-# 5.  Camera, limits, export
+# 3.  Camera, limits, export
 # ═════════════════════════════════════════════════════════════════════════════
-ax.view_init(elev=30, azim=-50)
-ax.set_xlim(-SPAN, SPAN); ax.set_ylim(-SPAN, SPAN); ax.set_zlim(z_floor - 0.3, 0.9)
-ax.set_xlabel(r"$x$", fontsize=12)
-ax.set_ylabel(r"$y$", fontsize=12)
-ax.legend(loc="upper left", bbox_to_anchor=(0.0, 0.92), fontsize=9)
-plt.tight_layout()
-out = "Thesis_Ready_Plots/fig_mass_curving_spacetime_Geodesic.png"
+ax.view_init(elev=20, azim=-50)
+ax.set_xlim(-SPAN, SPAN); ax.set_ylim(-SPAN, SPAN); ax.set_zlim(z_floor - 0.4, 0.9)
+ax.set_xlabel(r"$x$", fontsize=12); ax.set_ylabel(r"$y$", fontsize=12)
+ax.set_zticklabels([])          # the z-axis is "potential depth" — number-free is cleaner
+ax.grid(False)
+
+fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=0.93)
+out = "Thesis_Ready_Plots/fig_mass_curving_spacetime_rosette.png"
 plt.savefig(out, dpi=300, bbox_inches="tight")
 plt.show()
 print("Saved:", out)
