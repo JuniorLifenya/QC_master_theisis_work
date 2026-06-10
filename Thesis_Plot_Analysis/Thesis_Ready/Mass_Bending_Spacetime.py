@@ -47,7 +47,7 @@ def surface_z(x, y, mode=MODE):
 # ═════════════════════════════════════════════════════════════════════════════
 # 2.  The source:  one spherical body, floating just above the dip
 # ═════════════════════════════════════════════════════════════════════════════
-def sphere_mesh(cx, cy, cz, radius, n=60):
+def sphere_mesh(cx, cy, cz, radius, n=90):
     """Parametric (u,v) sphere mesh centred at (cx,cy,cz)."""
     u = np.linspace(0, 2 * np.pi, n)
     v = np.linspace(0, np.pi, n)
@@ -118,9 +118,11 @@ gx = np.linspace(-SPAN, SPAN, N)
 X, Y = np.meshgrid(gx, gx)
 Z = surface_z(X, Y)
 
-ax.plot_surface(X, Y, Z, alpha=0.45, color="wheat",
-                edgecolor="none", rstride=1, cstride=1, antialiased=True)
-ax.plot_wireframe(X, Y, Z, color="seagreen", alpha=0.18, linewidth=0.7)
+ax.plot_surface(X, Y, Z, alpha=0.35, color="wheat",
+                edgecolor="none", rstride=1, cstride=1, antialiased=True, zorder=4)
+
+wire = ax.plot_wireframe(X, Y, Z, color="darkcyan", alpha=0.28, linewidth=0.7)
+wire.set_zorder(2)   # forces the wireframe to the very back
 
 # --- the central body (the source) -------------------------------------------
 R_SPHERE = 0.50
@@ -131,7 +133,7 @@ xs, ys, zs = sphere_mesh(0.0, 0.0, cz, R_SPHERE)
 ls = LightSource(azdeg=315, altdeg=45)
 shaded = ls.shade(zs, cmap=plt.cm.cividis, vert_exag=1.0, blend_mode="soft")
 ax.plot_surface(xs, ys, zs, facecolors=shaded, rstride=1, cstride=1,
-                linewidth=0, antialiased=True, shade=False, zorder=6)
+                linewidth=1, antialiased=True, shade=False, zorder=1)
 
 # thin plumb-line from the body down into the throat of the well
 ax.plot([0, 0], [0, 0], [cz - R_SPHERE, z_floor],
@@ -140,7 +142,7 @@ ax.text(0, 0, cz + R_SPHERE + 0.18, "mass $M$", fontsize=10,
         fontweight="bold", ha="center")
 
 # --- the deflected geodesic A -> B -------------------------------------------
-ax.plot(tx, ty, tz, color="crimson", lw=2.6, zorder=7,
+ax.plot(tx, ty, tz, color="crimson", lw=2.6, zorder=4,
         label=r"test-particle geodesic $x^\mu(\lambda)$")
 
 # tangent (4-velocity direction) arrows at A and B, echoing the tetrad legs
@@ -161,7 +163,7 @@ for P, i, name, dy in [(A_pt, 0, "A", 0.0), (B_pt, len(traj) - 1, "B", 0.0)]:
 # ═════════════════════════════════════════════════════════════════════════════
 # 5.  Camera, limits, export
 # ═════════════════════════════════════════════════════════════════════════════
-ax.view_init(elev=26, azim=-58)
+ax.view_init(elev=20, azim=-58)
 ax.set_xlim(-SPAN, SPAN); ax.set_ylim(-SPAN, SPAN); ax.set_zlim(z_floor - 0.3, 1.4)
 ax.set_xlabel(r"$x$", fontsize=12)
 ax.set_ylabel(r"$y$", fontsize=12)

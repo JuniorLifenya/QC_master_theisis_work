@@ -110,11 +110,11 @@ ax.add_collection3d(lc)
 # the central mass
 u = np.linspace(0, 2 * np.pi, 40)
 v = np.linspace(0, np.pi, 40)
-rs = 0.16
+rs = 0.30
 ax.plot_surface(rs * np.outer(np.cos(u), np.sin(v)),
                 rs * np.outer(np.sin(u), np.sin(v)),
                 rs * np.outer(np.ones_like(u), np.cos(v)),
-                color="black", linewidth=0, antialiased=True, zorder=10)
+                color="wheat", linewidth=0, antialiased=True, zorder=10)
 
 # colour bar: distance to the centre  (≈ depth in the gravitational potential)
 m = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
