@@ -163,13 +163,11 @@ for P, i, name, dy in [(A_pt, 0, "A", 0.0), (B_pt, len(traj) - 1, "B", 0.0)]:
 # ═════════════════════════════════════════════════════════════════════════════
 # 5.  Camera, limits, export
 # ═════════════════════════════════════════════════════════════════════════════
-ax.view_init(elev=20, azim=-58)
-ax.set_xlim(-SPAN, SPAN); ax.set_ylim(-SPAN, SPAN); ax.set_zlim(z_floor - 0.3, 1.4)
+ax.view_init(elev=30, azim=-50)
+ax.set_xlim(-SPAN, SPAN); ax.set_ylim(-SPAN, SPAN); ax.set_zlim(z_floor - 0.3, 0.9)
 ax.set_xlabel(r"$x$", fontsize=12)
 ax.set_ylabel(r"$y$", fontsize=12)
-ax.set_zlabel(r"$z$  (embedding height $\sim \Phi$)", fontsize=11)
 ax.legend(loc="upper left", bbox_to_anchor=(0.0, 0.92), fontsize=9)
-
 plt.tight_layout()
 out = "Thesis_Ready_Plots/fig_mass_curving_spacetime_Geodesic.png"
 plt.savefig(out, dpi=300, bbox_inches="tight")
