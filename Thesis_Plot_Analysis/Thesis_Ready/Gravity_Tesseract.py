@@ -84,7 +84,7 @@ ax.plot_surface(rs * np.outer(np.cos(u), np.sin(v)),
 
 m = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
 m.set_array([])
-cb = fig.colorbar(m, ax=ax, shrink=0.55, pad=0.10)
+cb = fig.colorbar(m, ax=ax, shrink=0.75, pad=0.10)
 cb.set_label(r"distance to mass $r$   (near $\to$ bright, deeper $\Phi$)", fontsize=9)
 
 # auto-fit the cube to the outermost warped points
