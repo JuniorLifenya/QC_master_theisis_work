@@ -26,13 +26,13 @@ def frame(x0, y0):
     e1 = rx/np.linalg.norm(rx); e2 = np.cross(e3, e1)
     return e1, e2, e3
 
-P0 = (0.3, 0.3)                 # the one point we zoom in on
+P0 = (0.4, 0.4)                 # the one point we zoom in on
 Pp = r_vec(*P0)
 
 fig = plt.figure(figsize=(13, 6.2))
 fig.patch.set_facecolor("white")
 fig.suptitle("Every point of a curved manifold carries a flat tangent space",
-             fontsize=14, fontweight="bold", y=0.97)
+             fontsize=14, fontweight="bold", y=0.95)
 
 # ════════════════════════════════════════════════════════════════════════════
 # LEFT — global view: the flat sheet sitting on the saddle at P
