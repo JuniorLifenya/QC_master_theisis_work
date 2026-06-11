@@ -5,11 +5,8 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 import os
 
-try:
-    import seaborn as sns
-    SURF_CMAP = sns.color_palette("mako", as_cmap=True)
-except Exception:
-    SURF_CMAP = "plasma"
+
+SURF_CMAP = "jet_r"
 
 os.makedirs("Thesis_Ready_Plots", exist_ok=True)
 
@@ -65,7 +62,7 @@ ax.plot_surface(X, Y, Z, cmap=SURF_CMAP, alpha=0.55, linewidth=0,
 levels = np.linspace(z_floor + 0.35, -0.15, 7)
 ax.contour(X, Y, Z, levels=levels, colors="white", linewidths=0.6, alpha=0.30, zorder=2)
 ax.contour(X, Y, Z, levels=levels, zdir="z", offset=z_floor - 0.35,
-           cmap="turbo", linewidths=0.8, alpha=0.55, zorder=0)
+           cmap="jet_r", linewidths=0.8, alpha=0.55, zorder=0)
 
 def sphere_mesh(cx, cy, cz, radius, n=80):
     u = np.linspace(0, 2*np.pi, n); v = np.linspace(0, np.pi, n)
@@ -86,7 +83,7 @@ ax.text(0, 0, cz + R_SPHERE + 0.25, "mass $M$", fontsize=10, fontweight="bold",
 
 pts = np.column_stack([ox, oy, oz]).reshape(-1, 1, 3)
 segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
-lc = Line3DCollection(segs, cmap="turbo", linewidths=2.1, zorder=6)
+lc = Line3DCollection(segs, cmap="binary", linewidths=2.1, zorder=6)
 lc.set_array(np.linspace(0.0, 1.0, len(segs)))
 ax.add_collection3d(lc)
 ax.scatter(ox[-1], oy[-1], oz[-1], color="white", edgecolor="black",
