@@ -68,7 +68,7 @@ ax.add_collection3d(Line3DCollection(straight_segments, colors="0.7",
 
 # warped nested lattice, coloured by distance to the mass (near = bright)
 norm = mpl.colors.Normalize(vmin=warped_radii.min(), vmax=warped_radii.max())
-cmap = mpl.cm.turbo_r
+cmap = mpl.cm.turbo
 ax.add_collection3d(Line3DCollection(warped_segments,
                                      colors=cmap(norm(warped_radii)),
                                      linewidths=1.5))

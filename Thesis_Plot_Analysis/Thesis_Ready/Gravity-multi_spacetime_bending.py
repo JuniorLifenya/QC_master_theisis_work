@@ -65,7 +65,7 @@ ax.plot_surface(X, Y, Z, cmap=SURF_CMAP, alpha=0.55, linewidth=0,
 levels = np.linspace(z_floor + 0.35, -0.15, 7)
 ax.contour(X, Y, Z, levels=levels, colors="white", linewidths=0.6, alpha=0.30, zorder=2)
 ax.contour(X, Y, Z, levels=levels, zdir="z", offset=z_floor - 0.35,
-           cmap="turbo_r", linewidths=0.8, alpha=0.55, zorder=0)
+           cmap="turbo", linewidths=0.8, alpha=0.55, zorder=0)
 
 def sphere_mesh(cx, cy, cz, radius, n=80):
     u = np.linspace(0, 2*np.pi, n); v = np.linspace(0, np.pi, n)
@@ -86,7 +86,7 @@ ax.text(0, 0, cz + R_SPHERE + 0.25, "mass $M$", fontsize=10, fontweight="bold",
 
 pts = np.column_stack([ox, oy, oz]).reshape(-1, 1, 3)
 segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
-lc = Line3DCollection(segs, cmap="turbo_r", linewidths=2.1, zorder=6)
+lc = Line3DCollection(segs, cmap="turbo", linewidths=2.1, zorder=6)
 lc.set_array(np.linspace(0.0, 1.0, len(segs)))
 ax.add_collection3d(lc)
 ax.scatter(ox[-1], oy[-1], oz[-1], color="white", edgecolor="black",
