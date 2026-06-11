@@ -26,7 +26,7 @@ def frame(x0, y0):
     e1 = rx/np.linalg.norm(rx); e2 = np.cross(e3, e1)
     return e1, e2, e3
 
-P0 = (0.7, 0.7)                 # the one point we zoom in on
+P0 = (0.3, 0.3)                 # the one point we zoom in on
 Pp = r_vec(*P0)
 
 fig = plt.figure(figsize=(13, 6.2))
