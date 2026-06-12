@@ -21,7 +21,7 @@ x2, y2     =  d_binary/2, 0.0
 depth_well = -0.85
 sigma_well = 0.35
 
-A     = 0.45      # wave amplitude
+A     = 0.65      # wave amplitude
 k     = 2.5       # wavenumber
 decay = 3.5       # radial damping length
 
