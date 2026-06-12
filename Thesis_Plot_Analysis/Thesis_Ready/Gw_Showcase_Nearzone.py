@@ -19,9 +19,9 @@ try:
     import seaborn as sns
     SHEET_CMAP = sns.color_palette("mako", as_cmap=True)
 except ImportError:
-    SHEET_CMAP = plt.get_cmap("viridis")
+    SHEET_CMAP = plt.get_cmap("turbo")
 
-SHEET_SOLID_COLOR = None
+SHEET_SOLID_COLOR = "turbo"
 SHEET_ALPHA       = 0.95
 WIRE_COLOR        = "k"
 WIRE_ALPHA        = 0.10
@@ -127,9 +127,6 @@ ax.contour(X, Y, Z, levels=levels, zdir="z", offset=z_floor,
            cmap=SHEET_CMAP, linewidths=0.8, alpha=0.45, zorder=1)
 
 # --- Zone annotations (2D overlays: always legible) ---------------------------------------
-ax.text2D(0.84, 0.70, r"radiation zone:  $h \propto \dfrac{\sin(kr-\omega t)}{\sqrt{r}}$",
-          transform=ax.transAxes, fontsize=11, color="0.15", ha="center",
-          bbox=dict(boxstyle="round,pad=0.35", fc="white", ec="0.7", alpha=0.85))
 ax.text2D(0.16, 0.70, "near zone:\nstatic curvature wells",
           transform=ax.transAxes, fontsize=11, color="0.15", ha="center",
           bbox=dict(boxstyle="round,pad=0.35", fc="white", ec="0.7", alpha=0.85))
