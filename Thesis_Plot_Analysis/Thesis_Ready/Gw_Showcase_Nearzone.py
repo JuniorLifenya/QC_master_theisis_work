@@ -21,7 +21,7 @@ x2, y2     =  d_binary/2, 0.0
 depth_well = -0.75
 sigma_well = 0.35
 
-A_wave            = 0.32
+A_wave            = 0.45
 k_wave            = 2.5
 r_wave_start      = 1.8
 r_wave_transition = 0.5
@@ -49,7 +49,7 @@ fig = plt.figure(figsize=(12, 7.5))
 fig.patch.set_facecolor("white")
 ax = fig.add_subplot(111, projection="3d", computed_zorder=False)
 
-fig.suptitle("Binary Black Hole: Near-Zone Curvature and Outgoing Radiation",
+fig.suptitle("Binary System: Near-Zone Curvature and Outgoing Radiation",
              fontsize=15, fontweight="bold", y=0.88)
 
 # --- Limits & aspect FIRST (needed for sphere correction) ---------------------------
@@ -73,7 +73,7 @@ def visual_sphere(cx, cy, cz, R, n=80):
             cz + rz * np.outer(np.ones_like(u), np.cos(v)))
 
 # --- Black holes seated in their wells ----------------------------------------------
-R_horizon = 0.30
+R_horizon = 0.40
 ls_bh = LightSource(315, 45)
 for (cx, cy, lbl) in [(x1, y1, r"$M_1$"), (x2, y2, r"$M_2$")]:
     z_well = sheet_height(cx, cy)
@@ -86,7 +86,7 @@ for (cx, cy, lbl) in [(x1, y1, r"$M_1$"), (x2, y2, r"$M_2$")]:
             fontweight="bold", ha="center", color="black", zorder=11)
 
 # --- Flat reference sheet -------------------------------------------------------------
-ax.plot_surface(X, Y, np.zeros_like(Z), color="gainsboro", alpha=0.12,
+ax.plot_surface(X, Y, np.zeros_like(Z), color="gainsboro", alpha=0.15,
                 linewidth=0, antialiased=True, zorder=0)
 
 # --- Warped sheet with RADIAL turbo coloring & hill-shading ----------------------------
@@ -106,13 +106,13 @@ ax.plot_surface(X, Y, Z, facecolors=rgb_surface, rstride=1, cstride=1,
                 linewidth=0, antialiased=True, shade=False,
                 alpha=0.95, zorder=2)
 
-ax.plot_wireframe(X, Y, Z, color="k", alpha=0.10,
+ax.plot_wireframe(X, Y, Z, color="k", alpha=0.35,
                   linewidth=0.4, rstride=10, cstride=10, zorder=3)
 
 # --- Floor contours ----------------------------------------------------------------------
 levels = np.linspace(-A_wave, A_wave, 11)
 ax.contour(X, Y, Z, levels=levels, zdir="z", offset=z_floor,
-           cmap="turbo", linewidths=0.8, alpha=0.45, zorder=1)
+           cmap="Greys", linewidths=0.8, alpha=0.45, zorder=1)
 
 # --- Zone annotations (2D overlays: always legible) ---------------------------------------
 ax.text2D(0.16, 0.70, "near zone:\nstatic curvature wells",
@@ -120,7 +120,7 @@ ax.text2D(0.16, 0.70, "near zone:\nstatic curvature wells",
           bbox=dict(boxstyle="round,pad=0.35", fc="white", ec="0.7", alpha=0.85))
 
 # --- Cosmetics ------------------------------------------------------------------------------
-ax.view_init(elev=24, azim=-55)
+ax.view_init(elev=26, azim=-55)
 ax.set_xlabel(r"$x$", fontsize=12, labelpad=8)
 ax.set_ylabel(r"$y$", fontsize=12, labelpad=8)
 ax.set_zticks([]); ax.grid(False)

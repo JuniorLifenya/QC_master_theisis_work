@@ -15,6 +15,13 @@ import matplotlib as mpl
 from matplotlib.animation import FuncAnimation, FFMpegWriter, PillowWriter
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
+import matplotlib
+import shutil
+
+# Point matplotlib at a working ffmpeg, wherever it lives
+if not shutil.which("ffmpeg"):
+    import imageio_ffmpeg
+    matplotlib.rcParams["animation.ffmpeg_path"] = imageio_ffmpeg.get_ffmpeg_exe()
 from itertools import product
 import os
 

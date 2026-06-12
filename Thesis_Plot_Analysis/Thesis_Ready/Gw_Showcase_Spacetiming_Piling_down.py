@@ -1,26 +1,45 @@
 """
 Figure 1 — Spacetime responding to an outgoing gravitational wave.
 Improved version:
+  * Two distinct gravity wells added at the center so space bends DOWNWARDS.
+  * Black holes are nestled inside their respective wells.
   * Radial Colormap: Red in the center (redshift), blue on the outside.
-  * Spheres render as perfect spheres.
   * Sheet shaded with a LightSource for real depth.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import LightSource, Normalize
+from matplotlib.colors import LightSource
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 import os
 
 os.makedirs("Thesis_Ready_Plots", exist_ok=True)
 
-# --- Wave mechanics -----------------------------------------------------------
-A     = 0.45      # amplitude
+# --- Physical parameters & Wave mechanics -------------------------------------
+d_binary   = 1.0
+x1, y1     = -d_binary/2, 0.0
+x2, y2     =  d_binary/2, 0.0
+depth_well = -0.85
+sigma_well = 0.35
+
+A     = 0.45      # wave amplitude
 k     = 2.5       # wavenumber
 decay = 3.5       # radial damping length
 
 def wave_z(x, y):
     r = np.sqrt(x**2 + y**2)
-    return A * np.sin(k * r) * np.exp(-r / decay)
+    
+    # 1. The static downward bend (gravity wells for the two masses)
+    well1 = depth_well * np.exp(-((x - x1)**2 + (y - y1)**2) / (2 * sigma_well**2))
+    well2 = depth_well * np.exp(-((x - x2)**2 + (y - y2)**2) / (2 * sigma_well**2))
+    
+    # 2. Envelope function so the wave fades out inside the deep wells
+    # This stops the center from "piling up"
+    env = 0.5 * (1.0 + np.tanh((r - 1.2) / 0.6))
+    
+    # 3. The outward rippling wave
+    wave = env * A * np.sin(k * r) * np.exp(-r / decay)
+    
+    return well1 + well2 + wave
 
 # --- Grid ----------------------------------------------------------------------
 N, SPAN = 200, 6.0
@@ -38,12 +57,12 @@ ax = fig.add_subplot(111, projection="3d", computed_zorder=False)
 
 fig.suptitle("Spacetime responding to a Gravitational Wave",
              fontsize=15, fontweight="bold", y=0.88)
-ax.set_title("a flat spacetime manifold undergoing transverse oscillations",
+ax.set_title("masses bend space downwards, while transverse waves radiate outwards",
              fontsize=11, pad=0, color="dimgrey", y=0.83)
 
 # --- Axis limits & box aspect ---------------------------------------------------
-z_floor = -1.2
-z_top   = 1.55                       
+z_floor = -1.6
+z_top   = 1.2                      
 ax.set_xlim(-SPAN, SPAN); ax.set_ylim(-SPAN, SPAN); ax.set_zlim(z_floor, z_top)
 BOX = (2*SPAN, 2*SPAN, 3.2)          
 ax.set_box_aspect(BOX)
@@ -53,7 +72,7 @@ sx = BOX[0] / (2*SPAN)
 sy = BOX[1] / (2*SPAN)
 sz = BOX[2] / (z_top - z_floor)
 
-# --- Spheres --------------------------------------------------------------------
+# --- Spheres (Nestled in their wells) -------------------------------------------
 def visual_sphere(cx, cy, cz, R, n=80):
     u = np.linspace(0, 2*np.pi, n)
     v = np.linspace(0, np.pi, n)
@@ -63,24 +82,28 @@ def visual_sphere(cx, cy, cz, R, n=80):
             cz + rz * np.outer(np.ones_like(u), np.cos(v)))
 
 ls_bh = LightSource(315, 45)
-def draw_bh(cx, cy, cz, R):
+def draw_bh(cx, cy, R):
+    # Calculate exactly how deep the well is at this location
+    z_well = wave_z(cx, cy)
+    # Nestle the sphere into the well (lower half sits inside)
+    cz = z_well + 0.55 * R * sx/sz 
     XS, YS, ZS = visual_sphere(cx, cy, cz, R)
     rgb = ls_bh.shade(ZS, plt.cm.inferno, vert_exag=1.0, blend_mode="soft")
     ax.plot_surface(XS, YS, ZS, facecolors=rgb, rstride=1, cstride=1,
                     linewidth=0, antialiased=True, shade=False, zorder=10)
     return cz
 
-R_bh = 0.40
-draw_bh(-0.45, 0.0, 1.0, R_bh)
-draw_bh( 0.55, 0.0, 1.0, R_bh)
+R_bh = 0.35
+cz1 = draw_bh(x1, y1, R_bh)
+cz2 = draw_bh(x2, y2, R_bh)
 
-# Orbital-motion hint
+# Orbital-motion hint (drawn around the center at the height of the black holes)
 th = np.linspace(0, 2*np.pi, 200)
-orb_r = 0.55
-ax.plot(orb_r*np.cos(th), orb_r*np.sin(th), np.full_like(th, 1.0),
-        ls="--", lw=1.0, color="black", alpha=0.67, zorder=9)
+orb_r = d_binary / 2
+ax.plot(orb_r*np.cos(th), orb_r*np.sin(th), np.full_like(th, (cz1+cz2)/2),
+        ls="--", lw=1.2, color="black", alpha=0.67, zorder=9)
 
-ax.text(0.0, 0.0, 1.0 + R_bh*sx/sz + 0.28, "Binary Source",
+ax.text(0.0, 0.0, ((cz1+cz2)/2) + R_bh*sx/sz + 0.35, "Binary Source",
         fontsize=10, fontweight="bold", ha="center", zorder=11)
 
 # --- Faint flat reference sheet --------------------------------------------------
@@ -91,11 +114,10 @@ ax.plot_surface(X, Y, np.zeros_like(Z), color="gainsboro", alpha=0.15,
 # 1. Normalize the radial distances from 0 to 1
 norm_R = (R_dist - R_dist.min()) / (R_dist.max() - R_dist.min())
 
-# 2. Get the "turbo_r" colormap (red at 0, blue at 1)
+# 2. Get the "turbo" colormap (red at 0, blue at 1)
 cmap = plt.get_cmap("turbo")
 
 # 3. Convert the normalized radius into actual RGB colors from the colormap
-# We slice [:, :, :3] to remove the alpha channel, as LightSource only wants RGB.
 base_colors = cmap(norm_R)[:, :, :3] 
 
 # 4. Apply 3D topographic lighting to those flat colors based on the Z heights
@@ -107,7 +129,7 @@ ax.plot_surface(X, Y, Z, facecolors=rgb_surface, rstride=1, cstride=1,
                 linewidth=0, antialiased=True, shade=False,
                 alpha=0.95, zorder=2)
 
-ax.plot_wireframe(X, Y, Z, color="k", alpha=0.5,
+ax.plot_wireframe(X, Y, Z, color="k", alpha=0.35,
                   linewidth=0.4, rstride=6, cstride=6, zorder=3)
 
 # --- Contour projection on the floor ---------------------------------------------
