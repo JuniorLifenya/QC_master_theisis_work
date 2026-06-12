@@ -1,31 +1,16 @@
 """
 Figure 2 — Binary black hole: near-zone curvature (wells) + radiation zone (wave).
 Improved version:
+  * Radial "turbo" colormap applied to show cosmological stretch (blue to red).
   * Spheres aspect-corrected -> render perfectly round.
   * Spheres now SIT IN their wells instead of hovering above them.
-  * Sheet colour configurable in ONE place (SHEET STYLE block).
   * LightSource hill-shading on the sheet, clean axes, zone annotations.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import LightSource, to_rgb, Normalize
+from matplotlib.colors import LightSource, Normalize
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 import os
-
-# =============================== SHEET STYLE =================================
-# (a) colormap mode: set SHEET_CMAP, keep SHEET_SOLID_COLOR = None
-# (b) solid mode:    set SHEET_SOLID_COLOR = "royalblue" (any colour)
-try:
-    import seaborn as sns
-    SHEET_CMAP = sns.color_palette("mako", as_cmap=True)
-except ImportError:
-    SHEET_CMAP = plt.get_cmap("turbo")
-
-SHEET_SOLID_COLOR = "turbo"
-SHEET_ALPHA       = 0.95
-WIRE_COLOR        = "k"
-WIRE_ALPHA        = 0.10
-# ==============================================================================
 
 os.makedirs("Thesis_Ready_Plots", exist_ok=True)
 
@@ -56,6 +41,9 @@ gx   = np.linspace(-SPAN, SPAN, N)
 X, Y = np.meshgrid(gx, gx)
 Z    = sheet_height(X, Y)
 
+# Calculate radial distance for the blue-to-red transition
+R_dist = np.sqrt(X**2 + Y**2)
+
 # --- Figure -------------------------------------------------------------------------
 fig = plt.figure(figsize=(12, 7.5))
 fig.patch.set_facecolor("white")
@@ -63,7 +51,6 @@ ax = fig.add_subplot(111, projection="3d", computed_zorder=False)
 
 fig.suptitle("Binary Black Hole: Near-Zone Curvature and Outgoing Radiation",
              fontsize=15, fontweight="bold", y=0.88)
-
 
 # --- Limits & aspect FIRST (needed for sphere correction) ---------------------------
 z_floor = -1.35
@@ -96,35 +83,36 @@ for (cx, cy, lbl) in [(x1, y1, r"$M_1$"), (x2, y2, r"$M_2$")]:
     ax.plot_surface(XS, YS, ZS, facecolors=rgb, rstride=1, cstride=1,
                     linewidth=0, antialiased=True, shade=False, zorder=10)
     ax.text(cx, cy, cz + R_horizon * sx/sz + 0.10, lbl, fontsize=10,
-            fontweight="bold", ha="center", color="white", zorder=11)
+            fontweight="bold", ha="center", color="black", zorder=11)
 
 # --- Flat reference sheet -------------------------------------------------------------
 ax.plot_surface(X, Y, np.zeros_like(Z), color="gainsboro", alpha=0.12,
                 linewidth=0, antialiased=True, zorder=0)
 
-# --- Warped sheet with hill-shading ----------------------------------------------------
+# --- Warped sheet with RADIAL turbo coloring & hill-shading ----------------------------
+# 1. Normalize the radial distance
+norm_R = (R_dist - R_dist.min()) / (R_dist.max() - R_dist.min())
+
+# 2. Grab the turbo colormap and apply it to the normalized distances (stripping alpha)
+cmap = plt.get_cmap("turbo")
+base_colors = cmap(norm_R)[:, :, :3]
+
+# 3. Apply the 3D LightSource shading over the colors so the ripples look 3D
 ls_sheet = LightSource(azdeg=315, altdeg=50)
-if SHEET_SOLID_COLOR is not None:
-    base = np.tile(to_rgb(SHEET_SOLID_COLOR), (*Z.shape, 1))
-    rgb  = ls_sheet.shade_rgb(base, Z, vert_exag=2.0, blend_mode="soft")
-else:
-    # clip the colour scale to the wave amplitude so the ripples use the full
-    # palette; the deep wells simply saturate at the dark end
-    cnorm = Normalize(vmin=-1.2*A_wave, vmax=1.2*A_wave, clip=True)
-    rgb  = ls_sheet.shade(Z, cmap=SHEET_CMAP, norm=cnorm,
-                          vert_exag=2.0, blend_mode="soft")
+rgb_surface = ls_sheet.shade_rgb(base_colors, Z, vert_exag=2.0, blend_mode="soft")
 
-ax.plot_surface(X, Y, Z, facecolors=rgb, rstride=1, cstride=1,
+# 4. Plot the surface
+ax.plot_surface(X, Y, Z, facecolors=rgb_surface, rstride=1, cstride=1,
                 linewidth=0, antialiased=True, shade=False,
-                alpha=SHEET_ALPHA, zorder=2)
+                alpha=0.95, zorder=2)
 
-ax.plot_wireframe(X, Y, Z, color=WIRE_COLOR, alpha=WIRE_ALPHA,
+ax.plot_wireframe(X, Y, Z, color="k", alpha=0.10,
                   linewidth=0.4, rstride=10, cstride=10, zorder=3)
 
 # --- Floor contours ----------------------------------------------------------------------
 levels = np.linspace(-A_wave, A_wave, 11)
 ax.contour(X, Y, Z, levels=levels, zdir="z", offset=z_floor,
-           cmap=SHEET_CMAP, linewidths=0.8, alpha=0.45, zorder=1)
+           cmap="turbo", linewidths=0.8, alpha=0.45, zorder=1)
 
 # --- Zone annotations (2D overlays: always legible) ---------------------------------------
 ax.text2D(0.16, 0.70, "near zone:\nstatic curvature wells",

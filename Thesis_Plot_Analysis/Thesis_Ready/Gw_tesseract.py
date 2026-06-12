@@ -27,7 +27,10 @@ import os
 os.makedirs("Thesis_Ready_Plots", exist_ok=True)
 
 # =============================== STYLE =======================================
-STRAIN_CMAP   = plt.get_cmap("turbo_r")   # diverging: stretch vs squeeze
+COLOR_BY      = "radius"                   # "radius": blue centre -> red outside
+                                           # "strain": red/blue bands by local h(z)
+RADIUS_CMAP   = plt.get_cmap("turbo")      # turbo: r=0 blue ... r=max red
+STRAIN_CMAP   = plt.get_cmap("coolwarm")   # diverging: stretch vs squeeze
 REF_COLOR     = "0.72"
 REF_ALPHA     = 0.30
 LINEWIDTH     = 1.5
@@ -71,7 +74,7 @@ SAMPLES = 60
 t = np.linspace(0.0, 1.0, SAMPLES)
 
 def build_lattice(pol):
-    straight, warped, strain_mid = [], [], []
+    straight, warped, strain_mid, radius_mid = [], [], [], []
     for s in SHELLS:
         V3 = project_4d_to_3d(V4_UNIT * s)
         for i, j in EDGES:
@@ -82,7 +85,8 @@ def build_lattice(pol):
                 straight.append([line[kk], line[kk + 1]])
                 warped.append([bent[kk], bent[kk + 1]])
                 strain_mid.append(h_of(0.5*(line[kk][2] + line[kk+1][2])))
-    return straight, warped, np.asarray(strain_mid)
+                radius_mid.append(np.linalg.norm(0.5*(bent[kk] + bent[kk+1])))
+    return straight, warped, np.asarray(strain_mid), np.asarray(radius_mid)
 
 # --- Figure: two panels, the two polarisations -------------------------------------
 fig = plt.figure(figsize=(14.5, 7.2))
@@ -91,18 +95,26 @@ fig.suptitle("A gravitational wave bending every line of space",
              fontsize=16, fontweight="bold", x=0.45, y=0.97)
 fig.subplots_adjust(left=0.0, right=0.86, top=1.02, bottom=0.04, wspace=0.0)
 
-norm = mpl.colors.Normalize(vmin=-A_h, vmax=A_h)
+if COLOR_BY == "radius":
+    norm = mpl.colors.Normalize(vmin=0.0, vmax=2.05)   # set after first build below
+    CMAP = RADIUS_CMAP
+else:
+    norm = mpl.colors.Normalize(vmin=-A_h, vmax=A_h)
+    CMAP = STRAIN_CMAP
 
 for idx, (pol, sym) in enumerate([("plus", r"$h_+$"), ("cross", r"$h_\times$")]):
     ax = fig.add_subplot(1, 2, idx + 1, projection="3d")
-    straight, warped, strain = build_lattice(pol)
+    straight, warped, strain, radius = build_lattice(pol)
+    if COLOR_BY == "radius" and idx == 0:
+        norm.vmin, norm.vmax = radius.min(), radius.max()
+    cvals = radius if COLOR_BY == "radius" else strain
 
     # faint unperturbed lattice = flat spacetime reference
     ax.add_collection3d(Line3DCollection(straight, colors=REF_COLOR,
                                          linewidths=0.4, alpha=REF_ALPHA))
     # warped lattice coloured by local strain
     ax.add_collection3d(Line3DCollection(warped,
-                                         colors=STRAIN_CMAP(norm(strain)),
+                                         colors=CMAP(norm(cvals)),
                                          linewidths=LINEWIDTH))
 
     # propagation arrow along z (the wave needs NO medium and NO central mass)
@@ -122,11 +134,15 @@ for idx, (pol, sym) in enumerate([("plus", r"$h_+$"), ("cross", r"$h_\times$")])
         pane.set_visible(False)
 
 # shared colorbar = local strain
-m = mpl.cm.ScalarMappable(norm=norm, cmap=STRAIN_CMAP); m.set_array([])
+m = mpl.cm.ScalarMappable(norm=norm, cmap=CMAP); m.set_array([])
 cb = fig.colorbar(m, ax=fig.axes, shrink=0.62, pad=0.04)
-cb.set_label(r"local strain $h(z) = A\sin(kz - \omega t)$"
-             "\n(red: stretch $x$ / squeeze $y$ — blue: opposite phase)",
-             fontsize=9)
+if COLOR_BY == "radius":
+    cb.set_label(r"distance from centre $r$   (blue: near $\to$ red: far)",
+                 fontsize=9)
+else:
+    cb.set_label(r"local strain $h(z) = A\sin(kz - \omega t)$"
+                 "\n(red: stretch $x$ / squeeze $y$ — blue: opposite phase)",
+                 fontsize=9)
 
 fig.text(0.45, 0.06,
          "transverse–traceless: every line bends, nothing moves along $z$ — "
