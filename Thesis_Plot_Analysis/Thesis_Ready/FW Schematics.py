@@ -46,7 +46,7 @@ def fig_fw_schematic():
     for x,t in [(0.365,r'$U_1$'),(0.640,r'$U_2$')]:
         fig.text(x,0.5,r'$\longrightarrow$',ha='center',va='center',fontsize=18)
         fig.text(x,0.37,t,ha='center',va='center',fontsize=10)
-    fig.suptitle('FW transformation: iterative block diagonalisation (blue=+, red=-)',y=1.01)
+    fig.suptitle('FW transformation: iterative block diagonalisation (blue=+, red=-)',y=0.91)
     plt.tight_layout()
     plt.savefig('figures/fig10_fw_schematic.png',bbox_inches='tight')
     plt.show()
