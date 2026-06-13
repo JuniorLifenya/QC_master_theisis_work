@@ -1,61 +1,83 @@
+# FW Expansion Convergence
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import TwoSlopeNorm
-from scipy.linalg import expm
-import os
-os.makedirs("figures", exist_ok=True)
-plt.rcParams.update({'font.family': 'serif', 'font.size': 12, 'figure.dpi': 150})
 
-# ── genuine iterative FW on the free-particle Dirac matrix (p along z) ────────
-I2 = np.eye(2); sz = np.array([[1, 0], [0, -1]], complex); Zr = np.zeros((2, 2))
-beta = np.block([[I2, Zr], [Zr, -I2]]).astype(complex)
-alpha_z = np.block([[Zr, sz], [sz, Zr]])
-def odd(H): return 0.5 * (H - beta @ H @ beta)
-def fw_step(H, m=1.0):
-    S = -1j * beta @ odd(H) / (2 * m); U = expm(1j * S); return U @ H @ U.conj().T
+# ─── FW expansion: corrections as power series in p/m ─────────
+# H_eff = beta*m + p^2/(2m) - p^4/(8m^3) + p^6/(16m^5) - ...
+# Compare exact E = sqrt(m^2 + p^2) - m  with partial sums
 
-PM = 0.5                                  # p/m  (mildly relativistic, numbers visible)
-H = alpha_z * PM + beta                   # m = 1
-snaps = []
-for _ in range(3):
-    snaps.append(H.real.copy()); H = fw_step(H)
-odd_norms = [np.linalg.norm(odd(S.astype(complex))) for S in snaps]
+m = 1.0  # normalised mass
+p_over_m = np.linspace(0, 2.0, 500)
+p = p_over_m * m
 
-# ── plot: their schematic style, but every number is COMPUTED ────────────────
-fig, axes = plt.subplots(1, 3, figsize=(13, 4.5))
-def dm(ax, data, title):
-    norm = TwoSlopeNorm(vmin=-1.2, vcenter=0, vmax=1.2)
-    ax.imshow(data, cmap='RdBu', norm=norm, aspect='equal')
-    for i in range(4):
-        for j in range(4):
-            v = data[i, j]
-            if abs(v) > 0.02:
-                txt = f'{v:.2f}' if abs(v) >= 0.1 else f'{v:.3f}'
-                ax.text(j, i, txt, ha='center', va='center', fontsize=11,
-                        color='white' if abs(v) > 0.6 else 'black')
-    ax.set_xticks([]); ax.set_yticks([])
-    for k in range(5):
-        ax.axhline(k - 0.5, color='gray', lw=0.4); ax.axvline(k - 0.5, color='gray', lw=0.4)
-    ax.axhline(1.5, color='k', lw=2); ax.axvline(1.5, color='k', lw=2)
-    ax.set_title(title, fontsize=10, pad=6)
+E_exact = np.sqrt(m**2 + p**2) - m
 
-dm(axes[0], snaps[0], 'Initial Dirac $H$  ($p/m=0.5$)\n'
-   r'odd block $\|\mathcal{O}\|=%.2f$' % odd_norms[0])
-dm(axes[1], snaps[1], r'After $e^{i\hat S_1}H e^{-i\hat S_1}$' + '\n'
-   r'odd block $\|\mathcal{O}\|=%.3f$' % odd_norms[1])
-dm(axes[2], snaps[2], r'After $\hat S_2$:  $H_{\rm eff}$' + '\n'
-   r'odd block $\|\mathcal{O}\|=%.3f$ (block-diag.)' % odd_norms[2])
+orders = [1, 2, 3, 4]
+colors = ['#6BAED6', '#2171B5', '#08519C', '#08306B']
+labels = ['$\\mathcal{O}(p^2/m)$',
+          '$\\mathcal{O}(p^4/m^3)$',
+          '$\\mathcal{O}(p^6/m^5)$',
+          '$\\mathcal{O}(p^8/m^7)$']
 
-for x, t in [(0.350, r'$U_1$'), (0.662, r'$U_2$')]:
-    fig.text(x, 0.50, r'$\longrightarrow$', ha='center', va='center', fontsize=20)
-    fig.text(x, 0.585, t, ha='center', va='center', fontsize=10)
+coefficients = [
+    ( 1/(2*m),      2),
+    (-1/(8*m**3),   4),
+    ( 1/(16*m**5),  6),
+    (-5/(128*m**7), 8),
+]
 
-fig.suptitle('FW iterative block diagonalisation — genuine computed entries '
-             r'(diagonal $\to \pm\sqrt{m^2+p^2}=\pm1.118$;  blue $+$, red $-$)',
-             y=0.95, fontsize=9)
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# Left: energy comparison
+ax = axes[0]
+ax.plot(p_over_m, E_exact, 'k-', lw=2.5, label='Exact $\\sqrt{m^2+p^2}-m$',
+        zorder=10)
+
+E_approx = np.zeros_like(p)
+for n, ((coeff, power), col, lab) in enumerate(
+        zip(coefficients, colors, labels)):
+    E_approx += coeff * p**power
+    ax.plot(p_over_m, E_approx, color=col, lw=1.8, ls='--',
+            label=f'FW through {lab}', alpha=0.85)
+
+ax.set_xlabel('$p/m$', fontsize=11)
+ax.set_ylabel('$E/m$', fontsize=11)
+ax.set_title('FW expansion of free-particle energy\n'
+             'vs exact relativistic dispersion', fontsize=10)
+ax.legend(fontsize=8.5, loc='upper left')
+ax.set_xlim(0, 2); ax.set_ylim(-0.05, 1.2)
+ax.axvline(alpha_fs := 1/137, color='green', lw=0.8, ls=':', alpha=0.7)
+ax.text(1/137 + 0.02, 0.95, '$\\alpha$ (H-atom)', fontsize=7.5,
+        color='green')
+ax.grid(alpha=0.25)
+
+# Right: relative error
+ax = axes[1]
+E_approx_all = np.zeros_like(p)
+for n, ((coeff, power), col, lab) in enumerate(
+        zip(coefficients, colors, labels)):
+    E_approx_all += coeff * p**power
+    rel_err = np.abs(E_approx_all - E_exact) / (E_exact + 1e-15)
+    ax.semilogy(p_over_m, rel_err, color=col, lw=1.8, ls='--',
+                label=f'Through {lab}', alpha=0.85)
+
+ax.axvline(1/137, color='green', lw=0.8, ls=':', alpha=0.7)
+ax.text(1/137+0.01, 5e-2, '$\\alpha$', fontsize=9, color='green')
+ax.axvline(0.1, color='orange', lw=0.8, ls=':', alpha=0.7)
+ax.text(0.11, 5e-2, '$v/c=0.1$', fontsize=8, color='orange')
+
+ax.set_xlabel('$p/m$', fontsize=11)
+ax.set_ylabel('Relative error $|E_{\\rm FW} - E_{\\rm exact}|/E_{\\rm exact}$',
+              fontsize=10)
+ax.set_title('Convergence of FW expansion\n(relative error vs $p/m$)',
+             fontsize=10)
+ax.legend(fontsize=8.5, loc='upper left')
+ax.set_xlim(0, 2)
+ax.set_ylim(1e-14, 1e1)
+ax.grid(which='both', alpha=0.25)
+
 plt.tight_layout()
-out = 'figures/fig10_fw_schematic.png'
-plt.savefig(out, bbox_inches='tight', dpi=300)
+plt.savefig("figures/fw_expansion_convergence.png",
+            bbox_inches="tight", dpi=300)
 plt.show()
-print("Saved:", out)
-print("odd-block norms:", [f'{x:.4f}' for x in odd_norms])
+print("Saved: fw_expansion_convergence.pdf")
