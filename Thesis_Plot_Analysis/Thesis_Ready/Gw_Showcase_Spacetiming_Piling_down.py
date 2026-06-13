@@ -152,3 +152,122 @@ out = "Thesis_Ready_Plots/fig_gravitational_wave.png"
 plt.savefig(out, dpi=300, bbox_inches="tight")
 plt.show()
 print("Saved:", out)
+
+
+
+# More detailed close picture really ====================================================
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import LightSource
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+import os
+os.makedirs("Thesis_Ready_Plots", exist_ok=True)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Heuristic height map (visualisation, not a single rigorous metric):
+#   * each mass = a DOWNWARD potential well  -depth / sqrt(r^2 + a^2)
+#   * an outgoing ripple lives only in the WAVE ZONE (windowed to ~0 at centre)
+#   so the middle reads cleanly as "two masses denting spacetime down", and the
+#   waves radiate outside.
+# ─────────────────────────────────────────────────────────────────────────────
+M_POS  = [(-1.6, 0.0), (1.6, 0.0)]   # the two masses (separated -> two distinct dips)
+DEPTH  = 0.62                           # well depth
+A_SOFT = 0.60                           # well softening (sharper -> distinct dips)
+A_RIP, K_RIP, DECAY = 0.30, 2.3, 3.6    # ripple amplitude / wavenumber / damping
+R_WIN = 2.6                             # radius below which the ripple is suppressed
+
+def well(x, y, cx, cy):
+    return -DEPTH / np.sqrt((x - cx)**2 + (y - cy)**2 + A_SOFT**2)
+
+def ripple(x, y):
+    r = np.sqrt(x**2 + y**2)
+    window = 1.0 - np.exp(-(r / R_WIN)**2)          # 0 at centre -> 1 outside
+    return A_RIP * np.sin(K_RIP * r) * np.exp(-r / DECAY) * window
+
+def wave_z(x, y):
+    return well(x, y, *M_POS[0]) + well(x, y, *M_POS[1]) + ripple(x, y)
+
+# --- grid --------------------------------------------------------------------
+N, SPAN = 220, 5.0
+gx = np.linspace(-SPAN, SPAN, N)
+X, Y = np.meshgrid(gx, gx)
+Z = wave_z(X, Y)
+R_dist = np.sqrt(X**2 + Y**2)
+
+# --- figure ------------------------------------------------------------------
+fig = plt.figure(figsize=(12, 7.5))
+fig.patch.set_facecolor("white")
+ax = fig.add_subplot(111, projection="3d", computed_zorder=False)
+fig.suptitle("Two masses curving spacetime", fontsize=15, fontweight="bold", y=0.9)
+ax.set_title("each mass dimples the sheet downward; the binary radiates waves outward",
+             fontsize=11, pad=0, color="dimgrey", y=0.85)
+
+z_floor, z_top = -1.75, 0.55
+ax.set_xlim(-SPAN, SPAN); ax.set_ylim(-SPAN, SPAN); ax.set_zlim(z_floor, z_top)
+BOX = (2*SPAN, 2*SPAN, 3.0)
+ax.set_box_aspect(BOX)
+sx, sy = BOX[0]/(2*SPAN), BOX[1]/(2*SPAN)
+sz = BOX[2]/(z_top - z_floor)
+
+# --- spheres (pre-squished so they render round under the box aspect) --------
+def visual_sphere(cx, cy, cz, R, n=80):
+    u = np.linspace(0, 2*np.pi, n); v = np.linspace(0, np.pi, n)
+    rx, ry, rz = R, R * sx/sy, R * sx/sz
+    return (cx + rx*np.outer(np.cos(u), np.sin(v)),
+            cy + ry*np.outer(np.sin(u), np.sin(v)),
+            cz + rz*np.outer(np.ones_like(u), np.cos(v)))
+
+ls_bh = LightSource(315, 45)
+def draw_mass(cx, cy, R):
+    cz = wave_z(cx, cy) + 0.34 * R * sx/sz          # seat it in its well
+    XS, YS, ZS = visual_sphere(cx, cy, cz, R)
+    rgb = ls_bh.shade(ZS, plt.cm.inferno, vert_exag=1.0, blend_mode="soft")
+    ax.plot_surface(XS, YS, ZS, facecolors=rgb, rstride=1, cstride=1,
+                    linewidth=0, antialiased=True, shade=False, zorder=10)
+    return cz
+
+R_bh = 0.42
+for (cx, cy) in M_POS:
+    draw_mass(cx, cy, R_bh)
+
+# orbit ring riding the warped sheet (binary motion hint)
+th = np.linspace(0, 2*np.pi, 240)
+orb_r = 1.6
+oxr, oyr = orb_r*np.cos(th), orb_r*np.sin(th)
+ax.plot(oxr, oyr, wave_z(oxr, oyr) + 0.04, ls="--", lw=1.1,
+        color="black", alpha=0.55, zorder=9)
+ax.text(0.0, 0.0, wave_z(0, 0) + 0.55, "binary source",
+        fontsize=10, fontweight="bold", ha="center", zorder=11)
+
+# --- faint FLAT reference sheet at z = 0 (the undisturbed level) --------------
+ax.plot_surface(X, Y, np.zeros_like(Z), color="gainsboro", alpha=0.18,
+                linewidth=0, antialiased=True, zorder=0)
+
+# --- the warped sheet: radial colour (red centre -> blue out) + hill-shading --
+norm_R = (R_dist - R_dist.min()) / (R_dist.max() - R_dist.min())
+base_colors = plt.get_cmap("turbo")(norm_R)[:, :, :3]
+rgb_surface = LightSource(315, 50).shade_rgb(base_colors, Z, vert_exag=2.0,
+                                             blend_mode="soft")
+ax.plot_surface(X, Y, Z, facecolors=rgb_surface, rstride=1, cstride=1,
+                linewidth=0, antialiased=True, shade=False, alpha=0.95, zorder=2)
+ax.plot_wireframe(X, Y, Z, color="k", alpha=0.45, linewidth=0.4,
+                  rstride=7, cstride=7, zorder=3)
+
+# --- contour shadow on the floor ---------------------------------------------
+ax.contour(X, Y, Z, levels=12, zdir="z", offset=z_floor,
+           cmap="Greys", linewidths=0.8, alpha=0.40, zorder=1)
+
+# --- cosmetics ---------------------------------------------------------------
+ax.view_init(elev=24, azim=-55)
+ax.set_xlabel(r"$x$", fontsize=12, labelpad=8)
+ax.set_ylabel(r"$y$", fontsize=12, labelpad=8)
+ax.set_zticks([]); ax.grid(False)
+for pane in (ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane):
+    pane.set_visible(False)
+ax.zaxis.line.set_color((1, 1, 1, 0))
+
+fig.subplots_adjust(left=0.0, right=1.0, bottom=0.02, top=1.02)
+out = "Thesis_Ready_Plots/fig_gravitational_wave.png"
+plt.savefig(out, dpi=300, bbox_inches="tight")
+print("Saved:", out)
