@@ -46,7 +46,7 @@ dm(axes[1], snaps[1], r'After $e^{i\hat S_1}H e^{-i\hat S_1}$' + '\n'
 dm(axes[2], snaps[2], r'After $\hat S_2$:  $H_{\rm eff}$' + '\n'
    r'odd block $\|\mathcal{O}\|=%.3f$ (block-diag.)' % odd_norms[2])
 
-for x, t in [(0.350, r'$U_1$'), (0.662, r'$U_2$')]:
+for x, t in [(0.335, r'$U_1$'), (0.662, r'$U_2$')]:
     fig.text(x, 0.50, r'$\longrightarrow$', ha='center', va='center', fontsize=20)
     fig.text(x, 0.585, t, ha='center', va='center', fontsize=10)
 
