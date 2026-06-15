@@ -9,7 +9,7 @@ pm = np.linspace(0, 2.0, 800)
 p = pm * m
 E_exact = np.sqrt(m**2 + p**2) - m
 
-colors = ['#6BAED6', '#2171B5', '#08519C', '#08306B']
+colors = ['#6BAED6', "#00FFE1", "#08529CD9","#9900FF" ]
 labels = [r'$\mathcal{O}(p^2/m)$', r'$\mathcal{O}(p^4/m^3)$',
           r'$\mathcal{O}(p^6/m^5)$', r'$\mathcal{O}(p^8/m^7)$']
 coeffs = [(1/(2*m), 2), (-1/(8*m**3), 4), (1/(16*m**5), 6), (-5/(128*m**7), 8)]
@@ -23,7 +23,7 @@ ax.plot(pm, E_exact, 'k-', lw=2.5, label=r'Exact $\sqrt{m^2+p^2}-m$', zorder=10)
 E = np.zeros_like(p)
 for (c, pw), col, lab in zip(coeffs, colors, labels):
     E = E + c * p**pw
-    ax.plot(pm, E, color=col, lw=1.8, ls='--', label=f'through {lab}')
+    ax.plot(pm, E, color=col, lw=2, ls='--', label=f'through {lab}')
 ax.axvline(R, color='firebrick', lw=1.5, label=r'radius $p/m=1$')
 ax.set_xlabel(r'$p/m$'); ax.set_ylabel(r'$E/m$')
 ax.set_title('FW energy vs exact dispersion', fontsize=11)
