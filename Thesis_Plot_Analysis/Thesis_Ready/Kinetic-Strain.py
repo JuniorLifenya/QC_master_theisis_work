@@ -55,5 +55,3 @@ fig.suptitle(r'Kinetic strain $h_{ij}\hat{p}^i\hat{p}^j$ in Momentum Space' + \
 
 plt.savefig('figures/fig11_kinetic_strain.png', bbox_inches='tight')
 plt.show()
-
-print("File saved: figures/fig11_kinetic_strain.png")
