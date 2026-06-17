@@ -63,7 +63,7 @@ for pol_idx, (pol_label,hxx,hxy) in enumerate(
             spine.set_linewidth(0.4)
 fig.suptitle("Tidal deformation of a ring of test particles \n"
              "by a propagating gravitational wave",
-             fontsize = 10, y = 0.99)
+             fontsize = 10, y = 0.99, x = 0.59)
 
 plt.show()
 print("Finished and saved: dotted_blue_polarization.png")
