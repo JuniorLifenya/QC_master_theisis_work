@@ -149,10 +149,19 @@ def update(frame):
 
 anim = FuncAnimation(fig, update, frames=N_FRAMES, blit=False)
 
-mp4 = "Thesis_Ready_Plots/anim_gw_tesseract.mp4"
-anim.save(mp4, writer=FFMpegWriter(fps=FPS, bitrate=2400), dpi=110)
-print("Saved:", mp4)
+# ============ SAVE PNG SEQUENCE for LaTeX ============
+# Choose output folder
+frame_dir = "anim_tesseract"
+os.makedirs(frame_dir, exist_ok=True)
 
-gif = "Thesis_Ready_Plots/anim_gw_tesseract.gif"
-anim.save(gif, writer=PillowWriter(fps=FPS), dpi=72)
-print("Saved:", gif)
+N_FRAMES = 60          # you can increase this to 90, 120… for longer video
+# Important: re‑create the animation with the desired N_FRAMES if you changed it above
+
+# Method: use FuncAnimation with a dummy writer that just saves the png
+# but easiest is to iterate and force a draw
+for i in range(N_FRAMES):
+    update(i)                              # update the artists
+    fig.canvas.draw()                      # force redraw
+    fig.savefig(f"{frame_dir}/tess_frame_{i:04d}.png", dpi=110)   # lower dpi = smaller, faster
+    print(f"Saved frame {i:04d}", end="\r")
+plt.show()
