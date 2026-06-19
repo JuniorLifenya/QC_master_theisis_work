@@ -13,7 +13,7 @@ ax.set_title("Electron structure and properties", fontsize=13,y=.2)
 ax.set_xlim(-4, 4); ax.set_ylim(-4, 4); ax.set_zlim(-1.6, 1.2)
 ax.set_box_aspect((1, 1, 1))
 
-# ════════════════════════════════════ RIGHT PANEL — classical electron zoom
+# RIGHT PANEL — classical electron zoom
 
 L = 2.0
 ax.set_xlim(-L, L); ax.set_ylim(-L, L); ax.set_zlim(-L, L)

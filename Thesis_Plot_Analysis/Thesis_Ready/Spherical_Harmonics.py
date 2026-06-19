@@ -148,6 +148,7 @@ fig.text(0.5, -0.04,
     bbox=dict(boxstyle='round,pad=0.5', fc=BG, ec='#ccc', lw=0.8))
 
 plt.tight_layout(rect=[0, 0.08, 1, 0.98])
+plt.show()
 plt.savefig("Thesis_Ready_Plots/plot2_spherical_harmonics.png",
             dpi=300, bbox_inches='tight', facecolor=BG)
 print("Saved: plot2_spherical_harmonics.png")
