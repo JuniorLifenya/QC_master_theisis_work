@@ -120,7 +120,7 @@ axL.zaxis.line.set_color((1, 1, 1, 0))
 
 # ════════════════════════════════════ RIGHT PANEL — classical electron zoom
 axR = fig.add_subplot(1, 2, 2, projection="3d", computed_zorder=False)
-axR.set_title("classical electron: spin, momentum, magnetic moment",
+axR.set_title("The interaction: Gravitational wave--Electron--Quantum Sensor",
               fontsize=11.5, color="dimgrey", y=0.97)
 
 L = 2.0
@@ -205,13 +205,11 @@ ev1 = np.array([0.45, -0.10, 0.18]); ev2 = np.array([0.05, 0.42, -0.18])
 pts = np.array([sensor_c+ev1+ev2, sensor_c+ev1-ev2, sensor_c-ev1-ev2, sensor_c-ev1+ev2])
 axR.add_collection3d(Poly3DCollection([pts], facecolor="#b3cde3",
                                       edgecolor="0.3", alpha=0.85, zorder=15))
-lens_c = sensor_c + np.array([-0.12, -0.12, -0.22])
+lens_c = sensor_c + np.array([-0.14, -0.19, -0.07])
 XSs, YSs, ZSs = sphere(*lens_c, 0.12)
 axR.plot_surface(XSs, YSs, ZSs, color="#08519C", alpha=0.9, linewidth=0, zorder=16)
 axR.text(sensor_c[0]+0.05, sensor_c[1]+0.15, sensor_c[2]+0.30, "quantum\nsensor",
          fontsize=11, fontweight="bold", ha="center", color="#08519C", zorder=17)
-axR.text(0.95, 0.85, 1.05, r"$\langle \hat{S}_z\rangle$", fontsize=12,
-         color="#08519C", zorder=18)
 # dashed readout beam
 axR.plot([lens_c[0], 0.14], [lens_c[1], 0.14], [lens_c[2], 0.22],
          ls=(0, (4, 3)), lw=1.8, color="#08519C", alpha=0.9, zorder=14)
@@ -236,5 +234,5 @@ fig.text(0.5, 0.025, _cap, ha="center", fontsize=11, color="0.25", style="italic
 fig.subplots_adjust(left=0.0, right=1.0, bottom=0.06, top=0.93, wspace=0.0)
 out = "Thesis_Ready_Plots/fig_thesis_core.png"
 plt.savefig(out, dpi=300, bbox_inches="tight")
-plt.show()
+# plt.show()
 print("Saved:", out)
