@@ -47,8 +47,9 @@ fig.suptitle("Probing a gravitational wave with a single spin-½ particle",
              fontsize=17, fontweight="bold", y=0.965)
 
 axL = fig.add_subplot(1, 2, 1, projection="3d", computed_zorder=False)
-axL.set_title("a binary radiates; one electron rides the wave",
-              fontsize=11.5, color="dimgrey", y=0.97)
+axL.set_facecolor("white")    
+axL.set_title("A binary radiates; one electron rides the wave",
+              fontsize=11.5, color="black", y=0.94)
 
 z_floor, z_top = -1.6, 1.2
 axL.set_xlim(-SPAN, SPAN); axL.set_ylim(-SPAN, SPAN); axL.set_zlim(z_floor, z_top)
@@ -76,7 +77,7 @@ cz1, cz2 = cz_list
 
 th = np.linspace(0, 2*np.pi, 200)
 axL.plot((d_binary/2)*np.cos(th), (d_binary/2)*np.sin(th),
-         np.full_like(th, (cz1+cz2)/2), ls="--", lw=1.2, color="black",
+         np.full_like(th, (cz1+cz2)/2), ls="--", lw=1.2, color="white",
          alpha=0.67, zorder=9)
 axL.text(0, 0, (cz1+cz2)/2 + R_bh*sx/sz + 0.35, "Binary Source",
          fontsize=10, fontweight="bold", ha="center", zorder=11)
@@ -111,17 +112,29 @@ for rr in (0.52, 0.60):
              np.full_like(ring, ez), color="crimson", lw=1.8, zorder=13)
 
 axL.view_init(elev=26, azim=-55)
-axL.set_xlabel(r"$x$", fontsize=12, labelpad=8)
-axL.set_ylabel(r"$y$", fontsize=12, labelpad=8)
 axL.set_zticks([]); axL.grid(False)
 for pane in (axL.xaxis.pane, axL.yaxis.pane, axL.zaxis.pane):
     pane.set_visible(False)
-axL.zaxis.line.set_color((1, 1, 1, 0))
+for pane in (axL.xaxis.pane, axL.yaxis.pane, axL.zaxis.pane):
+    pane.set_facecolor('black')
+    pane.set_edgecolor('none')
+axL.xaxis.line.set_color('white')
+axL.yaxis.line.set_color('white')
+axL.zaxis.line.set_color('white')
+axL.tick_params(axis='both', colors='white', which='both')
 
 # ════════════════════════════════════ RIGHT PANEL — classical electron zoom
 axR = fig.add_subplot(1, 2, 2, projection="3d", computed_zorder=False)
+for pane in (axR.xaxis.pane, axR.yaxis.pane, axR.zaxis.pane):
+    pane.set_facecolor('white')
+    pane.set_edgecolor('wheat')
+axR.xaxis.line.set_color('black')
+axR.yaxis.line.set_color('black')
+axR.zaxis.line.set_color('black')
+axR.tick_params(axis='both', colors='white', which='both')
+axR.set_facecolor("white")          
 axR.set_title("The interaction: Gravitational wave--Electron--Quantum Sensor",
-              fontsize=11.5, color="dimgrey", y=0.97)
+              fontsize=11.5, color="black", y=0.94)
 
 L = 2.0
 axR.set_xlim(-L, L); axR.set_ylim(-L, L); axR.set_zlim(-L, L)
@@ -194,10 +207,10 @@ for i, xw in enumerate([-1.95, -1.6, -1.25]):
     rim = np.linspace(0, 2*np.pi, 60)
     axR.plot(xw + 0*rim, 0.95*np.cos(rim), 0.95*np.sin(rim),
              color=col, lw=1.5, alpha=0.6, zorder=2)
-axR.quiver(-1.7, 0, -1.6, 1.2, 0, 0, color="black", lw=2.2,
+axR.quiver(-1.7, 0, -1.6, 1.2, 0, 0, color="white", lw=2.2,
            arrow_length_ratio=0.2, zorder=5)
 axR.text(-1.45, 0, -1.9, r"GW  $h_{ij}$", fontsize=12, fontweight="bold",
-         ha="center", zorder=6)
+         ha="center", zorder=6,color="white")
 
 # --- quantum sensor (tilted panel + lens) reading out diagonally ---
 sensor_c = np.array([1.55, 1.35, 1.45])
@@ -226,10 +239,6 @@ fig.patches.append(
     mpatches.FancyArrowPatch((0.485, 0.52), (0.535, 0.52),
         transform=fig.transFigure, mutation_scale=22, lw=2.0,
         color="crimson", arrowstyle="-|>"))
-_cap = (r"binary inspiral  $\rightarrow$  GW strain $h_{ij}$  $\rightarrow$  "
-        r"spin coupling $-\frac{\kappa}{2}h_{\mu\nu}T^{\mu\nu}$  $\rightarrow$  "
-        r"readout $\langle\hat{S}_z\rangle$  $\rightarrow$  correlate with LIGO event")
-fig.text(0.5, 0.025, _cap, ha="center", fontsize=11, color="0.25", style="italic")
 
 fig.subplots_adjust(left=0.0, right=1.0, bottom=0.06, top=0.93, wspace=0.0)
 out = "Thesis_Ready_Plots/fig_thesis_core.png"

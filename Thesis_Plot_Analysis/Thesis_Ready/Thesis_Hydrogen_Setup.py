@@ -32,12 +32,10 @@ R_dist = np.sqrt(X**2 + Y**2)
 
 fig = plt.figure(figsize=(15.5, 7.4))
 fig.patch.set_facecolor("white")
-# ── Updated suptitle to reflect hydrogen atom ──
 fig.suptitle("Probing a gravitational wave with a hydrogen atom",
              fontsize=17, fontweight="bold", y=0.965)
 
 axL = fig.add_subplot(1, 2, 1, projection="3d", computed_zorder=False)
-# ── Updated panel title ──
 axL.set_title("a binary radiates; a hydrogen atom rides the wave",
               fontsize=11.5, color="dimgrey", y=0.97)
 
@@ -85,11 +83,11 @@ axL.plot_wireframe(X, Y, Z, color="k", alpha=0.35, linewidth=0.4,
 axL.contour(X, Y, Z, levels=np.linspace(-A, A, 11), zdir="z", offset=z_floor,
             cmap="Greys", linewidths=0.8, alpha=0.45, zorder=1)
 
-# ── REPLACE THE ELECTRON WITH A HYDROGEN ATOM ──
+# ── HYDROGEN ATOM ON THE WAVE (left panel) ──
 ex, ey = 4.1, 1.3
-ez = wave_z(ex, ey) + 0.05 + 0.10*sx/sz   # base height of the atom on the wave
+ez = wave_z(ex, ey) + 0.05 + 0.10*sx/sz
 
-# ---- proton (small red nucleus) ----
+# proton (small red dot) – shown as a tiny sphere
 proton_R = 0.12
 XS_prot, YS_prot, ZS_prot = visual_sphere(ex, ey, ez, proton_R)
 prot_rgb = LightSource(315, 45).shade(ZS_prot, plt.cm.Reds, vert_exag=1.0,
@@ -98,24 +96,20 @@ axL.plot_surface(XS_prot, YS_prot, ZS_prot, facecolors=prot_rgb,
                  rstride=1, cstride=1, linewidth=0, antialiased=True,
                  shade=False, zorder=15)
 
-# ---- electron cloud (translucent blue sphere) ----
+# electron cloud – “cloudy” effect: a scatter of small dots inside a sphere
 cloud_R = 0.40
-XS_cloud, YS_cloud, ZS_cloud = visual_sphere(ex, ey, ez, cloud_R)
-cloud_rgb = LightSource(315, 45).shade(ZS_cloud, plt.cm.Blues, vert_exag=1.0,
-                                       blend_mode="soft")
-axL.plot_surface(XS_cloud, YS_cloud, ZS_cloud, facecolors=cloud_rgb,
-                 rstride=1, cstride=1, linewidth=0, antialiased=True,
-                 shade=False, alpha=0.35, zorder=14)
+np.random.seed(42)                           # reproducibility
+n_dots = 800
+# uniform distribution on the surface of a sphere and random radii
+theta_dots = np.arccos(1 - 2*np.random.rand(n_dots))
+phi_dots   = 2*np.pi * np.random.rand(n_dots)
+r_dots     = cloud_R * np.random.rand(n_dots)**(1/3)   # uniform in volume
+dx = ex + r_dots * np.sin(theta_dots) * np.cos(phi_dots)
+dy = ey + r_dots * np.sin(theta_dots) * np.sin(phi_dots)
+dz = ez + r_dots * np.cos(theta_dots)
+# colour: light blue with some transparency
+axL.scatter(dx, dy, dz, c="#5dade2", alpha=0.08, s=12, edgecolor='none', zorder=14)
 
-# ---- label ----
-axL.text(ex+1.2, ey-0.88, ez + 1.15, "H atom  (spin-½)",
-         fontsize=11, fontweight="bold", ha="center", color="#08306B", zorder=16)
-
-# ---- (optional) keep the red precession rings if they belong to the spin system ----
-ring = np.linspace(0, 2*np.pi, 80)
-for rr in (0.52, 0.60):
-    axL.plot(ex + rr*np.cos(ring), ey + rr*np.sin(ring),
-             np.full_like(ring, ez), color="crimson", lw=1.8, zorder=13)
 
 axL.view_init(elev=26, azim=-55)
 axL.set_xlabel(r"$x$", fontsize=12, labelpad=8)
@@ -125,7 +119,7 @@ for pane in (axL.xaxis.pane, axL.yaxis.pane, axL.zaxis.pane):
     pane.set_visible(False)
 axL.zaxis.line.set_color((1, 1, 1, 0))
 
-# ════════════════════════════════════ RIGHT PANEL — hydrogen atom zoom
+# ════════════════════════════════════ RIGHT PANEL — zoom on H atom
 axR = fig.add_subplot(1, 2, 2, projection="3d", computed_zorder=False)
 axR.set_title("The interaction: Gravitational wave--Hydrogen Atom--Quantum Sensor",
               fontsize=11.5, color="dimgrey", y=0.97)
@@ -140,67 +134,58 @@ def sphere(cx, cy, cz, R, n=60):
             cy + R*np.outer(np.sin(u), np.sin(v)),
             cz + R*np.outer(np.ones_like(u), np.cos(v)))
 
-# --- B-field dipole loops (atom’s magnetic moment, unchanged) ---
-def dipole_loop(scale, plane_angle, npts=240):
-    th = np.linspace(0.001, np.pi-0.001, npts)
-    r  = scale * np.sin(th)**2
-    rho = r * np.sin(th); zc = r * np.cos(th)
-    rho = np.concatenate([rho, rho[::-1]])
-    zc  = np.concatenate([zc,  zc[::-1]])
-    side = np.concatenate([np.ones(npts), -np.ones(npts)])
-    ca, sa = np.cos(plane_angle), np.sin(plane_angle)
-    return rho*side*ca, rho*side*sa, zc
-
-for ang in np.linspace(0, np.pi*3, 1, endpoint=False):
-    for scl in (0.9, 1.3, 1.7):
-        bx, by, bz = dipole_loop(scl, ang)
-        axR.plot(bx, by, bz, color="#7e57c2", lw=1.0, alpha=0.40, zorder=3)
-axR.text(-1.15, 1.7, -1.85, r"$\vec{B}$  (magnetic moment)", fontsize=11,
-         color="#7e57c2", zorder=26)
-
-# --- hydrogen atom: proton + electron cloud (replaces the bare electron) ---
-# proton (centre)
-XS_prot, YS_prot, ZS_prot = sphere(0, 0, 0, 0.13)
+# --- proton (tiny red core) ---
+XS_prot, YS_prot, ZS_prot = sphere(0, 0, 0, 0.10)
 prot_rgb = LightSource(315, 45).shade(ZS_prot, plt.cm.Reds, vert_exag=1.0,
                                       blend_mode="soft")
 axR.plot_surface(XS_prot, YS_prot, ZS_prot, facecolors=prot_rgb,
                  rstride=1, cstride=1, linewidth=0, antialiased=True,
                  shade=False, zorder=20)
-axR.text(0, 0, -0.48, "p", fontsize=12, fontweight="bold", ha="center",
-         color="#67000d", zorder=21)
 
-# electron cloud (translucent blue sphere) – represents the probability density
-cloud_R = 0.48
-XS_cloud, YS_cloud, ZS_cloud = sphere(0, 0, 0, cloud_R)
-cloud_rgb = LightSource(315, 45).shade(ZS_cloud, plt.cm.Blues, vert_exag=1.0,
-                                       blend_mode="soft")
-axR.plot_surface(XS_cloud, YS_cloud, ZS_cloud, facecolors=cloud_rgb,
+# --- plus sign at the proton centre (middle of the atom) ---
+plus_z = 0.05                  # slightly above the proton sphere to be visible
+axR.text(0, -0.01, plus_z-0.07, "+", fontsize=14, fontweight="bold",
+         ha="center", va="center", color="#67000d", zorder=25)
+
+# --- "H atom" label right outside the electron cloud, on top ---
+label_z = cloud_R + 0.2       # cloud radius = 0.65, so label at z = 0.80
+axR.text(0, 0, label_z, "H atom", fontsize=11, fontweight="bold",
+         ha="center", va="center", color="#08306B", zorder=25)
+
+# --- electron cloud (cloudy, bubbly) ---
+cloud_R = 0.65
+np.random.seed(123)
+n_dots = 1500
+theta = np.arccos(1 - 2*np.random.rand(n_dots))
+phi   = 2*np.pi * np.random.rand(n_dots)
+r     = cloud_R * np.random.rand(n_dots)**(1/3)
+cx_d = r * np.sin(theta) * np.cos(phi)
+cy_d = r * np.sin(theta) * np.sin(phi)
+cz_d = r * np.cos(theta)
+axR.scatter(cx_d, cy_d, cz_d, c="#5dade2", alpha=0.04, s=10, edgecolor='none', zorder=19)
+
+# faint outer envelope to give shape (very translucent sphere)
+XS_env, YS_env, ZS_env = sphere(0, 0, 0, cloud_R)
+env_rgb = LightSource(315, 45).shade(ZS_env, plt.cm.Blues, vert_exag=1.0, blend_mode="soft")
+axR.plot_surface(XS_env, YS_env, ZS_env, facecolors=env_rgb,
                  rstride=1, cstride=1, linewidth=0, antialiased=True,
-                 shade=False, alpha=0.30, zorder=19)
-# label the hydrogen atom
-axR.text(0, 0.7, 0, r"H atom", fontsize=11, fontweight="bold",
-         ha="center", color="#08306B", zorder=22)
+                 shade=False, alpha=0.08, zorder=18)
 
-# --- intrinsic spin: axis arrow (still the electron’s spin) ---
-axR.quiver(0, 0, 0.40, 0, 0, 0.95, color="#e6550d", lw=2.6,
-           arrow_length_ratio=0.28, zorder=24)
-axR.text(0.12, 0, 1.2, r"$\vec{S}$", fontsize=14, fontweight="bold",
-         color="#e6550d", zorder=26)
-def curl_arrow(z0, R, a0, a1, color, lw, n=60):
-    a = np.linspace(a0, a1, n)
-    axR.plot(R*np.cos(a), R*np.sin(a), np.full_like(a, z0),
-             color=color, lw=lw, zorder=24, solid_capstyle="round")
-    tip  = np.array([R*np.cos(a1), R*np.sin(a1), z0])
-    tang = np.array([-np.sin(a1), np.cos(a1), 0.0])
-    axR.quiver(tip[0], tip[1], tip[2], tang[0], tang[1], tang[2],
-               color=color, lw=lw, arrow_length_ratio=1.0,
-               length=0.22, normalize=True, zorder=25)
-curl_arrow(0.40, 0.42, np.deg2rad(10), np.deg2rad(310), "#e6550d", 3.0)
+# --- orbital arc (the “orbit”) ---
+orbit_radius = 0.85
+orbit_angles = np.linspace(0, 1.7*np.pi, 200)   # a partial arc for motion
+axR.plot(orbit_radius*np.cos(orbit_angles), orbit_radius*np.sin(orbit_angles),
+         np.zeros_like(orbit_angles), color="crimson", lw=2.5, zorder=22,
+         solid_capstyle="round")
+# arrowhead on the orbit
+tip_ang = orbit_angles[-1]
+axR.quiver(orbit_radius*np.cos(tip_ang), orbit_radius*np.sin(tip_ang), 0,
+           -np.sin(tip_ang), np.cos(tip_ang), 0,
+           color="crimson", lw=2.5, arrow_length_ratio=0.2, length=0.25,
+           zorder=23)
 
-# --- momentum arrow removed (atom is stationary) ---
-# (previously: axR.quiver for \vec{p}, now omitted)
 
-# --- incoming GW wavefronts from the left (unchanged) ---
+# --- incoming GW wavefronts (unchanged) ---
 gw_cmap = plt.get_cmap("turbo")
 yy = np.linspace(-1.0, 1.0, 30); zz = np.linspace(-1.0, 1.0, 30)
 YYg, ZZg = np.meshgrid(yy, zz)
@@ -238,7 +223,7 @@ for pane in (axR.xaxis.pane, axR.yaxis.pane, axR.zaxis.pane):
 for line in (axR.xaxis.line, axR.yaxis.line, axR.zaxis.line):
     line.set_color((1, 1, 1, 0))
 
-# --- bridge arrow + caption (unchanged) ---
+# --- bridge arrow + caption ---
 fig.patches.append(
     mpatches.FancyArrowPatch((0.485, 0.52), (0.535, 0.52),
         transform=fig.transFigure, mutation_scale=22, lw=2.0,
@@ -249,7 +234,7 @@ _cap = (r"binary inspiral  $\rightarrow$  GW strain $h_{ij}$  $\rightarrow$  "
 fig.text(0.5, 0.025, _cap, ha="center", fontsize=11, color="0.25", style="italic")
 
 fig.subplots_adjust(left=0.0, right=1.0, bottom=0.06, top=0.93, wspace=0.0)
-out = "Thesis_Ready_Plots/fig_thesis_core.png"
+out = "Thesis_Ready_Plots/fig_thesisHydrogen_cloudy.png"
 plt.savefig(out, dpi=300, bbox_inches="tight")
-plt.show()
+# plt.show()
 print("Saved:", out)

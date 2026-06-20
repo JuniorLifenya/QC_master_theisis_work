@@ -227,7 +227,7 @@ ax_R.text(0, 2.78,
 fig.suptitle(r"Spin connection $\omega_\mu{}^{ab}$ — the gauge field of local Lorentz frames",
              fontsize=14, fontweight="bold", y=0.99)
 
-out_path = os.path.join(OUT, "fig_spin_connection.png")
+out_path = os.path.join(OUT, "fig_spin_connectionMany.png")
 fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
 plt.close(fig)
 print(f"Saved: {out_path}")

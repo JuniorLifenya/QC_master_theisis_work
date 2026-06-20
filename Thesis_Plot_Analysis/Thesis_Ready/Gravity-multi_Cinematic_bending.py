@@ -14,9 +14,11 @@ DESIGN:
   • Central mass sphere bobs gently with the well floor
 
 OUTPUTS:
-  rosette_frames/rosette_NNN.png   (60 PNGs)
-  anim_rosette.mp4                 (libx264, yuv420p)
+  rosette_frames/rosette_NNN.png   (90 PNGs)
+  Thesis_Plot_Analysis/anim_rosette.mp4                 (libx264, yuv420p)
   rosette_frames.zip               (for Overleaf upload)
+
+--- REVERTED TO WHITE BACKGROUND & STANDARD 3D ROOM ---
 """
 import os, subprocess
 import numpy as np
@@ -27,9 +29,10 @@ from matplotlib.colors import LightSource
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
-OUT_FRAMES = "/home/claude/rosette/rosette_frames"
-OUT_ROOT   = "/home/claude/rosette"
+OUT_FRAMES = "rosette_frames"
+OUT_ROOT   = "Thesis_Plot_Analysis"
 os.makedirs(OUT_FRAMES, exist_ok=True)
+os.makedirs(OUT_ROOT, exist_ok=True)
 
 # ─── parameters ─────────────────────────────────────────────────────
 G_M_0           = 0.70
@@ -127,8 +130,10 @@ for k in range(N_FRAMES):
 
     # ─── figure ──────────────────────────────────────────────────
     fig = plt.figure(figsize=(11, 8.5))
-    fig.patch.set_facecolor("white")
-    ax  = fig.add_subplot(111, projection="3d", computed_zorder=False)
+    # Figure background is white by default – no need to set it.
+
+    ax = fig.add_subplot(111, projection="3d", computed_zorder=False)
+    # All axes, panes, ticks, labels, grid are visible (default style).
 
     # Surface
     ax.plot_surface(X, Y, Z, cmap="jet_r", alpha=0.55, linewidth=0,
@@ -137,34 +142,36 @@ for k in range(N_FRAMES):
     # Contours (both on-surface and projected onto z_floor − 0.35)
     levels = np.linspace(z_floor + 0.35, -0.15, 7)
     ax.contour(X, Y, Z, levels=levels, colors="white",
-               linewidths=0.6, alpha=0.30, zorder=2)
+                linewidths=0.6, alpha=0.30, zorder=2)
     ax.contour(X, Y, Z, levels=levels, zdir="z",
-               offset=z_floor - 0.35, cmap="jet_r",
-               linewidths=0.8, alpha=0.55, zorder=0)
+                offset=z_floor - 0.35, cmap="jet_r",
+                linewidths=0.8, alpha=0.55, zorder=0)
 
-    # Trails (cyan for A, amber for B — high contrast against the warm surface)
+    # Trails (cyan for A, amber for B)
     add_fading_trail(ax, trail_A_xy, trail_A_z, rgb=(0.10, 0.95, 0.95),
-                     zorder=6, lw=2.6)
+                      zorder=6, lw=2.6)
     add_fading_trail(ax, trail_B_xy, trail_B_z, rgb=(1.00, 0.60, 0.20),
-                     zorder=6, lw=2.6)
+                      zorder=6, lw=2.6)
 
     # Orbiting balls
     z_A = well_z(pos_A[0], pos_A[1], gM_t) + LIFT
     z_B = well_z(pos_B[0], pos_B[1], gM_t) + LIFT
     ax.scatter(pos_A[0], pos_A[1], z_A, color="#19f0ff",
-               edgecolor="black", s=180, lw=1.6, zorder=9)
+                edgecolor="black", s=180, lw=1.6, zorder=9)
     ax.scatter(pos_B[0], pos_B[1], z_B, color="#ff9a1f",
-               edgecolor="black", s=150, lw=1.4, zorder=9)
+                edgecolor="black", s=150, lw=1.4, zorder=9)
 
     # Central mass — bobs gently with the well floor
     cz = z_floor + R_SPHERE + 1.25
     xs, ys, zs = sphere_mesh(0.0, 0.0, cz, R_SPHERE)
     shaded = LightSource(315, 45).shade(zs, plt.cm.inferno,
-                                         vert_exag=1.0, blend_mode="soft")
+                                          vert_exag=1.0, blend_mode="soft")
     ax.plot_surface(xs, ys, zs, facecolors=shaded, rstride=1, cstride=1,
                     linewidth=0, antialiased=True, shade=False, zorder=10)
     ax.plot([0, 0], [0, 0], [cz - R_SPHERE, z_floor], color="dimgray",
             ls=":", lw=1.1, alpha=0.8, zorder=8)
+
+    # Label the central mass
     ax.text(0, 0, cz + R_SPHERE + 0.25, "mass $M$",
             fontsize=10, fontweight="bold", ha="center", zorder=11)
 
@@ -174,19 +181,19 @@ for k in range(N_FRAMES):
     ax.set_ylim(-SPAN, SPAN)
     ax.set_zlim(Z_LIM_LO, Z_LIM_HI)
     ax.set_box_aspect((2*SPAN, 2*SPAN, Z_LIM_HI - Z_LIM_LO))
+
+    # Standard axis labels and grid
     ax.set_xlabel(r"$x$", fontsize=12)
     ax.set_ylabel(r"$y$", fontsize=12)
-    ax.set_zticklabels([])
-    ax.grid(False)
-
-    fig.suptitle("A single mass curving spacetime",
-                 fontsize=15, fontweight="bold")
-    ax.set_title("bound geodesics precessing into rosettes",
-                 fontsize=10, pad=2)
+    ax.set_zlabel(r"$z$", fontsize=12)
+    ax.grid(True)                     # show the 3D grid
+    
 
     fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=0.93)
     fname = os.path.join(OUT_FRAMES, f"rosette_{k:03d}.png")
-    fig.savefig(fname, dpi=130, bbox_inches="tight", facecolor="white")
+    # Save with white background
+    fig.savefig(fname, dpi=130, bbox_inches="tight",
+                facecolor="white", edgecolor="none")
     plt.close(fig)
 
     if (k + 1) % 15 == 0:

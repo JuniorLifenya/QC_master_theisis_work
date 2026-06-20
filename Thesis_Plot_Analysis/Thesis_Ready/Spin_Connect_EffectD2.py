@@ -96,8 +96,7 @@ ax1.text(*(e2A*1.06 + np.array([-0.1, 0.0])), r"$\hat{e}_2(A)$",
          color=SOLID[1], fontsize=13, fontweight="bold", ha="right")
 ax1.scatter(0, 0, s=55, color="black", zorder=5)
 ax1.text(0.06, -0.20, r"$A$", fontsize=15, fontweight="bold")
-ax1.set_title(r"Point $A$: $h_+$  ($h_{xx}=-h_{yy}=h$)" + "\n"
-              r"native frame along the coordinate axes", fontsize=10)
+ax1.set_title(r"Point $A$: $h_+$  ($h_{xx}=-h_{yy}=h$)" , fontsize=10)
 ax1.legend(loc="upper left", fontsize=8, framealpha=0.9)
 
 # ── Panel B : h× + transported frame + ω arc ─────────────────────────────────
@@ -125,13 +124,11 @@ for a0, a1 in [(0.0, np.pi/4), (np.pi/2, 3*np.pi/4)]:   # e1: 0->45, e2: 90->135
     ax2.annotate("", xy=(r*np.cos(a1), r*np.sin(a1)),
                  xytext=(r*np.cos(a1-0.06), r*np.sin(a1-0.06)),
                  arrowprops=dict(arrowstyle="-|>", color="darkorange", lw=3.0))
-ax2.text(0.92*np.cos(np.pi/8)+0.12, 0.92*np.sin(np.pi/8)+0.05,
-         r"$\omega\cdot dx\,(45°)$", color="darkorange", fontsize=10.5, fontweight="bold")
+
 
 ax2.scatter(0, 0, s=55, color="black", zorder=5)
 ax2.text(0.06, -0.20, r"$B$", fontsize=15, fontweight="bold")
-ax2.set_title(r"Point $B$: $h_\times$  ($h_{xy}=h_{yx}=h$)" + "\n"
-              r"solid $=$ native frame; dashed $=$ bare-transported", fontsize=10)
+ax2.set_title(r"Point $B$: $h_\times$  ($h_{xy}=h_{yx}=h$)", fontsize=10)
 
 # legend for B includes the dashed/solid meaning + ω
 handles = [Line2D([0],[0], color="#0A7660", lw=1.4, label=r"$h_\times$ deformed grid"),

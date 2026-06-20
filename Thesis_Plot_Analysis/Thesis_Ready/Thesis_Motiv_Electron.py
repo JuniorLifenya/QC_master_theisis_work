@@ -9,9 +9,12 @@ import os
 os.makedirs("Thesis_Ready_Plots", exist_ok=True)
 fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d', computed_zorder=False)
-ax.set_title("Electron structure and properties", fontsize=13,y=.2)
+ax.set_xticklabels([])
+ax.set_yticklabels([])
+ax.set_zticklabels([])
 ax.set_xlim(-4, 4); ax.set_ylim(-4, 4); ax.set_zlim(-1.6, 1.2)
 ax.set_box_aspect((1, 1, 1))
+
 
 # RIGHT PANEL — classical electron zoom
 
@@ -74,12 +77,15 @@ ax.quiver(0, 0, 0, 1.55, 0, 0, color="#1b9e77", lw=3.4,
 ax.text(1.7, 0, 0.14, r"$\vec{p}$", fontsize=14, fontweight="bold",
          color="#1b9e77", zorder=26)
 
-ax.view_init(elev=15, azim=-58)
-ax.set_xticks([]); ax.set_yticks([]); ax.set_zticks([]); ax.grid(False)
-for pane in (ax.xaxis.pane, ax.yaxis.pane, ax.zaxis.pane):
-    pane.set_visible(False)
-for line in (ax.xaxis.line, ax.yaxis.line, ax.zaxis.line):
-    line.set_color((1, 1, 1, 0))
+ax.view_init(elev=12, azim=-58)
+
+ax.xaxis.pane.set_color('wheat')
+ax.yaxis.pane.set_color('wheat')
+ax.zaxis.pane.set_color('wheat')
+
+# Example: Using a dashed line for the B-field loops
+ax.plot(bx, by, bz, color="#7e57c2", lw=1.0, linestyle='--', alpha=0.40)
+
 
 fig.subplots_adjust(left=0.0, right=1.0, bottom=0.06, top=0.93, wspace=0.0)
 out = "Thesis_Ready_Plots/fig_thesis_electron.png"

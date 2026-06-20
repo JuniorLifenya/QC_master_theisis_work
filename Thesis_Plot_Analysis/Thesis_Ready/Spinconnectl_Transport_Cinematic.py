@@ -154,12 +154,9 @@ gif_file = "Thesis_Ready_Plots/ParallelTransport.gif"
 anim.save(gif_file, writer='pillow', fps=10)
 print("Saved:", gif_file)
 
-if not hasattr(update, "counter"):
-    update.counter = 0
-plt.savefig(f"Thesis_Ready_Plots/tess_frame_{update.counter:04d}.png", dpi=150)
-update.counter += 1
+
 for i in range(N_path):
     update(i)   # re‑draw the frame
-    plt.savefig(f"Thesis_Ready_Plots/transport_frame_{i:04d}.png", dpi=150)
+    plt.savefig(f"Thesis_Plot_Analysis/transport_frame_{i:04d}.png", dpi=150)
     
 plt.show()
