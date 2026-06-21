@@ -99,11 +99,8 @@ TX, TY, TZ = tangent_plane(*P0, s, s)
 ax.plot_surface(TX, TY, TZ, color="steelblue", alpha=0.35,
                 edgecolor="navy", linewidth=0.4, zorder=5)
 
-# --- Local orthonormal frame at P ---
+# --- Local orthonormal frame at P (used later for B-field if needed) ---
 e1, e2, e3 = frame(*P0)
-
-# Scale factor for arrows
-L = 0.5
 
 # --- Draw the electron at P ---
 electron_R = 0.10
@@ -115,9 +112,22 @@ ax.plot_surface(XS, YS, ZS, facecolors=e_rgb, rstride=1, cstride=1,
 ax.text(Pp[0], Pp[1], Pp[2] + 0.25, r"$e^-$", fontsize=12, fontweight="bold",
         ha="center", color="#08306B", zorder=21)
 
+# ───── Coordinate axes at P (coordinate basis vectors) ─────
+rx = dr_dx(*P0)      # ∂r/∂x
+ry = dr_dy(*P0)      # ∂r/∂y
+arrow_scale = 0.4    # reasonable length for the arrows
 
+ax.quiver(*Pp, *(arrow_scale * rx), color='crimson', lw=2.5,
+          arrow_length_ratio=0.15, zorder=25, label=r'$\partial_x$')
+ax.quiver(*Pp, *(arrow_scale * ry), color='forestgreen', lw=2.5,
+          arrow_length_ratio=0.15, zorder=25, label=r'$\partial_y$')
 
-
+# Small offset to place the labels near the arrow tips
+offset = 0.06
+ax.text(*(Pp + arrow_scale * rx + offset),
+        r'$\partial_x$', color='crimson', fontsize=9, zorder=26)
+ax.text(*(Pp + arrow_scale * ry + offset),
+        r'$\partial_y$', color='forestgreen', fontsize=9, zorder=26)
 
 # --- Mark the point P ---
 ax.scatter(*Pp, color="black", s=30, zorder=7)

@@ -11,7 +11,6 @@ def dr_dx(x, y): return np.array([1.0, 0.0, 0.6 * y])   # coordinate tangent ∂
 def dr_dy(x, y): return np.array([0.0, 1.0, 0.6 * x])   # coordinate tangent ∂r/∂y
 
 # --- the FLAT tangent plane at P, spanned by the two tangent vectors ----------
-#   plane(s,t) = r(P) + s ∂r/∂x + t ∂r/∂y   — a genuine flat sheet touching P.
 def tangent_plane(x0, y0, s, t):
     P = r_vec(x0, y0); rx = dr_dx(x0, y0); ry = dr_dy(x0, y0)
     S, T = np.meshgrid(s, t)
@@ -89,6 +88,21 @@ ax2.plot_surface(TXz, TYz, TZz, color="steelblue", alpha=0.40,
                  edgecolor="navy", linewidth=0.6, zorder=4)
 ax2.scatter(*Pp, color="black", s=40, zorder=6)
 ax2.text(Pp[0], Pp[1], Pp[2] + 0.05, " P", fontsize=12, fontweight="bold")
+
+# ---- coordinate basis vectors (coordinate legs) at P ----
+rx = dr_dx(*P0)
+ry = dr_dy(*P0)
+arrow_scale = 0.16  # length that fits nicely in the zoom window
+ax2.quiver(*Pp, *(arrow_scale*rx), color="crimson", lw=2.5,
+           arrow_length_ratio=0.18, zorder=7)
+ax2.quiver(*Pp, *(arrow_scale*ry), color="forestgreen", lw=2.5,
+           arrow_length_ratio=0.18, zorder=7)
+# tiny offset so the label does not sit exactly on the arrow tip
+offset = 0.03
+ax2.text(*(Pp + arrow_scale*rx + offset),
+         r"$\partial_x$", color="crimson", fontsize=9)
+ax2.text(*(Pp + arrow_scale*ry + offset),
+         r"$\partial_y$", color="forestgreen", fontsize=9)
 
 zmin = min(TZz.min(), Zsurf(Xz, Yz).min())
 zmax = max(TZz.max(), Zsurf(Xz, Yz).max())
