@@ -94,18 +94,7 @@ for x in np.arange(-2.5, 2.6, 0.85):
     for y in np.arange(-2.5, 2.6, 0.85):
         draw_tetrad(ax_L, x, y, theta(x, y), size=0.30, lw=1.5)
 
-# Highlight one frame to anchor the labels
-hx, hy = 1.7, -1.7
-ax_L.add_patch(Circle((hx, hy), 0.55, fill=False,
-                      edgecolor="#c14a14", lw=2.0, ls="--", zorder=10))
-ax_L.annotate(r"local frame  $\hat e_a(x_0)$" "\n"
-              r"(no global frame exists)",
-              xy=(hx, hy), xytext=(0.8, -3.6),
-              fontsize=10, color="#c14a14", fontweight="bold",
-              arrowprops=dict(arrowstyle="->", color="#c14a14", lw=1.4),
-              ha="center",
-              bbox=dict(boxstyle="round,pad=0.30", fc="#fef0e8",
-                        ec="#c14a14", lw=0.9))
+
 
 # Bottom caption
 ax_L.text(0, 2.78,
@@ -144,8 +133,8 @@ draw_tetrad(ax_R, P[0],  P[1],  thP,  size=0.55, lw=2.6)
 draw_tetrad(ax_R, Pp[0], Pp[1], thPp, size=0.55, lw=2.6)
 
 # Electron markers
-for pt, lab, lo in [(P, r"$P$", (-0.32, -0.32)),
-                    (Pp, r"$P'$", (0.22, -0.32))]:
+for pt, lab, lo in [(P, r"$A$", (-0.32, -0.32)),
+                    (Pp, r"$B$", (0.01, -0.31))]:
     ax_R.scatter(*pt, s=210, color="black", zorder=12,
                  edgecolor="white", linewidth=2)
     ax_R.text(pt[0]+lo[0], pt[1]+lo[1], lab,
@@ -206,17 +195,10 @@ ax_R.add_patch(FancyArrowPatch(
 mid_th = 0.5*(a_no + a_w)
 mid_xy = (Pp[0] + (arc_r+0.10)*np.cos(mid_th),
           Pp[1] + (arc_r+0.10)*np.sin(mid_th))
-ax_R.text(mid_xy[0], mid_xy[1], r"$\Delta\theta$",
-          fontsize=12, color="darkorange", fontweight="bold",
-          ha="center", va="center")
+
 
 # Labelled integral expression — placed in lower-right of axes
-ax_R.text(2.95, -2.35,
-          r"$\Delta\theta \;=\; \int_{P}^{P'}\omega^{12}{}_\mu\,dx^\mu$",
-          fontsize=12, color="darkorange", fontweight="bold",
-          ha="right", va="center",
-          bbox=dict(boxstyle="round,pad=0.40", fc="#fff7e6",
-                    ec="darkorange", lw=1.3))
+
 
 # Bottom caption
 ax_R.text(0, 2.78,
