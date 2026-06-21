@@ -1,25 +1,18 @@
 """
-ANIMATED kinetic strain on a circular orbit – intuitive “heavy/light” version.
+ANIMATED kinetic strain on a circular orbit – intuitive “heavy/light” version
+(viewpoint matched to the earlier favourite, numbers removed from axes).
 
 PHYSICS (with the sign you actually have)
-    V(p) = h_+ (p_y² − p_x²)          (your derived form)
+    V(p) = h_+ (p_y² − p_x²)
 
 For |p| = p₀ = const. the direction‑dependent part of the kinetic energy is
     T ∼ p²/2m + V(p)   →   V > 0  means extra inertia (heavier)
                           V < 0  means less inertia (lighter).
 
-INTUITION
-    - When the dot sits in a **valley** (negative V, x‑direction) the electron
-      is “light” – it would move faster for the same momentum.
-    - When the dot sits on a **peak** (positive V, y‑direction) the electron
-      is “heavy” – harder to accelerate, as if running uphill.
-    - The dot’s motion in momentum space is uniform, but the **landscape
-      tells you how easily the electron accelerates in each direction.**
-
 60 frames, seamless loop.
 Outputs:
-  Thesis_Ready_Plots/ks_orbit_frames/ks_orbit_NNN.png   (60 PNGs)
-  Thesis_Ready_Plots/ks_orbit_frames.zip                (ZIP of frames)
+  Thesis_Ready_Plots/ks_orbit_frames/ks_orbit_NNN.png
+  Thesis_Ready_Plots/ks_orbit_frames.zip
   anim_kinetic_strain.mp4
 """
 import os, subprocess, zipfile
@@ -33,18 +26,18 @@ from matplotlib.collections import LineCollection
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
-# ---------- paths (relative to script location) ----------
+# ---------- paths ----------
 OUT_ROOT = "Thesis_Ready_Plots"
 OUT_FRAMES = os.path.join(OUT_ROOT, "ks_orbit_frames")
 os.makedirs(OUT_FRAMES, exist_ok=True)
 
 # ---------- parameters ----------
-h_plus = 0.5          # GW strain (exaggerated)
-p_0    = 1.0          # orbit radius
+h_plus = 0.5
+p_0    = 1.0
 N_FRAMES = 60
 plt.rcParams.update({"font.family": "serif", "font.size": 12})
 
-# ---------- landscape (your sign: p_y² − p_x²) ----------
+# ---------- landscape (p_y² − p_x²) ----------
 gx = np.linspace(-2.0, 2.0, 110)
 PX, PY = np.meshgrid(gx, gx)
 V = h_plus * (PY**2 - PX**2)
@@ -53,7 +46,7 @@ ls = LightSource(azdeg=315, altdeg=45)
 shaded = ls.shade(V, plt.cm.RdBu_r, vmin=-v_max, vmax=v_max,
                   vert_exag=0.6, blend_mode="soft")
 
-# full orbit (static backdrop)
+# full orbit
 phi_full = np.linspace(0, 2*np.pi, 240)
 ox_full = p_0 * np.cos(phi_full)
 oy_full = p_0 * np.sin(phi_full)
@@ -84,7 +77,7 @@ for k in range(N_FRAMES):
     seg = np.concatenate([pts[:-1], pts[1:]], axis=1)
     lc = Line3DCollection(seg, colors="0.4", linewidths=1.5, alpha=0.5, zorder=8)
     ax3d.add_collection3d(lc)
-    # trail up to current phase
+    # trail
     mask = phi_full <= phi_now
     if mask.sum() > 1:
         tx, ty = ox_full[mask], oy_full[mask]
@@ -104,11 +97,17 @@ for k in range(N_FRAMES):
     ax3d.quiver(px_now, py_now, V_now + 0.16,
                 -np.sin(phi_now)*0.6, np.cos(phi_now)*0.6, 0,
                 color="#15396b", lw=2.6, arrow_length_ratio=0.32, zorder=21)
-    ax3d.view_init(elev=26, azim=-68)
+
+    ax3d.view_init(elev=26, azim=-68)          # <-- the viewpoint you liked
     ax3d.set_xlabel(r"$p_x/p_0$", labelpad=6)
     ax3d.set_ylabel(r"$p_y/p_0$", labelpad=6)
     ax3d.set_zlabel(r"inertia effect $V(\vec p)$", labelpad=4)
-    ax3d.set_zticks([])
+
+    # Remove all numeric tick labels – keep only the axis labels
+    ax3d.set_xticklabels([])
+    ax3d.set_yticklabels([])
+    ax3d.set_zticklabels([])
+
     ax3d.set_zlim(-v_max*1.10, v_max*1.10)
     ax3d.set_title(r"$V(\vec p)=h_+(p_y^2-p_x^2)$  (red = heavy, blue = light)",
                    fontsize=12, fontweight="bold", pad=6)
@@ -124,7 +123,7 @@ for k in range(N_FRAMES):
                                     py_now + np.cos(phi_now)*0.35),
                                    color="#15396b", lw=2.2,
                                    arrowstyle="-|>", mutation_scale=14, zorder=13))
-    # intuitive labels
+    # heavy/light labels
     ax2d.text(0, 1.62, "HEAVY\n(slower)", ha="center", va="center",
               fontsize=9.5, fontweight="bold", color="#9c2c2c")
     ax2d.text(0, -1.62, "HEAVY\n(slower)", ha="center", va="center",
@@ -133,9 +132,12 @@ for k in range(N_FRAMES):
               fontsize=9.5, fontweight="bold", color="#1a4980")
     ax2d.text(-1.55, 0, "LIGHT\n(faster)", ha="center", va="center",
               fontsize=9.5, fontweight="bold", color="#1a4980")
+
     ax2d.set_aspect("equal")
     ax2d.set_xlim(-1.95, 1.95); ax2d.set_ylim(-1.95, 1.95)
     ax2d.set_xlabel(r"$p_x/p_0$"); ax2d.set_ylabel(r"$p_y/p_0$")
+    # Remove numbers on 2D axes as well
+    ax2d.set_xticklabels([]); ax2d.set_yticklabels([])
     ax2d.set_title("View from above", fontsize=12, fontweight="bold", pad=6)
 
     # ─── live bar ───
@@ -146,25 +148,26 @@ for k in range(N_FRAMES):
     axbar.set_ylim(-h_plus*p_0**2*1.25, h_plus*p_0**2*1.25)
     axbar.set_xlim(-0.6, 0.6)
     axbar.set_xticks([])
+    axbar.set_xticklabels([])
+    # The y‑axis tick labels are numbers – remove them as well
+    axbar.set_yticklabels([])
     axbar.set_title(r"Inertia effect", fontsize=11, fontweight="bold", pad=6)
     axbar.set_ylabel(r"$h_+ p_0^2 (p_y^2-p_x^2)/p_0^2$", fontsize=10)
     axbar.grid(True, axis="y", alpha=0.3)
 
     fig.suptitle(
-        rf"Electron on a circular orbit:  $\phi = {np.degrees(phi_now):3.0f}°$  "
-        rf"|  When the dot is on a peak the electron is heavier (harder to push), "
-        rf"in a valley it is lighter.",
+        rf"Electron on a circular orbit:  $\phi = {np.degrees(phi_now):3.0f}°$  ",
         fontsize=13.5, fontweight="bold", y=0.97
     )
 
     fname = os.path.join(OUT_FRAMES, f"ks_orbit_{k:03d}.png")
-    fig.savefig(fname, dpi=150, bbox_inches="tight", facecolor="white")  # better res for LaTeX
+    fig.savefig(fname, dpi=150, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
     if (k+1) % 15 == 0:
         print(f"  frame {k+1}/{N_FRAMES}  phi={np.degrees(phi_now):.0f}°  V={V_now:+.3f}")
 
-# ZIP the frames (handy for Overleaf)
+# ZIP the frames
 zip_path = os.path.join(OUT_ROOT, "ks_orbit_frames.zip")
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
     for fname in sorted(os.listdir(OUT_FRAMES)):
