@@ -1,99 +1,82 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import cm
-
-# Ensure output directory
+from mpl_toolkits.mplot3d import Axes3D
 import os
+
 os.makedirs("Thesis_Ready_Plots", exist_ok=True)
 
-# ----------------------------------------------------------------------
-# 1. Define the kinetic‑energy surface in momentum space (isotropic)
-# ----------------------------------------------------------------------
-def kinetic_energy_iso(px, py, m=1.0):
-    """Standard isotropic kinetic energy (scaled by 2m for simplicity)."""
-    return (px**2 + py**2) / (2*m)
+# ----- GW surface: z = A (x^2 - y^2) -----
+A = 0.3  # strain amplitude (visual, not physical)
 
-# ----------------------------------------------------------------------
-# 2. Add GW strain term (plus polarisation)
-# ----------------------------------------------------------------------
-def gw_strain_plus(px, py, h_plus=0.3):
-    """Plus‑polarised strain term h_+ (p_x^2 - p_y^2)."""
-    return h_plus * (px**2 - py**2)
+# ----- Grid for surface -----
+span = 2.0
+N = 100
+x = np.linspace(-span, span, N)
+y = np.linspace(-span, span, N)
+X, Y = np.meshgrid(x, y)
+Z = A * (X**2 - Y**2)
 
-# ----------------------------------------------------------------------
-# 3. Combine to get deformed kinetic energy surface
-# ----------------------------------------------------------------------
-def total_energy(px, py, h_plus=0.3, m=1.0, kappa=1.0):
-    """Kinetic energy + GW coupling."""
-    iso = kinetic_energy_iso(px, py, m)
-    strain = kappa * gw_strain_plus(px, py, h_plus)
-    return iso + strain
+# ----- Circular path in coordinate space -----
+R_circle = 1.2
+theta = np.linspace(0, 2*np.pi, 300)
+x_c = R_circle * np.cos(theta)
+y_c = R_circle * np.sin(theta)
+z_c = A * (x_c**2 - y_c**2)      # path on the surface
 
-# ----------------------------------------------------------------------
-# 4. Create a circular momentum orbit (p = p0 (cos θ, sin θ))
-# ----------------------------------------------------------------------
-theta = np.linspace(0, 2*np.pi, 200)
-p0 = 1.5
-circle_px = p0 * np.cos(theta)
-circle_py = p0 * np.sin(theta)
-circle_E = total_energy(circle_px, circle_py, h_plus=0.3)
+# ----- Compute tangent vectors to the path -----
+dx = np.gradient(x_c)
+dy = np.gradient(y_c)
+# derivative of z: dz/ds = 2A (x * dx/ds - y * dy/ds)
+dz = 2*A * (x_c * dx - y_c * dy)
+# normalize to get direction of velocity (coordinate speed)
+ds = np.sqrt(dx**2 + dy**2 + dz**2)
+dir_x = dx / ds
+dir_y = dy / ds
+dir_z = dz / ds
 
-# ----------------------------------------------------------------------
-# 5. Meshgrid for the surface
-# ----------------------------------------------------------------------
-p_range = np.linspace(-2.5, 2.5, 100)
-PX, PY = np.meshgrid(p_range, p_range)
-E_surface = total_energy(PX, PY, h_plus=0.3)
+# ----- Momentum magnitude: model as varying because of strain -----
+# For a free particle on a curved surface, kinetic energy varies.
+# We invent a simple "potential" V_eff = h_ij p_0^i p_0^j / (2m) but we want
+# visual variation. We'll make momentum length ∝ 1 + 0.5 * (Z/max(|Z|)) so that
+# it's larger in valleys (negative Z) and smaller on hills (positive Z).
+Z_rel = z_c / np.max(np.abs(z_c))
+p_mag = 1.0 + 0.5 * Z_rel   # dimensionless; adjust for visual appeal
 
-# ----------------------------------------------------------------------
-# 6. 3D plot
-# ----------------------------------------------------------------------
+# ----- Sample points for arrows (every 20th point) -----
+step = 20
+idx = np.arange(0, len(x_c), step)
+# If we want a closed loop, ensure the first and last are the same (theta wraps)
+if idx[-1] != len(x_c)-1:
+    idx = np.append(idx, len(x_c)-1)
+
+# ----- 3D figure -----
 fig = plt.figure(figsize=(12, 8))
 ax = fig.add_subplot(111, projection='3d')
-ax.set_facecolor('#f5f5f5')
 
-# Draw the deformed kinetic‑energy surface
-surf = ax.plot_surface(PX, PY, E_surface, cmap=cm.viridis, alpha=0.7,
-                       edgecolor='none', linewidth=0, antialiased=True)
+# Surface
+surf = ax.plot_surface(X, Y, Z, alpha=0.5, cmap='coolwarm', linewidth=0, antialiased=True)
+# Wireframe for clarity
+ax.plot_wireframe(X, Y, Z, color='gray', alpha=0.3, linewidth=0.5, rstride=8, cstride=8)
 
-# Overlay a faint wireframe to emphasise curvature
-ax.plot_wireframe(PX, PY, E_surface, color='black', alpha=0.12,
-                  rstride=5, cstride=5)
+# Path
+ax.plot(x_c, y_c, z_c, color='k', linewidth=2, label='electron trajectory')
 
-# Draw the circular momentum orbit on the surface
-ax.plot(circle_px, circle_py, circle_E, color='crimson', lw=3,
-        label='Momentum orbit (electron in circular motion)')
+# Momentum arrows
+for i in idx:
+    ax.quiver(x_c[i], y_c[i], z_c[i],
+              dir_x[i] * p_mag[i], dir_y[i] * p_mag[i], dir_z[i] * p_mag[i],
+              color='darkorange', linewidth=2, arrow_length_ratio=0.15,
+              zorder=10)
 
-# Mark some points with arrows to show speed variation
-for i in [0, 25, 50, 75, 100, 125, 150, 175]:
-    px_i = circle_px[i]
-    py_i = circle_py[i]
-    E_i = circle_E[i]
-    # Tangential velocity direction (in momentum plane)
-    vx = -np.sin(theta[i])
-    vy = np.cos(theta[i])
-    ax.quiver(px_i, py_i, E_i, 0.15*vx, 0.15*vy, 0,
-              color='darkred', arrow_length_ratio=0.2, lw=2)
-
-# Labels
-ax.set_xlabel(r'$p_x$', fontsize=12)
-ax.set_ylabel(r'$p_y$', fontsize=12)
-ax.set_zlabel(r'$E_{\rm kin}$', fontsize=12)
-ax.set_title(
-    'Electron kinetic energy landscape\n'
-    r'GW plus polarisation ($h_+ = 0.3$) squashes the paraboloid',
-    fontsize=14, fontweight='bold')
-
-# Legend & colour bar
-cbar = fig.colorbar(surf, ax=ax, shrink=0.5, aspect=15,
-                    label=r'Kinetic energy $E(p_x,p_y)$')
-ax.legend(loc='upper left')
-
-# View angle
-ax.view_init(elev=25, azim=-60)
+# Decorate
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z (strain height)')
+ax.set_title('Electron on a Gravitational Wave Saddle\nMomentum changes over hills & valleys', fontweight='bold')
+ax.legend()
+ax.view_init(elev=30, azim=-60)
 
 plt.tight_layout()
-plt.savefig("Thesis_Ready_Plots/electron_momentum_GW_landscape.png",
-            dpi=300, bbox_inches='tight')
+plt.savefig("Thesis_Ready_Plots/electron_GW_saddle.png", dpi=300, bbox_inches='tight')
 plt.show()
-print("Saved: Thesis_Ready_Plots/electron_momentum_GW_landscape.png")
+print("Saved: Thesis_Ready_Plots/electron_GW_saddle.png")
