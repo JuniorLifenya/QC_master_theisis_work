@@ -236,5 +236,5 @@ fig.text(0.5, 0.025, _cap, ha="center", fontsize=11, color="0.25", style="italic
 fig.subplots_adjust(left=0.0, right=1.0, bottom=0.06, top=0.93, wspace=0.0)
 out = "Thesis_Ready_Plots/fig_thesisHydrogen_cloudy.png"
 plt.savefig(out, dpi=300, bbox_inches="tight")
-# plt.show()
+plt.show()
 print("Saved:", out)
