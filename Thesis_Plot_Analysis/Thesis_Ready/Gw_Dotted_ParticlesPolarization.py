@@ -61,8 +61,7 @@ for pol_idx, (pol_label,hxx,hxy) in enumerate(
         
         for spine in ax.spines.values():
             spine.set_linewidth(0.4)
-fig.suptitle("Tidal deformation of a ring of test particles \n"
-             "by a propagating gravitational wave",
+fig.suptitle("Tidal deformation of a ring of test particles",
              fontsize = 10, y = 0.99, x = 0.59)
 
 plt.show()
