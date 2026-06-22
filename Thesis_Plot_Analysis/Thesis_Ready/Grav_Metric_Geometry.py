@@ -1,165 +1,111 @@
 """
-The metric tensor — a simple, precise picture.
-
-LEFT  : the general metric g_{munu} as a 4x4 table.
-        diagonal  -> lengths (scale along each axis)
-        off-diag  -> angles  (tilt between axes; 0 if perpendicular)
-        symmetric -> only 10 of 16 numbers are independent.
-
-RIGHT : the Minkowski metric eta = diag(+1,-1,-1,-1) — flat spacetime.
-        off-diagonals 0 (axes perpendicular), diagonal +-1 (unit scale),
-        and crucially the SAME table at every point -> no curvature.
-
-BRIDGE: g = eta + h — a gravitational wave is a tiny travelling ripple
-        h_{munu} in the otherwise-flat table.  (Motivates the thesis.)
-
-Signature (+,-,-,-), matching the thesis convention.
+Energy-Momentum Tensor g_{mu nu} — Publication-quality visualization
 """
-import os
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 from matplotlib.patches import FancyBboxPatch
-
-OUT = "Thesis_Ready_Plots"
-os.makedirs(OUT, exist_ok=True)
+import matplotlib.gridspec as gridspec
 
 plt.rcParams.update({
-    "font.family": "serif",
-    "mathtext.fontset": "stix",
-    "font.size": 12,
+    'font.family': 'serif',
+    'mathtext.fontset': 'stix',
+    'font.size': 11,
+    'figure.dpi': 180,
 })
 
-LEN_COL  = "#1F8A70"   # diagonal: lengths / scale
-ANG_COL  = "#9B7EBD"   # off-diagonal: angles
-ZERO_COL = "#ECECEC"   # Minkowski zeros
-AX = ["t", "x", "y", "z"]
+BG  = "#FFFFFF"
+C00 = "#073E62"
+C0I = "#08866D"
+CI0 = "#8B1583"
+CIJ = "#85281E"
+CID = "#A14900"
 
-# ─── figure ──────────────────────────────────────────────────────────
-fig = plt.figure(figsize=(14.5, 9.2))
-fig.patch.set_facecolor("white")
+rows = [r'$\rho=0$', r'$\rho=1$', r'$\rho=2$', r'$\rho=3$']
+cols = [r'$\sigma=0$', r'$\sigma=1$', r'$\sigma=2$', r'$\sigma=3$']
 
-axL = fig.add_axes([0.045, 0.34, 0.40, 0.45])
-axR = fig.add_axes([0.555, 0.34, 0.40, 0.45])
+# Updated cell labels with line breaks and \text{} for upright roman font
+cell_labels = [
+    [r'$g_{00}$' + '\n' + r'$\text{Time Scale}$',
+     r'$g_{01}$' + '\n' + r'',
+     r'$g_{02}$' + '\n' + r'',
+     r'$g_{03}$' + '\n' + r''],
+    
+    [r'$g_{10}$' + '\n' + r'',
+     r'$g_{11}$' + '\n' + r'$\text{Length} xx$',
+     r'$g_{12}$' + '\n' + r'$\text{Angle } xy$',
+     r'$g_{13}$' + '\n' + r'$\text{Angle } xz$'],
+    
+    [r'$g_{20}$' + '\n' + r'',
+     r'$g_{21}$' + '\n' + r'$\text{Angle } yx$',
+     r'$g_{22}$' + '\n' + r'$\text{Length } yy$',
+     r'$g_{23}$' + '\n' + r'$\text{Angle } yz$'],
+    
+    [r'$g_{30}$' + '\n' + r'',
+     r'$g_{31}$' + '\n' + r'$\text{Angle } zx$',
+     r'$g_{32}$' + '\n' + r'$\text{Angle } zy$',
+     r'$g_{33}$' + '\n' + r'$\text{Length} zz$'],
+]
 
-def draw_grid(ax, labels, colors, text_colors):
-    ax.set_xlim(-0.45, 4.15)
-    ax.set_ylim(-0.45, 4.15)
-    ax.invert_yaxis()
-    ax.set_aspect("equal")
-    ax.axis("off")
-    for i in range(4):
-        for j in range(4):
-            ax.add_patch(FancyBboxPatch(
-                (j+0.07, i+0.07), 0.86, 0.86,
-                boxstyle="round,pad=0.035",
-                facecolor=colors[i][j], edgecolor="black", lw=1.6,
-                alpha=0.95, zorder=2))
-            ax.text(j+0.5, i+0.5, labels[i][j], ha="center", va="center",
-                    fontsize=14, color=text_colors[i][j],
-                    fontweight="bold", zorder=3)
-    # axis headers (columns on top, rows on left)
-    for k in range(4):
-        ax.text(k+0.5, -0.26, AX[k], ha="center", va="center",
-                fontsize=13, color="#333", style="italic")
-        ax.text(-0.28, k+0.5, AX[k], ha="center", va="center",
-                fontsize=13, color="#333", style="italic")
+block_colors = [
+    [C00, C0I, C0I, C0I],
+    [CI0, CID, CIJ, CIJ],
+    [CI0, CIJ, CID, CIJ],
+    [CI0, CIJ, CIJ, CID],
+]
 
-# ─── LEFT: general metric ────────────────────────────────────────────
-labels_g, colors_g, tcol_g = [], [], []
-for i in range(4):
-    lr, cr, tr = [], [], []
-    for j in range(4):
-        lr.append(rf"$g_{{{AX[i]}{AX[j]}}}$")
-        cr.append(LEN_COL if i == j else ANG_COL)
-        tr.append("white")
-    labels_g.append(lr); colors_g.append(cr); tcol_g.append(tr)
-draw_grid(axL, labels_g, colors_g, tcol_g)
-axL.set_title(r"The metric  $g_{\mu\nu}$  at one point",
-              fontsize=13.5, fontweight="bold", pad=20)
-
-# ─── RIGHT: Minkowski ────────────────────────────────────────────────
-labels_m, colors_m, tcol_m = [], [], []
-for i in range(4):
-    lr, cr, tr = [], [], []
-    for j in range(4):
-        if i == j:
-            lr.append(r"$+1$" if i == 0 else r"$-1$")
-            cr.append(LEN_COL); tr.append("white")
-        else:
-            lr.append(r"$0$")
-            cr.append(ZERO_COL); tr.append("#9a9a9a")
-    labels_m.append(lr); colors_m.append(cr); tcol_m.append(tr)
-draw_grid(axR, labels_m, colors_m, tcol_m)
-axR.set_title(r"Flat spacetime: Minkowski  $\eta_{\mu\nu}$",
-              fontsize=13.5, fontweight="bold", pad=20)
-
-# ─── top: title + the one rule ───────────────────────────────────────
-fig.suptitle("The metric tensor: a table of numbers that measures spacetime",
-             fontsize=16.5, fontweight="bold", y=0.975)
-
-fig.text(0.5, 0.895,
-         r"One rule — the dot product at each point:   "
-         r"$\vec a \cdot \vec b \;=\; g_{\mu\nu}\,a^\mu b^\nu$"
-         r"      $\Rightarrow$   length $|\vec a|=\sqrt{\vec a\cdot\vec a}$,   "
-         r"angle $\cos\theta=\dfrac{\vec a\cdot\vec b}{|\vec a|\,|\vec b|}$",
-         ha="center", va="center", fontsize=12.5,
-         bbox=dict(boxstyle="round,pad=0.5", fc="#f5f7fa",
-                   ec="#5B7BA5", lw=1.2))
-
-# ─── legend / notes under LEFT ───────────────────────────────────────
-# colour key swatches
-def swatch(x, y, color):
-    fig.patches.append(plt.Rectangle((x, y), 0.018, 0.026, transform=fig.transFigure,
-                                     facecolor=color, edgecolor="black", lw=1.0,
-                                     zorder=5))
-swatch(0.160, 0.250, LEN_COL)
-fig.text(0.186, 0.268, r"diagonal $\rightarrow$ lengths",
-         fontsize=10.5, va="center")
+# Create a single plot with a more square aspect ratio
+fig, ax = plt.subplots(figsize=(12, 11), facecolor=BG)
+ax.set_facecolor(BG)
 
 
-swatch(0.160, 0.200, ANG_COL)
-fig.text(0.186, 0.218, r"off-diagonal $\rightarrow$ angles",
-         fontsize=10.5, va="center")
-fig.text(0.186, 0.198, "tilt between axes (0 if perpendicular)",
-         fontsize=8.8, va="center", color="0.4", style="italic")
 
-fig.text(0.12, 0.153,
-         r"symmetric: $g_{\mu\nu}=g_{\nu\mu}$  —  only 10 of the 16 are independent",
-         fontsize=10, va="center", color="#333")
+# ── MATRIX PANEL ─────────────────────────────────────────────────────────────
+ax.set_xlim(-0.5, 4.7)
+ax.set_ylim(-0.5, 4.6)
+ax.invert_yaxis()
+ax.axis('off')
 
-# ─── notes under RIGHT ───────────────────────────────────────────────
-fig.text(0.575, 0.263,
-         r"off-diagonals $=0$  $\Rightarrow$  all axes stay perpendicular",
-         fontsize=10.5, va="center")
-fig.text(0.575, 0.230,
-         r"diagonal $\pm1$  $\Rightarrow$  unit scale on every axis",
-         fontsize=10.5, va="center")
-fig.text(0.575, 0.202,
-         r"the same table at every point  $\Rightarrow$  no curvature, no gravity",
-         fontsize=10.5, va="center", color="#9c2c2c")
-fig.text(0.575, 0.153,
-         r"(the single $+$ vs $-$ is all that makes it spacetime, not 4D space)",
-         fontsize=9.2, va="center", color="0.45", style="italic")
+N = 4
+cw, ch = 0.88, 0.88
+for i in range(N):
+    for j in range(N):
+        x, y = j + 0.06, i + 0.06
+        rect = FancyBboxPatch((x, y), cw, ch,
+                              boxstyle='round,pad=0.04',
+                              facecolor=block_colors[i][j],
+                              edgecolor='black', linewidth=2.0,
+                              alpha=0.93, zorder=2)
+        ax.add_patch(rect)
+        ax.text(x + cw/2, y + ch/2, cell_labels[i][j],
+                ha='center', va='center', fontsize=8.6,
+                color='white', fontweight='bold',
+                multialignment='center', zorder=3, linespacing=1.35)
 
-# ─── bottom bridge to the thesis ─────────────────────────────────────
-fig.patches.append(FancyBboxPatch(
-    (0.10, 0.030), 0.80, 0.072, transform=fig.transFigure,
-    boxstyle="round,pad=0.006,rounding_size=0.008",
-    facecolor="#fff4e6", edgecolor="#D66000", lw=1.5, zorder=4))
-fig.text(0.5, 0.078,
-         r"$g_{\mu\nu}(x) \;=\; \eta_{\mu\nu} \;+\; h_{\mu\nu}(x)$"
-         r"        a gravitational wave is a tiny travelling ripple "
-         r"$h_{\mu\nu}$ in the flat table",
-         ha="center", va="center", fontsize=13, color="#7a3a00", zorder=5)
-fig.text(0.5, 0.050,
-         r"(flat spacetime)  +  (the ripple your thesis is about)",
-         ha="center", va="center", fontsize=9.5, color="#a05a20",
-         style="italic", zorder=5)
+def bracket_box(ax, x0, y0, w, h, lbl, col, lblpos='top'):
+    if lblpos == 'top':
+        ax.text(x0+w/2, y0-0.10, lbl, ha='center', va='bottom',
+                fontsize=9, color=col, fontweight='bold')
+    elif lblpos == 'left':
+        ax.text(x0-0.1, y0+h/2, lbl, ha='right', va='center',
+                fontsize=9, color=col, fontweight='bold', rotation=90)
 
-out = os.path.join(OUT, "Metric_tensor.png")
-fig.savefig(out, dpi=200, facecolor="white")
+
+bracket_box(ax, 1.05, 0.06, 2.88, 0.88, r'$g_{0j}$: Time-Space Mixing ', C0I)
+bracket_box(ax, 0.06, 1.06, 0.88, 2.88, r'$g_{i0}$: Space-Time Mixing', CI0, 'left')
+bracket_box(ax, 1.05, 4.36, 2.88, 0.88,
+            r'$g_{ij}$: Spatial Geometry', CIJ)
+
+
+ax.text(2.0, -0.45, r'$\sigma$  (column index)', ha='center', va='bottom',
+        fontsize=10, color='#222', style='italic')
+ax.text(-0.40, 2.5, r'$\rho$  (row index)', ha='center', va='center',
+        fontsize=10, color='#222', style='italic', rotation=90)
+
+ax.set_title(r'The Metric Tensor $g_{\rho\sigma}$',
+             fontsize=14, fontweight='bold', color='#111', pad=18)
+
+
+plt.savefig('figures/Metric_Tensor.png', format='pdf', bbox_inches='tight')
+print("Saved:")
 plt.show()
-plt.close(fig)
-print(f"Saved: {out}")
