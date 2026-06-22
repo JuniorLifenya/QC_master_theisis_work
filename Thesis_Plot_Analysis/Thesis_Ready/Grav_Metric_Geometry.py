@@ -114,32 +114,32 @@ def swatch(x, y, color):
     fig.patches.append(plt.Rectangle((x, y), 0.018, 0.026, transform=fig.transFigure,
                                      facecolor=color, edgecolor="black", lw=1.0,
                                      zorder=5))
-swatch(0.160, 0.255, LEN_COL)
+swatch(0.160, 0.250, LEN_COL)
 fig.text(0.186, 0.268, r"diagonal $\rightarrow$ lengths",
          fontsize=10.5, va="center")
 
 
-swatch(0.160, 0.205, ANG_COL)
+swatch(0.160, 0.200, ANG_COL)
 fig.text(0.186, 0.218, r"off-diagonal $\rightarrow$ angles",
          fontsize=10.5, va="center")
 fig.text(0.186, 0.198, "tilt between axes (0 if perpendicular)",
          fontsize=8.8, va="center", color="0.4", style="italic")
 
-fig.text(0.12, 0.158,
+fig.text(0.12, 0.153,
          r"symmetric: $g_{\mu\nu}=g_{\nu\mu}$  —  only 10 of the 16 are independent",
          fontsize=10, va="center", color="#333")
 
 # ─── notes under RIGHT ───────────────────────────────────────────────
-fig.text(0.575, 0.268,
+fig.text(0.575, 0.263,
          r"off-diagonals $=0$  $\Rightarrow$  all axes stay perpendicular",
          fontsize=10.5, va="center")
-fig.text(0.575, 0.235,
+fig.text(0.575, 0.230,
          r"diagonal $\pm1$  $\Rightarrow$  unit scale on every axis",
          fontsize=10.5, va="center")
 fig.text(0.575, 0.202,
          r"the same table at every point  $\Rightarrow$  no curvature, no gravity",
          fontsize=10.5, va="center", color="#9c2c2c")
-fig.text(0.575, 0.158,
+fig.text(0.575, 0.153,
          r"(the single $+$ vs $-$ is all that makes it spacetime, not 4D space)",
          fontsize=9.2, va="center", color="0.45", style="italic")
 
