@@ -139,10 +139,10 @@ def magnet(ax, x, y, s=0.1):
     ax.plot([x-s*0.3, x-s*0.45, x-s*0.3], [y-s*0.13, y, y+s*0.13],
             color="#1f77b4", lw=0.8, zorder=6)
 
-np.random.seed(82)
-for _ in range(10):
+np.random.seed(92)
+for _ in range(20):
     mx = np.random.uniform(-3.0, 3.0)
-    my = np.random.uniform(1.0, 1.6) if np.random.rand()>0.5 else np.random.uniform(-1.6, -1.0)
+    my = np.random.uniform(1.0, .9) if np.random.rand()>0.5 else np.random.uniform(-1.6, -1.0)
     magnet(ax2, mx, my)
 
 # Labels — now dark text, white bbox with dark edge
@@ -152,9 +152,7 @@ ax2.text(0, 1.55, r"Spin‑aligned paramagnet", fontsize=13, ha="center",
                    ec="#cc4c02", lw=1.2))
 ax2.set_title("Spin‑based Tobar\nspin ensemble inside a bar",
               fontsize=12, fontweight="bold", pad=10, color="black")
-ax2.text(0, -1.70,
-         r"$\langle\vec S\rangle \neq 0$,  high spin density  $n_s \sim 10^{20}$ cm$^{-3}$",
-         fontsize=9.5, ha="center", color="black", style="italic")
+
 
 # ════════════════════════════════════════════════════════════════════
 # PANEL 3: spin‑driven by GW (Zeeman coupling)
@@ -254,7 +252,7 @@ ax_bottom.text(0.75, 0.821, "spin‑strain coupling", fontsize=8.5, ha="center",
                style="italic")
 
 ax_bottom.text(0.50, 0.25,
-    r"Required:  $|\nabla h|\neq 0$ across spin ensemble"
+    r"Required:  $|\nabla h|\neq 0$"
     r"  $\;\Longrightarrow\;$  "
     r"coherent $\Delta m_s = \pm 1$ transitions"
     r"  detectable via cavity QED or SQUID",
@@ -262,7 +260,7 @@ ax_bottom.text(0.50, 0.25,
     color="black")
 
 ax_bottom.add_patch(FancyBboxPatch(
-    (0.68, 0.13), 0.22, 0.24,
+    (0.685, 0.15), 0.085, 0.2,
     boxstyle="round,pad=0.005,rounding_size=0.01",
     transform=ax_bottom.transAxes,
     facecolor="none", edgecolor="#d62728", lw=1.8, zorder=10))
