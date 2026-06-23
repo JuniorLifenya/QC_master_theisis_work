@@ -22,7 +22,7 @@ R = np.sqrt((X - x0)**2 + (Y - y0)**2)
 
 # Base colour (a subtle gradient to give the sheet texture)
 norm_col = 0.5 + 0.3 * (X + Y) / (2 * SPAN)
-cmap = plt.get_cmap("plasma")
+cmap = plt.get_cmap("coolwarm")
 base_colors = cmap(norm_col)[:, :, :3]
 
 ls = LightSource(azdeg=315, altdeg=50)
