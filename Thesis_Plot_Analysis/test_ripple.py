@@ -95,5 +95,4 @@ for i in range(N_frames):
     print(f"Saved frame {i:04d}", end="\r")
 
 plt.close(fig)
-plt.show()
 print("\nDone! Frames saved in", output_dir)
